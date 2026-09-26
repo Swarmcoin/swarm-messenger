@@ -22,6 +22,7 @@ const createProps = (
   renderCallsTab: () => <div>Calls Tab goes here</div>,
   renderChatsTab: () => <div>Chats Tab goes here</div>,
   renderStoriesTab: () => <div>Stories Tab goes here</div>,
+  renderWalletTab: () => <div>Wallet Tab goes here</div>,
   renderSettingsTab: () => <div>Settings Tab goes here</div>,
   selectedNavTab: overrideProps.selectedNavTab ?? NavTab.Chats,
   storiesEnabled: Boolean(overrideProps.storiesEnabled),

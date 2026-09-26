@@ -14,6 +14,7 @@ import { useItemsActions } from '../ducks/items.preload.ts';
 import { getNavTabsCollapsed } from '../selectors/items.dom.ts';
 import { SmartChatsTab } from './ChatsTab.preload.tsx';
 import { SmartPreferences } from './Preferences.preload.tsx';
+import { SmartSwarmWalletTab } from './SwarmWalletTab.preload.tsx';
 
 function renderChatsTab() {
   return <SmartChatsTab />;
@@ -39,6 +40,11 @@ function renderSettingsTab() {
   return <SmartPreferences />;
 }
 
+// SWARM addition (M1)
+function renderWalletTab() {
+  return <SmartSwarmWalletTab />;
+}
+
 export const SmartInbox = memo(function SmartInbox(): JSX.Element {
   const isCustomizingPreferredReactions = useSelector(
     getIsCustomizingPreferredReactions
@@ -59,6 +65,7 @@ export const SmartInbox = memo(function SmartInbox(): JSX.Element {
       }
       renderNavTabs={renderNavTabs}
       renderStoriesTab={renderStoriesTab}
+      renderWalletTab={renderWalletTab}
       renderSettingsTab={renderSettingsTab}
     />
   );

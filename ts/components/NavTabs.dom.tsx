@@ -187,6 +187,8 @@ export type NavTabsProps = Readonly<{
   renderCallsTab: () => ReactNode;
   renderChatsTab: () => ReactNode;
   renderStoriesTab: () => ReactNode;
+  // SWARM addition (M1)
+  renderWalletTab: () => ReactNode;
   renderSettingsTab: () => ReactNode;
   selectedNavTab: NavTab;
   storiesEnabled: boolean;
@@ -206,6 +208,7 @@ export function NavTabs({
   renderCallsTab,
   renderChatsTab,
   renderStoriesTab,
+  renderWalletTab,
   renderSettingsTab,
   selectedNavTab,
   storiesEnabled,
@@ -289,6 +292,15 @@ export function NavTabs({
               unreadCount={unreadStoriesCount}
             />
           )}
+          {/* SWARM addition (M1): wallet entry. */}
+          <NavTabsItem
+            i18n={i18n}
+            id={NavTab.Wallet}
+            label={i18n('icu:SwarmWallet__nav-label')}
+            iconClassName="NavTabs__ItemIcon--Wallet"
+            navTabClassName="NavTabs__Item--Wallet"
+            unreadCount={0}
+          />
           <NavTabsItem
             i18n={i18n}
             id={NavTab.Settings}
@@ -308,6 +320,9 @@ export function NavTabs({
       </TabPanel>
       <TabPanel id={NavTab.Stories} className="NavTabs__TabPanel">
         {renderStoriesTab}
+      </TabPanel>
+      <TabPanel id={NavTab.Wallet} className="NavTabs__TabPanel">
+        {renderWalletTab}
       </TabPanel>
       <TabPanel id={NavTab.Settings} className="NavTabs__TabPanel">
         {renderSettingsTab}

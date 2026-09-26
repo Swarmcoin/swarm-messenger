@@ -14,6 +14,8 @@ export type PropsType = {
   renderCustomizingPreferredReactionsModal: () => JSX.Element;
   renderNavTabs: (props: SmartNavTabsProps) => JSX.Element;
   renderStoriesTab: () => JSX.Element;
+  // SWARM addition (M1)
+  renderWalletTab: () => JSX.Element;
   renderSettingsTab: () => JSX.Element;
 };
 
@@ -26,6 +28,7 @@ export function Inbox({
   renderCustomizingPreferredReactionsModal,
   renderNavTabs,
   renderStoriesTab,
+  renderWalletTab,
   renderSettingsTab,
 }: PropsType): JSX.Element {
   let activeModal: ReactNode;
@@ -42,6 +45,7 @@ export function Inbox({
           renderChatsTab,
           renderCallsTab,
           renderStoriesTab,
+          renderWalletTab,
           renderSettingsTab,
         })}
         <TitlebarDragArea />

@@ -61,6 +61,8 @@ export enum NavTab {
   Chats = 'Chats',
   Calls = 'Calls',
   Stories = 'Stories',
+  // SWARM addition (M1): the wallet lives in the left navigation.
+  Wallet = 'Wallet',
   Settings = 'Settings',
 }
 

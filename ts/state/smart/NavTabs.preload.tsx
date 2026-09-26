@@ -28,6 +28,7 @@ export type SmartNavTabsProps = Readonly<{
   renderCallsTab: () => ReactNode;
   renderChatsTab: () => ReactNode;
   renderStoriesTab: () => ReactNode;
+  renderWalletTab: () => ReactNode;
   renderSettingsTab: () => ReactNode;
 }>;
 
@@ -37,6 +38,7 @@ export const SmartNavTabs = memo(function SmartNavTabs({
   renderCallsTab,
   renderChatsTab,
   renderStoriesTab,
+  renderWalletTab,
   renderSettingsTab,
 }: SmartNavTabsProps): JSX.Element {
   const i18n = useSelector(getIntl);
@@ -74,6 +76,7 @@ export const SmartNavTabs = memo(function SmartNavTabs({
       renderCallsTab={renderCallsTab}
       renderChatsTab={renderChatsTab}
       renderStoriesTab={renderStoriesTab}
+      renderWalletTab={renderWalletTab}
       renderSettingsTab={renderSettingsTab}
       selectedNavTab={selectedNavTab}
       storiesEnabled={storiesEnabled}
