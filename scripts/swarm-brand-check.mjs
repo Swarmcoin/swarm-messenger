@@ -24,6 +24,7 @@
 //         see them, and they do not fail the build.
 
 import { createRequire } from 'node:module';
+import process from 'node:process';
 import { mkdtemp, readFile, readdir, rm, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -86,7 +87,14 @@ function findPackagedApp() {
     join(releaseDir, 'win-unpacked', 'resources', 'app.asar'),
     join(releaseDir, 'win-arm64-unpacked', 'resources', 'app.asar'),
     join(releaseDir, 'linux-unpacked', 'resources', 'app.asar'),
-    join(releaseDir, 'mac', 'SWARM Messenger.app', 'Contents', 'Resources', 'app.asar'),
+    join(
+      releaseDir,
+      'mac',
+      'SWARM Messenger.app',
+      'Contents',
+      'Resources',
+      'app.asar'
+    ),
   ];
   return candidates.find(candidate => existsSync(candidate));
 }

@@ -1,7 +1,7 @@
 {
   "_comment": "SWARM Messenger defaults. Upstream Signal Desktop shipped its own staging endpoints here; every one of them has been replaced with a SWARM name. Keep the endpoint values identical to config/swarm-staging.json - ts/test-node/swarm/config_test.node.ts enforces that. certificateAuthority is deliberately absent so the system certificate store is used; set it in config/local-development.json (git-ignored) when talking to a staging server with a private root. See docs/SWARM-CONFIG.md.",
   "serverUrl": "https://chat.swarm.green",
-  "storageUrl": "https://storage.chat.swarm.green",
+  "storageUrl": "https://chat.swarm.green",
   "cdn": {
     "0": "https://cdn.chat.swarm.green",
     "2": "https://cdn.chat.swarm.green",

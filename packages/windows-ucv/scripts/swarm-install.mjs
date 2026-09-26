@@ -9,11 +9,12 @@
 // release build still fails if the addon cannot be compiled.
 
 import { spawnSync } from 'node:child_process';
+import process from 'node:process';
 
 if (process.platform !== 'win32') {
   process.stdout.write(
     `@signalapp/windows-ucv: skipping native build on ${process.platform} ` +
-      '(Windows-only addon)\n'
+      '(Windows-only addon)\n',
   );
   process.exit(0);
 }
@@ -32,7 +33,7 @@ if (process.env.SWARM_ALLOW_MISSING_NATIVE === '1') {
     '\n@signalapp/windows-ucv: NATIVE BUILD FAILED and SWARM_ALLOW_MISSING_NATIVE=1\n' +
       'is set, so the install continues. This build of SWARM Messenger cannot use\n' +
       'Windows Hello / OS re-authentication: promptOSAuth() will report\n' +
-      '"unsupported". Never ship such a build - CI does not set this variable.\n\n'
+      '"unsupported". Never ship such a build - CI does not set this variable.\n\n',
   );
   process.exit(0);
 }

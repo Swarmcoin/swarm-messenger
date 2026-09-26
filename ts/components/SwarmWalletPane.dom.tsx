@@ -18,7 +18,7 @@ export function SwarmWalletPane({ i18n }: SwarmWalletPaneProps): JSX.Element {
   return (
     <div
       className={tw(
-        'flex h-full w-full flex-col items-center justify-center gap-2 px-8 text-center'
+        'flex size-full flex-col items-center justify-center gap-2 px-8 text-center'
       )}
     >
       <h1 className={tw('type-title-large text-primary')}>

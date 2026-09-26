@@ -14,7 +14,7 @@ import { useItemsActions } from '../ducks/items.preload.ts';
 import { getNavTabsCollapsed } from '../selectors/items.dom.ts';
 import { SmartChatsTab } from './ChatsTab.preload.tsx';
 import { SmartPreferences } from './Preferences.preload.tsx';
-import { SmartSwarmWalletTab } from './SwarmWalletTab.preload.tsx';
+import { SmartSwarmWalletTab } from './SwarmWalletTab.dom.tsx';
 
 function renderChatsTab() {
   return <SmartChatsTab />;

@@ -2,7 +2,7 @@
   "_comment": "SWARM Messenger staging endpoints. This file is the source of truth for the SWARM endpoint set. node-config picks files by NODE_ENV, and 'swarm-staging' is not a NODE_ENV, so config/default.json and config/production.json carry the same endpoint values; ts/test-node/swarm/config_test.node.ts fails if they drift apart. Read docs/SWARM-CONFIG.md before editing.",
   "_placeholders": "Every value starting with SWARM-PLACEHOLDER- is server-generated and must come from Opus M-B's shared/staging-public-params.json. The app refuses to start while any placeholder is still present.",
   "serverUrl": "https://chat.swarm.green",
-  "storageUrl": "https://storage.chat.swarm.green",
+  "storageUrl": "https://chat.swarm.green",
   "cdn": {
     "0": "https://cdn.chat.swarm.green",
     "2": "https://cdn.chat.swarm.green",

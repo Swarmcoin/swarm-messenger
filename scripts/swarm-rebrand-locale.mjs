@@ -10,10 +10,10 @@
 // later upstream merge can be re-swept the same way.
 
 import { readFileSync, writeFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
+import process from 'node:process';
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const ROOT = join(import.meta.dirname, '..');
 const FILE = join(ROOT, '_locales', 'en', 'messages.json');
 
 // Ordered: longest and most specific first.

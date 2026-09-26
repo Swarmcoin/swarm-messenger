@@ -1,7 +1,7 @@
 {
   "_comment": "SWARM Messenger packaged-build endpoints (NODE_ENV=production, which is what a packaged app always uses). Every Signal endpoint, Signal zk parameter, Signal trust root, Signal update feed and the Stripe key are gone. Until SWARM runs a separate production server this points at the same staging host as config/swarm-staging.json; docs/SWARM-CONFIG.md records that and what has to change when a production server exists.",
   "serverUrl": "https://chat.swarm.green",
-  "storageUrl": "https://storage.chat.swarm.green",
+  "storageUrl": "https://chat.swarm.green",
   "cdn": {
     "0": "https://cdn.chat.swarm.green",
     "2": "https://cdn.chat.swarm.green",

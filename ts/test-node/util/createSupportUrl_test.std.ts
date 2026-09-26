@@ -12,28 +12,28 @@ describe('createSupportUrl', () => {
   it('returns support url for "en" locale', () => {
     assert.strictEqual(
       createSupportUrl({ locale: 'en' }),
-      'https://swarm.green/support?lang=en-us&desktop='
+      'https://swarm.green/support?lang=en-us&desktop'
     );
   });
 
   it('falls back to en-us for a locale we do not have', () => {
     assert.strictEqual(
       createSupportUrl({ locale: 'zz' }),
-      'https://swarm.green/support?lang=en-us&desktop='
+      'https://swarm.green/support?lang=en-us&desktop'
     );
   });
 
   it('keeps a supported locale', () => {
     assert.strictEqual(
       createSupportUrl({ locale: 'fr' }),
-      'https://swarm.green/support?lang=fr&desktop='
+      'https://swarm.green/support?lang=fr&desktop'
     );
   });
 
   it('returns support url with a query', () => {
     assert.strictEqual(
       createSupportUrl({ locale: 'en', query: { debugLog: 'https://' } }),
-      'https://swarm.green/support?lang=en-us&desktop=&debugLog=https%3A%2F%2F'
+      'https://swarm.green/support?lang=en-us&desktop&debugLog=https%3A%2F%2F'
     );
   });
 });

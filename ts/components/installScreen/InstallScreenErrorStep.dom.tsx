@@ -15,6 +15,10 @@ import { InstallScreenError } from '../../types/InstallScreen.std.ts';
 export type Props = Readonly<{
   error: InstallScreenError;
   i18n: LocalizerType;
+  // SWARM addition (M1): when linking fails - and with no server that is the
+  // first thing a new user sees - the other half of the first-run choice has to
+  // be here too, not only on the QR screen.
+  openStandalone: () => unknown;
   quit: () => unknown;
   tryAgain: () => unknown;
 }>;
@@ -22,6 +26,7 @@ export type Props = Readonly<{
 export function InstallScreenErrorStep({
   error,
   i18n,
+  openStandalone,
   quit,
   tryAgain,
 }: Props): ReactElement {
@@ -68,6 +73,13 @@ export function InstallScreenErrorStep({
 
       <div className="module-InstallScreenErrorStep__buttons">
         <Button onClick={onClickButton}>{buttonText}</Button>
+        {/* SWARM addition (M1) */}
+        <Button
+          onClick={() => openStandalone()}
+          variant={ButtonVariant.Secondary}
+        >
+          {i18n('icu:SwarmInstall__create-account-here')}
+        </Button>
         {shouldShowQuitButton && (
           <Button onClick={() => quit()} variant={ButtonVariant.Secondary}>
             {i18n('icu:quit')}

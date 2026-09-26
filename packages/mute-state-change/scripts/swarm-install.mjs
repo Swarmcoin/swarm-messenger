@@ -9,6 +9,7 @@
 // platform. So: run node-gyp only on macOS, and say plainly what we skipped.
 
 import { spawnSync } from 'node:child_process';
+import process from 'node:process';
 
 if (process.platform !== 'darwin') {
   process.stdout.write(

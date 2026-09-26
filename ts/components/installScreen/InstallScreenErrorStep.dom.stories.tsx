@@ -17,6 +17,7 @@ export default {
 
 const defaultProps = {
   i18n,
+  openStandalone: action('openStandalone'),
   quit: action('quit'),
   tryAgain: action('tryAgain'),
 };

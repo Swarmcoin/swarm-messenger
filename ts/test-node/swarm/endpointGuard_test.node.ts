@@ -165,7 +165,11 @@ describe('SWARM endpointGuard', () => {
   });
 
   describe('the shipped config files', () => {
-    for (const name of ['default.json', 'production.json', 'swarm-staging.json']) {
+    for (const name of [
+      'default.json',
+      'production.json',
+      'swarm-staging.json',
+    ]) {
       it(`${name} points at no Signal endpoint`, () => {
         const config = readConfig(name);
         const cdn = (config.cdn ?? {}) as Record<string, string>;

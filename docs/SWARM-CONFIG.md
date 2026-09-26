@@ -7,13 +7,13 @@ placeholder, and how to fill it in. If you change an endpoint, change it here to
 
 ## The files
 
-| File | When it is used | What it holds |
-|---|---|---|
-| `config/swarm-staging.json` | Source of truth. Not loaded directly. | The canonical SWARM endpoint set. |
-| `config/default.json` | Always, as the base layer. | The same endpoints as `swarm-staging.json`, plus the non-endpoint defaults upstream kept here. |
-| `config/production.json` | Every **packaged** build (a packaged app always reports `NODE_ENV=production`). | The same endpoints again. |
-| `config/staging.json`, `config/development.json` | `NODE_ENV=staging` / `development`. | Only `storageProfile` and `openDevTools`; endpoints come from `default.json`. |
-| `config/local-development.json`, `config/local-*.json` | Local overrides. **Git-ignored.** | Put a private root certificate or a loopback `serverUrl` here. |
+| File                                                   | When it is used                                                                 | What it holds                                                                                  |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `config/swarm-staging.json`                            | Source of truth. Not loaded directly.                                           | The canonical SWARM endpoint set.                                                              |
+| `config/default.json`                                  | Always, as the base layer.                                                      | The same endpoints as `swarm-staging.json`, plus the non-endpoint defaults upstream kept here. |
+| `config/production.json`                               | Every **packaged** build (a packaged app always reports `NODE_ENV=production`). | The same endpoints again.                                                                      |
+| `config/staging.json`, `config/development.json`       | `NODE_ENV=staging` / `development`.                                             | Only `storageProfile` and `openDevTools`; endpoints come from `default.json`.                  |
+| `config/local-development.json`, `config/local-*.json` | Local overrides. **Git-ignored.**                                               | Put a private root certificate or a loopback `serverUrl` here.                                 |
 
 `node-config` picks a file by `NODE_ENV`, and `swarm-staging` is not a valid
 `NODE_ENV` (`ts/environment.std.ts` allows `development`, `production`, `staging`,
@@ -27,17 +27,35 @@ chat server. When a separate production server exists, change
 
 ## The endpoints
 
-| Key | Value | Used by |
-|---|---|---|
-| `serverUrl` | `https://chat.swarm.green` | chat API and websocket |
-| `storageUrl` | `https://storage.chat.swarm.green` | storage service |
-| `cdn.0`, `cdn.2`, `cdn.3` | `https://cdn.chat.swarm.green` | attachments, stickers, backups |
-| `sfuUrl` | `https://sfu.chat.swarm.green/` | group calls |
-| `challengeUrl` | `https://chat.swarm.green/challenge/generate.html` | rate-limit captcha |
-| `registrationChallengeUrl` | `https://chat.swarm.green/challenge/registration/generate.html` | registration captcha |
-| `contentProxyUrl` | `https://contentproxy.chat.swarm.green` | link previews |
-| `updatesUrl` | `https://static.swarm.green/desktop` | see "updates" below |
-| `resourcesUrl` | `https://static.swarm.green` | optional resources |
+| Key                        | Value                                                           | Used by                        |
+| -------------------------- | --------------------------------------------------------------- | ------------------------------ |
+| `serverUrl`                | `https://chat.swarm.green`                                      | chat API and websocket         |
+| `storageUrl`               | `https://chat.swarm.green`                                      | storage service (see below)    |
+| `cdn.0`, `cdn.2`, `cdn.3`  | `https://cdn.chat.swarm.green`                                  | attachments, stickers, backups |
+| `sfuUrl`                   | `https://sfu.chat.swarm.green/`                                 | group calls                    |
+| `challengeUrl`             | `https://chat.swarm.green/challenge/generate.html`              | rate-limit captcha             |
+| `registrationChallengeUrl` | `https://chat.swarm.green/challenge/registration/generate.html` | registration captcha           |
+| `contentProxyUrl`          | `https://contentproxy.chat.swarm.green`                         | link previews                  |
+| `updatesUrl`               | `https://static.swarm.green/desktop`                            | see "updates" below            |
+| `resourcesUrl`             | `https://static.swarm.green`                                    | optional resources             |
+
+The hostnames are the owner's decision of 2026-09-26 and are final.
+`reg.chat.swarm.green` is **reserved but not published**: the server's
+`endpoints.registration` is `null` on purpose, and the desktop does not have a
+separate registration endpoint anyway (registration goes through `serverUrl`).
+
+### Why `storageUrl` is the chat host
+
+The staging server runs no separate storage service, so there is no
+`storage.chat.swarm.green` to point at, and the owner chose the chat host. What
+the desktop does when the storage service does not answer: storage requests are
+ordinary HTTPS to `storageUrl` + `/v1/storage/…`
+(`ts/textsecure/WebAPI.preload.ts`, the `storageService` host case). A 404 on the
+manifest is read as "no manifest yet" and a new one is created
+(`ts/services/storage.preload.ts`); anything else is logged as an error and the
+sync is retried. **Messaging keeps working** — what breaks is the sync of
+contacts, groups and settings between a user's own devices, with a repeating
+error in the log. Change this the moment a storage service exists.
 
 All three CDN numbers are the same host on purpose: Signal's cdn0/cdn2/cdn3 are
 storage generations, and one staging host serves them all because the paths
@@ -57,12 +75,30 @@ These four values are generated by the chat server and cannot be invented:
 
 They are currently the strings `SWARM-PLACEHOLDER-<name>`.
 
-**To wire them in:** Opus M-B drops `D:\swarm-messenger\shared\staging-public-params.json`
-when the staging server exists. Copy each value into all three of
+**To wire them in, one command:**
+
+```
+node scripts/swarm-import-params.mjs
+```
+
+It reads `D:\swarm-messenger\shared\staging-public-params.json` — the file the
+server fork writes, in the format documented in that repo's `docs/STAGING.md`
+section 5a — validates it, and writes the values into all three of
 `config/swarm-staging.json`, `config/default.json` and `config/production.json`,
-keeping them identical. Then run `pnpm run test-node` — the placeholder assertions
-in `ts/test-node/swarm/endpointGuard_test.node.ts` are what tell you the job is
-done.
+keeping them identical. Then run `pnpm run test-node`: the assertions in
+`ts/test-node/swarm/endpointGuard_test.node.ts` are what tell you the job is done,
+and the zkgroup test starts verifying `serverPublicParams` again the moment it
+stops being a placeholder.
+
+That file carries three fields the desktop does not use, and they are dropped on
+purpose: `callingServerPublicParams` and `callingServerPublicParamsPreV101` (not
+in Signal Desktop's renderer config) and `registrationCaCertificatePem` (the
+stack's internal CA for the chat server's own gRPC hop to the registration stub;
+public HTTPS uses Let's Encrypt, so a client never needs it).
+
+`serverTrustRoots` is a **list**, and stays one: a rotation publishes the new root
+beside the old one so clients accept both during the overlap. The placeholder
+check walks the list and names the offending index.
 
 **Until then the app refuses to start.** `app/swarmStartupGuard.main.ts` runs
 before any window opens and shows a plain-language dialog naming each placeholder.

@@ -98,6 +98,7 @@ export const SmartInstallScreen = memo(function SmartInstallScreen() {
         screenSpecificProps: {
           i18n,
           error: installerState.error,
+          openStandalone,
           quit: () => window.IPC.shutdown(),
           tryAgain: startInstaller,
         },

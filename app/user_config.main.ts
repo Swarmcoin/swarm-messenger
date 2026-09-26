@@ -15,10 +15,13 @@ let userData: string | undefined;
 if (config.has('storagePath')) {
   userData = String(config.get('storagePath'));
 } else if (config.has('storageProfile')) {
+  // SWARM change (M1): the data directory carried the Signal name. A packaged
+  // build has no storageProfile and uses app.getName(), which is now
+  // "SWARM Messenger"; the development and staging profiles follow.
   userData = join(
     app.getPath('appData'),
     // oxlint-disable-next-line typescript/restrict-template-expressions
-    `Signal-${config.get('storageProfile')}`
+    `SWARM-Messenger-${config.get('storageProfile')}`
   );
 } else if (OS.isAppImage()) {
   userData = join(app.getPath('appData'), `${app.getName()} AppImage`);

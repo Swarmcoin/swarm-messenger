@@ -17,12 +17,12 @@
 // fails if a native module cannot be built.
 
 import { spawnSync } from 'node:child_process';
+import process from 'node:process';
 
-const result = spawnSync(
-  'electron-builder',
-  ['install-app-deps'],
-  { stdio: 'inherit', shell: true }
-);
+const result = spawnSync('electron-builder', ['install-app-deps'], {
+  stdio: 'inherit',
+  shell: true,
+});
 
 if (result.status === 0) {
   process.exit(0);

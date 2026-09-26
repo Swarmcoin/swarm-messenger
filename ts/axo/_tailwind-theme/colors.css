@@ -139,8 +139,8 @@
 
 /* prettier-ignore */
 @theme {
-  --axo-color-label-accent:               light-dark(#030ffc, #99a1ff);
-  --axo-color-label-accent-disabled:      light-dark(--alpha(#030ffc / 25%), --alpha(#99a1ff / 25%));
+  --axo-color-label-accent:               light-dark(#b35f0d, #ffb069);
+  --axo-color-label-accent-disabled:      light-dark(--alpha(#b35f0d / 25%), --alpha(#ffb069 / 25%));
   --axo-color-label-affirmative:          light-dark(#00a015, #30d150);
   --axo-color-label-affirmative-disabled: light-dark(--alpha(#00a015 / 25%), --alpha(#30d150 / 25%));
   --axo-color-label-warning:              light-dark(#332900, #ffde5b);
@@ -155,8 +155,8 @@
 @layer theme {
   @media (prefers-contrast: more) {
     :root {
-      --axo-color-label-accent:               light-dark(#000cf3, #b6bcff);
-      --axo-color-label-accent-disabled:      light-dark(--alpha(#000cf3 / 40%), --alpha(#b6bcff / 40%));
+      --axo-color-label-accent:               light-dark(#8f4a08, #ffc794);
+      --axo-color-label-accent-disabled:      light-dark(--alpha(#8f4a08 / 40%), --alpha(#ffc794 / 40%));
       --axo-color-label-affirmative:          light-dark(#005b0c, #10f53e);
       --axo-color-label-affirmative-disabled: light-dark(--alpha(#005b0c / 40%), --alpha(#10f53e / 40%));
       --axo-color-label-warning:              light-dark(#332900, #ffde5b);
@@ -340,12 +340,12 @@
 
 /* prettier-ignore */
 @theme {
-  --axo-color-fill-accent:                     light-dark(#4655ff, #5563ff);
-  --axo-color-fill-accent-pressed:             light-dark(#3b4af4, #616eff);
-  --axo-color-fill-accent-bright:              light-dark(#b2b9ff, #b2b9ff);
-  --axo-color-fill-accent-bright-pressed:      light-dark(#a8b0ff, #a8b0ff);
-  --axo-color-fill-accent-tint:                light-dark(--alpha(#030ffc / 6%), --alpha(#99a1ff / 12%));
-  --axo-color-fill-accent-tint-pressed:        light-dark(--alpha(#030ffc / 10%), --alpha(#99a1ff / 16%));
+  --axo-color-fill-accent:                     light-dark(#ff8a1f, #ff8a1f);
+  --axo-color-fill-accent-pressed:             light-dark(#e07b18, #ffa751);
+  --axo-color-fill-accent-bright:              light-dark(#ffd08a, #ffd08a);
+  --axo-color-fill-accent-bright-pressed:      light-dark(#ffc36b, #ffc36b);
+  --axo-color-fill-accent-tint:                light-dark(--alpha(#ff8a1f / 6%), --alpha(#ff8a1f / 12%));
+  --axo-color-fill-accent-tint-pressed:        light-dark(--alpha(#ff8a1f / 10%), --alpha(#ff8a1f / 16%));
 
   --axo-color-fill-affirmative:                light-dark(#09a523, #07ab23);
   --axo-color-fill-affirmative-pressed:        light-dark(#089b21, #08b525);
@@ -377,12 +377,12 @@
 @layer theme {
   @media (prefers-contrast: more) {
     :root {
-      --axo-color-fill-accent:                     light-dark(#1f31ff, #2536f9);
-      --axo-color-fill-accent-pressed:             light-dark(#0519ff, #2e3ffa);
-      --axo-color-fill-accent-bright:              light-dark(#b2b9ff, #b2b9ff);
-      --axo-color-fill-accent-bright-pressed:      light-dark(#a8b0ff, #a8b0ff);
-      --axo-color-fill-accent-tint:                light-dark(--alpha(#030ffc / 10%), --alpha(#99a1ff / 18%));
-      --axo-color-fill-accent-tint-pressed:        light-dark(--alpha(#030ffc / 14%), --alpha(#99a1ff / 22%));
+      --axo-color-fill-accent:                     light-dark(#d97612, #d97612);
+      --axo-color-fill-accent-pressed:             light-dark(#b35f0d, #e8851b);
+      --axo-color-fill-accent-bright:              light-dark(#ffd08a, #ffd08a);
+      --axo-color-fill-accent-bright-pressed:      light-dark(#ffc36b, #ffc36b);
+      --axo-color-fill-accent-tint:                light-dark(--alpha(#ff8a1f / 10%), --alpha(#ff8a1f / 18%));
+      --axo-color-fill-accent-tint-pressed:        light-dark(--alpha(#ff8a1f / 14%), --alpha(#ff8a1f / 22%));
 
       --axo-color-fill-affirmative:                light-dark(#007514, #007514);
       --axo-color-fill-affirmative-pressed:        light-dark(#006b12, #008016);
@@ -468,7 +468,7 @@
   --axo-color-border-primary:               light-dark(--alpha(#000000 / 6%), --alpha(#ffffff / 6%));
   --axo-color-border-secondary:             light-dark(--alpha(#000000 / 12%), --alpha(#ffffff / 12%));
   --axo-color-border-tertiary:              light-dark(--alpha(#000000 / 24%), --alpha(#ffffff / 24%));
-  --axo-color-border-selected:              light-dark(#4655ff, #c9ceff);
+  --axo-color-border-selected:              light-dark(#ff8a1f, #ffd08a);
   --axo-color-border-selected-oncolor:      light-dark(#fafafa, #fafafa);
   --axo-color-border-focused-inner:         light-dark(#ffffff, #000000);
   --axo-color-border-focused-outer:         light-dark(#808190, #c9cbda);

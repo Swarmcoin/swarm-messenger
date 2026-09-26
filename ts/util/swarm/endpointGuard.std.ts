@@ -88,7 +88,10 @@ export function findPlaceholderParams(
 ): ReadonlyArray<string> {
   const problems: Array<string> = [];
   const check = (key: string, value: unknown) => {
-    if (typeof value === 'string' && value.startsWith(SWARM_PLACEHOLDER_PREFIX)) {
+    if (
+      typeof value === 'string' &&
+      value.startsWith(SWARM_PLACEHOLDER_PREFIX)
+    ) {
       problems.push(key);
     }
   };
