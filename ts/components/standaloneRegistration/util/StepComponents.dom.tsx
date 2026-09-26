@@ -9,8 +9,7 @@ import { tw } from '../../../axo/tw.dom.tsx';
 import type { LocalizerType } from '../../../types/I18N.std.ts';
 import { AxoIconButton } from '../../../axo/AxoIconButton.dom.tsx';
 
-export const PIN_ARTICLE_ON_SUPPORT =
-  'https://swarm.green/support';
+export const PIN_ARTICLE_ON_SUPPORT = 'https://swarm.green/support';
 
 export function Container({
   children,

@@ -154,7 +154,6 @@ export const createTemplate = (
         // SWARM change (M1): SWARM Messenger has no update feed
         // (updatesEnabled is false and there are no publish targets), so
         // "force update" is gone rather than left to fail.
-
       ],
     },
     {

@@ -120,8 +120,7 @@ async function promptOSAuthLinux(
   // Avoid string interpolation in exec() command
   let command: string;
   if (reason === 'enable-backups') {
-    command =
-      'pkcheck -u --process $$ --action-id green.swarm.enable-backups';
+    command = 'pkcheck -u --process $$ --action-id green.swarm.enable-backups';
   } else if (reason === 'view-aep') {
     command = 'pkcheck -u --process $$ --action-id green.swarm.view-aep';
   } else if (reason === 'plaintext-export') {

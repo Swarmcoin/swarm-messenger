@@ -96,10 +96,7 @@ export function ProfileEntryScreen({
           {i18n('icu:StandaloneRegistration--ProfileEntry--description')}
         </div>
         <div>
-          <a
-            className={tw('text-primary')}
-            href="https://swarm.green/support"
-          >
+          <a className={tw('text-primary')} href="https://swarm.green/support">
             {i18n('icu:StandaloneRegistration--ProfileEntry--learn-more')}
           </a>
         </div>

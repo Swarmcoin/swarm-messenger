@@ -57,9 +57,8 @@ export const actions = {
 
 // SWARM addition (M1): so the install screen can offer "Create account on this
 // computer" next to "Link to a phone".
-export const useAppActions = (): BoundActionCreatorsMapObject<
-  typeof actions
-> => useBoundActions(actions);
+export const useAppActions = (): BoundActionCreatorsMapObject<typeof actions> =>
+  useBoundActions(actions);
 
 function initialLoadComplete(): InitialLoadCompleteActionType {
   return {

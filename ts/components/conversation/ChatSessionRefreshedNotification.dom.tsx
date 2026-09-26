@@ -33,8 +33,7 @@ export function ChatSessionRefreshedNotification(
   const wrappedContactSupport = useCallback(() => {
     setIsDialogOpen(false);
 
-    const url =
-      'https://swarm.green/support';
+    const url = 'https://swarm.green/support';
 
     openLinkInWebBrowser(url);
   }, [setIsDialogOpen]);

@@ -6,11 +6,11 @@ import { ESLintUtils } from '@typescript-eslint/utils';
 // SWARM change (M1): a file written for SWARM carries SWARM's copyright, not
 // Signal Messenger, LLC's. Both headers are accepted; the licence line is
 // unchanged, because SWARM Messenger is AGPL-3.0-only too.
-const COMMENT_LINE_1_EXACT =
-  /^ Copyright \d{4} (Signal Messenger, LLC|SWARM)$/;
+const COMMENT_LINE_1_EXACT = /^ Copyright \d{4} (Signal Messenger, LLC|SWARM)$/;
 const COMMENT_LINE_2_EXACT = /^ SPDX-License-Identifier: AGPL-3.0-only$/;
 
-const COMMENT_LINE_1_LOOSE = /Copyright (\d{4}) (?:Signal Messenger, LLC|SWARM)/;
+const COMMENT_LINE_1_LOOSE =
+  /Copyright (\d{4}) (?:Signal Messenger, LLC|SWARM)/;
 const COMMENT_LINE_2_LOOSE = /SPDX-License-Identifier: AGPL-3.0-only/;
 
 export const enforceLicenseComments = ESLintUtils.RuleCreator.withoutDocs({

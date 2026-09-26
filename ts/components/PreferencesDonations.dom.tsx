@@ -324,9 +324,7 @@ function DonationsHome({
         <ListBoxItem
           className="PreferencesDonations__list-item"
           onAction={() => {
-            openLinkInWebBrowser(
-              'https://swarm.green/support'
-            );
+            openLinkInWebBrowser('https://swarm.green/support');
           }}
         >
           <span className="PreferencesDonations__list-item__icon PreferencesDonations__list-item__icon--faqs" />

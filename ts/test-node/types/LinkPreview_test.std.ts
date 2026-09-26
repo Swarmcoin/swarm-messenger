@@ -26,7 +26,9 @@ describe('Link previews', () => {
     it('returns true for https:// URLs', () => {
       assert.isTrue(isValidLink('https://swarm.green'));
       assert.isTrue(isValidLink('https://somewhere.someplace.swarm.green/'));
-      assert.isTrue(isValidLink('https://swarm.green/something/another/#thing'));
+      assert.isTrue(
+        isValidLink('https://swarm.green/something/another/#thing')
+      );
       assert.isTrue(
         isValidLink(
           'https://swarm.green/something/another/?one=two&three=four#thing'

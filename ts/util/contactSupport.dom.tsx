@@ -3,8 +3,7 @@
 
 import type { JSX, ReactNode } from 'react';
 
-export const CONTACT_SUPPORT_URL =
-  'https://swarm.green/support';
+export const CONTACT_SUPPORT_URL = 'https://swarm.green/support';
 
 export function ContactSupportLink(parts: ReactNode): JSX.Element {
   return (

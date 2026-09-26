@@ -79,9 +79,7 @@ export function NewlyCreatedGroupInvitedContactsDialog({
         'icu:NewlyCreatedGroupInvitedContactsDialog--body--learn-more'
       )}
       onClickSecondaryButton={() => {
-        openLinkInWebBrowser(
-          'https://swarm.green/support'
-        );
+        openLinkInWebBrowser('https://swarm.green/support');
       }}
       onClose={onClose}
       title={i18n('icu:NewlyCreatedGroupInvitedContactsDialog--title', {

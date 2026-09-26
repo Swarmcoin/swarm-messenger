@@ -7,8 +7,7 @@ import { tw } from '../axo/tw.dom.tsx';
 import type { LocalizerType } from '../types/I18N.std.ts';
 import { I18n } from './I18n.dom.tsx';
 
-const SIGNAL_USER_SAFETY_LINK =
-  'https://swarm.green/support';
+const SIGNAL_USER_SAFETY_LINK = 'https://swarm.green/support';
 
 function Strong(parts: Array<string | JSX.Element>): JSX.Element {
   return <strong>{parts}</strong>;

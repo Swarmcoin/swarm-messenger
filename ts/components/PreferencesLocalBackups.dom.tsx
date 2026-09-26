@@ -39,8 +39,7 @@ import { AxoSymbol } from '../axo/AxoSymbol.dom.tsx';
 const { noop } = lodash;
 const log = createLogger('PreferencesLocalBackups');
 
-const SIGNAL_USER_SAFETY_LINK =
-  'https://swarm.green/support';
+const SIGNAL_USER_SAFETY_LINK = 'https://swarm.green/support';
 
 export function PreferencesLocalBackups({
   backupKey,

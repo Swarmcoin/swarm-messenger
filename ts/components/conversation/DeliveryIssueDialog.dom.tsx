@@ -30,11 +30,7 @@ export function DeliveryIssueDialog(props: PropsType): ReactElement {
   const footer = (
     <>
       <Button
-        onClick={() =>
-          openLinkInWebBrowser(
-            'https://swarm.green/support'
-          )
-        }
+        onClick={() => openLinkInWebBrowser('https://swarm.green/support')}
         size={ButtonSize.Medium}
         variant={ButtonVariant.Secondary}
       >

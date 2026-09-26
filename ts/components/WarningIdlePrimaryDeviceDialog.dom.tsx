@@ -17,8 +17,7 @@ export type Props = {
   i18n: LocalizerType;
 };
 
-const SUPPORT_PAGE =
-  'https://swarm.green/support';
+const SUPPORT_PAGE = 'https://swarm.green/support';
 
 export function WarningIdlePrimaryDeviceDialog({
   containerWidthBreakpoint,

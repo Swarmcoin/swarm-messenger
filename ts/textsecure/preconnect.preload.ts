@@ -130,7 +130,9 @@ if (window.SignalContext.config?.serverUrl) {
   } catch (error) {
     libsignalNetError =
       error instanceof Error ? error : new Error(String(error));
-    log.error(`SWARM: no libsignal network layer: ${libsignalNetError.message}`);
+    log.error(
+      `SWARM: no libsignal network layer: ${libsignalNetError.message}`
+    );
   }
 }
 

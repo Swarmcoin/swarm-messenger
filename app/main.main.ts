@@ -1289,9 +1289,7 @@ function openContactUs() {
 
 function openJoinTheBeta() {
   // If we omit the language, the site will detect the language and redirect
-  drop(
-    shell.openExternal('https://swarm.green/support')
-  );
+  drop(shell.openExternal('https://swarm.green/support'));
 }
 
 function openReleaseNotes() {
@@ -1309,9 +1307,7 @@ function openReleaseNotes() {
 
 function openSupportPage() {
   // If we omit the language, the site will detect the language and redirect
-  drop(
-    shell.openExternal('https://swarm.green/support')
-  );
+  drop(shell.openExternal('https://swarm.green/support'));
 }
 
 function openForums() {
@@ -2071,11 +2067,7 @@ const onDatabaseInitializationError = async (error: Error) => {
       appRelaunch();
     }
   } else if (buttonIndex === goToSupportPageButtonIndex) {
-    drop(
-      shell.openExternal(
-        'https://swarm.green/support'
-      )
-    );
+    drop(shell.openExternal('https://swarm.green/support'));
   }
 
   log.error('onDatabaseInitializationError: Quitting application');

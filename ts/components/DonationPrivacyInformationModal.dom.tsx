@@ -19,9 +19,7 @@ export function DonationPrivacyInformationModal({
   onClose,
 }: DonationPrivacyInformationModalProps): JSX.Element {
   const handleDonationFAQsClick = () => {
-    openLinkInWebBrowser(
-      'https://swarm.green/support'
-    );
+    openLinkInWebBrowser('https://swarm.green/support');
   };
 
   return (

@@ -11,8 +11,7 @@ import { I18n } from './I18n.dom.tsx';
 import { AxoAlertDialog } from '../axo/AxoAlertDialog.dom.tsx';
 import { AxoButton } from '../axo/AxoButton.dom.tsx';
 
-const LEARN_MORE_LINK =
-  'https://swarm.green/support';
+const LEARN_MORE_LINK = 'https://swarm.green/support';
 
 export function MaybeTransferModal({
   i18n,

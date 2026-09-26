@@ -36,8 +36,7 @@ import { createLogger } from '../logging/log.std.ts';
 import { toLogFormat } from '../types/errors.std.ts';
 import { AxoAlertDialog } from '../axo/AxoAlertDialog.dom.tsx';
 
-export const SIGNAL_BACKUPS_LEARN_MORE_URL =
-  'https://swarm.green/support';
+export const SIGNAL_BACKUPS_LEARN_MORE_URL = 'https://swarm.green/support';
 
 const LOCAL_BACKUPS_PAGES = new Set([
   SettingsPage.LocalBackups,
