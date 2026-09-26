@@ -10,13 +10,15 @@
     "dist",
     "!dist/tsconfig.tsbuildinfo",
     "README.md",
-    "binding.gyp"
+    "binding.gyp",
+    "scripts"
   ],
   "scripts": {
     "watch": "npm run build -- --watch",
     "preinstall": "npm run build",
     "build": "tsc6",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "install": "node scripts/swarm-install.mjs"
   },
   "keywords": [
     "winrt",

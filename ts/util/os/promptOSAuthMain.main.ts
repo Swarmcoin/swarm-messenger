@@ -71,7 +71,19 @@ async function promptOSAuthWindows(
   text: string
 ): Promise<PromptOSAuthResultType> {
   // For Windows a verification device is required for the UserConsentVerifier API.
-  const availability = await checkAvailabilityWindowsUcv();
+  // SWARM change (M1): the addon can be absent in a build made on a machine
+  // without MSVC, and checkAvailability() then throws. Treat that exactly like a
+  // machine with no verification device rather than letting the error escape.
+  let availability;
+  try {
+    availability = await checkAvailabilityWindowsUcv();
+  } catch (error) {
+    log.error(
+      'Windows UCV unavailable (addon missing or failed to load)',
+      toLogFormat(error)
+    );
+    return 'unsupported';
+  }
   log.info(`Windows UCV availability=${availability}`);
   if (availability !== 'available') {
     return 'unsupported';

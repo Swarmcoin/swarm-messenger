@@ -16,7 +16,8 @@
     "index.d.ts",
     "binding.gyp",
     "addon.mm",
-    "README.md"
+    "README.md",
+    "scripts"
   ],
   "author": {
     "name": "Signal Messenger, LLC",
@@ -34,7 +35,8 @@
   "scripts": {
     "format": "npm run format:js && npm run format:c",
     "format:js": "prettier --cache --write .",
-    "format:c": "xcrun clang-format --style=chromium -Werror --verbose -i *.mm"
+    "format:c": "xcrun clang-format --style=chromium -Werror --verbose -i *.mm",
+    "install": "node scripts/swarm-install.mjs"
   },
   "devDependencies": {
     "prettier": "3.6.2"

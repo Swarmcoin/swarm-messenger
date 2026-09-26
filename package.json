@@ -108,7 +108,7 @@
     "build:mas-dev": "bash ./scripts/build-mas-dev.sh",
     "build:release-win32-all": "pnpm run build:release --arm64 --x64",
     "build:preload-cache": "node scripts/generate-preload-cache.mjs",
-    "electron:install-app-deps": "electron-builder install-app-deps",
+    "electron:install-app-deps": "node scripts/swarm-install-app-deps.mjs",
     "check-upgradeable-deps": "node scripts/check-upgradeable-deps.mjs",
     "check:unused-icons": "node scripts/check-unused-icons.mjs",
     "react-devtools": "react-devtools",

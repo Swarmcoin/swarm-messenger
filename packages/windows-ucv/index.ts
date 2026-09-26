@@ -34,8 +34,35 @@ type BindingType = Readonly<{
 }>;
 
 let binding: BindingType | undefined;
+let loadError: unknown;
 if (process.platform === 'win32') {
-  binding = loadBinding('windows-ucv');
+  // SWARM change (M1): a development machine without Visual Studio cannot
+  // compile this addon (see scripts/swarm-install.mjs). Do not crash the main
+  // process at import time; report the OS check as unavailable instead.
+  try {
+    binding = loadBinding('windows-ucv');
+  } catch (error) {
+    loadError = error;
+    // oxlint-disable-next-line no-console
+    console.warn(
+      '@signalapp/windows-ucv: native addon missing, OS re-authentication ' +
+        'will report itself unsupported.',
+      error,
+    );
+  }
+}
+
+/**
+ * SWARM addition: true when the native addon is present and usable here, so
+ * callers can degrade gracefully instead of throwing.
+ */
+export function isAvailable(): boolean {
+  return binding !== undefined;
+}
+
+/** SWARM addition: why the addon could not be loaded, if it could not be. */
+export function getLoadError(): unknown {
+  return loadError;
 }
 
 /**
