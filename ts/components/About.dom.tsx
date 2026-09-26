@@ -48,24 +48,28 @@ export function About({
         <div className="About__Body environment">{env}</div>
         <br />
         <div>
-          <a href="https://signal.org">signal.org</a>
+          <a href="https://swarm.green">swarm.green</a>
         </div>
         <br />
         <div>
           <a
             className="acknowledgments"
-            href="https://github.com/signalapp/Signal-Desktop/blob/main/ACKNOWLEDGMENTS.md"
+            href="https://github.com/Swarm-Official/swarm-messenger/blob/swarm-main/ACKNOWLEDGMENTS.md"
           >
             {i18n('icu:softwareAcknowledgments')}
           </a>
         </div>
         <div>
-          <a className="privacy" href="https://signal.org/legal">
+          <a className="privacy" href="https://swarm.green/legal">
             {i18n('icu:privacyPolicy')}
           </a>
         </div>
+        {/*
+          SWARM addition (M1): the AGPL-3.0 attribution. This is the one place
+          where Signal is named on purpose, and it must stay.
+        */}
         <div className={tw('text-secondary')}>
-          {i18n('icu:signalNonProfit')}
+          {i18n('icu:SwarmAbout__attribution')}
         </div>
       </div>
     </div>

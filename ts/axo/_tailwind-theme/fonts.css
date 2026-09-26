@@ -27,7 +27,10 @@
 @theme {
   --font-*: initial; /* reset defaults */
   /* Note: --font-sans also has language */
+  /* SWARM change (M1): Manrope for text, Sora for display, JetBrains Mono for
+     numbers and hashes. Inter stays as a fallback. */
   --font-sans:
+    Manrope,
     Inter,
     'Source Sans Pro',
     'Source Han Sans',
@@ -44,6 +47,7 @@
   /* Note: This font-family is checked for in matchMonospace, to support paste scenarios */
   --font-mono:
     'MonoSpecial',
+    'JetBrains Mono',
     'SF Mono',
     SFMono-Regular,
     ui-monospace,
@@ -52,6 +56,15 @@
     Consolas,
     monospace;
   --font-symbols: 'SignalSymbols';
+  /* SWARM addition (M1): display face for headings. */
+  --font-display:
+    Sora,
+    Manrope,
+    Inter,
+    -apple-system,
+    system-ui,
+    'Segoe UI',
+    sans-serif;
 }
 
 /* prettier-ignore */

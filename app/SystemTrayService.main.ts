@@ -276,13 +276,13 @@ function getTrayIconImagePath(size: number, unreadCount: number): string {
 
   if (unreadCount === 0) {
     dirName = 'base';
-    fileName = `signal-tray-icon-${size}x${size}-base.png`;
+    fileName = `swarm-tray-icon-${size}x${size}-base.png`;
   } else if (unreadCount < 10) {
     dirName = 'alert';
-    fileName = `signal-tray-icon-${size}x${size}-alert-${unreadCount}.png`;
+    fileName = `swarm-tray-icon-${size}x${size}-alert-${unreadCount}.png`;
   } else {
     dirName = 'alert';
-    fileName = `signal-tray-icon-${size}x${size}-alert-9+.png`;
+    fileName = `swarm-tray-icon-${size}x${size}-alert-9+.png`;
   }
 
   const iconPath = join(

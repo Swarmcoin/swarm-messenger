@@ -66,7 +66,7 @@ export function SignalAccountKeysButton({
           <img
             className={tw('min-w-17.5')}
             alt={i18n('icu:Preferences__SignalAccount__label')}
-            src="images/signal-login.svg"
+            src="images/swarm-login.svg"
             width="70"
             height="40"
           />

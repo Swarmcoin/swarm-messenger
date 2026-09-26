@@ -6,6 +6,10 @@ $is-storybook: false !default;
 @use 'fontfaces' with (
   $is-storybook: $is-storybook
 );
+// SWARM addition (M1): Sora / Manrope / JetBrains Mono.
+@use 'swarm-fontfaces' with (
+  $is-storybook: $is-storybook
+);
 @use 'variables';
 @use 'mixins';
 @use 'global';

@@ -1,16 +1,16 @@
 {
   "$schema": "./package.schema.json",
   "private": true,
-  "name": "signal-desktop",
-  "productName": "Signal",
+  "name": "swarm-messenger",
+  "productName": "SWARM Messenger",
   "description": "Private messaging from your desktop",
   "desktopName": "signal.desktop",
   "repository": "https://github.com/signalapp/Signal-Desktop.git",
   "version": "8.31.0-alpha.1",
   "license": "AGPL-3.0-only",
   "author": {
-    "name": "Signal Messenger, LLC",
-    "email": "support@signal.org"
+    "name": "SWARM",
+    "email": "support@swarm.green"
   },
   "browserslist": "last 1 chrome versions",
   "main": "bundles/main.js",
@@ -359,7 +359,7 @@
     }
   },
   "build": {
-    "appId": "org.whispersystems.signal-desktop",
+    "appId": "green.swarm.messenger",
     "nativeRebuilder": "parallel",
     "mac": {
       "artifactName": "${name}-mac-${arch}-${version}.${ext}",
@@ -372,7 +372,7 @@
       "publish": [
         {
           "provider": "generic",
-          "url": "https://updates.signal.org/desktop"
+          "url": ""
         }
       ],
       "mergeASARs": true,
@@ -437,23 +437,20 @@
       "extendInfo": {
         "ITSAppUsesNonExemptEncryption": false,
         "ElectronTeamID": "U68MSDN6DR",
-        "NSCameraUsageDescription": "Signal uses your camera for video calling.",
-        "NSMicrophoneUsageDescription": "Signal needs access to your microphone to make and receive phone calls and record voice messages."
+        "NSCameraUsageDescription": "SWARM Messenger uses your camera for video calling.",
+        "NSMicrophoneUsageDescription": "SWARM Messenger needs access to your microphone to make and receive calls and record voice messages."
       }
     },
     "mas": {
       "extendInfo": {
         "ITSAppUsesNonExemptEncryption": false,
         "ElectronTeamID": "U68MSDN6DR",
-        "NSCameraUsageDescription": "Signal uses your camera for video calling.",
-        "NSMicrophoneUsageDescription": "Signal needs access to your microphone to make and receive phone calls and record voice messages."
+        "NSCameraUsageDescription": "SWARM Messenger uses your camera for video calling.",
+        "NSMicrophoneUsageDescription": "SWARM Messenger needs access to your microphone to make and receive calls and record voice messages."
       }
     },
     "win": {
       "signtoolOptions": {
-        "certificateSubjectName": "Signal Messenger, LLC",
-        "certificateSha1": "8D5E3CD800736C5E1FE459A1F5AA48287D4F6EC6",
-        "publisherName": "Signal Messenger, LLC",
         "sign": "scripts/sign-windows.mjs",
         "signingHashAlgorithms": [
           "sha256"
@@ -464,7 +461,7 @@
       "publish": [
         {
           "provider": "generic",
-          "url": "https://updates.signal.org/desktop"
+          "url": ""
         }
       ],
       "releaseInfo": {
@@ -485,24 +482,14 @@
     },
     "nsis": {
       "deleteAppDataOnUninstall": true,
-      "differentialPackage": true,
-      "customNsisBinary": {
-        "url": "https://updates.signal.org/desktop/nsis/nsis-3.0.4.1.7z",
-        "version": "3.0.4.1-signal",
-        "checksum": "822a421e2b8cfc66fc586128a5976818c1af24453ee05f5aa4faea21504b7036"
-      },
-      "customNsisResources": {
-        "url": "https://updates.signal.org/desktop/nsis/nsis-resources-3.4.1.7z",
-        "version": "3.4.1-signal",
-        "checksum": "161c900098cadd1da1e5e87f339909269d58b00bda788a7c1fb67441ecfd15e6"
-      }
+      "differentialPackage": true
     },
     "linux": {
-      "executableName": "signal-desktop",
+      "executableName": "swarm-messenger",
       "category": "Network;InstantMessaging;Chat",
       "desktop": {
         "entry": {
-          "StartupWMClass": "signal"
+          "StartupWMClass": "swarm-messenger"
         }
       },
       "artifactName": "${name}_${version}_${arch}.${ext}",
@@ -529,7 +516,7 @@
           "from": "build",
           "to": "",
           "filter": [
-            "org.signalapp.*.policy"
+            "green.swarm.*.policy"
           ]
         }
       ]
@@ -552,8 +539,9 @@
       ]
     },
     "protocols": {
-      "name": "sgnl-url-scheme",
+      "name": "swarm-messenger-url-scheme",
       "schemes": [
+        "swarm",
         "sgnl",
         "signalcaptcha"
       ]

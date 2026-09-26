@@ -7,8 +7,8 @@ import { execSync } from 'node:child_process';
 /** @import { AfterPackContext } from 'electron-builder' */
 
 const FILES = [
-  'resources/org.signalapp.enable-backups.policy',
-  'resources/org.signalapp.view-aep.policy',
+  'resources/green.swarm.enable-backups.policy',
+  'resources/green.swarm.view-aep.policy',
 ];
 
 /**

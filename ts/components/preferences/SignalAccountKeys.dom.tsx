@@ -77,7 +77,7 @@ export function SignalAccountKeys({
         <img
           alt={i18n('icu:Preferences__SignalAccount__label')}
           className={tw('mx-auto mb-2.5 print:mb-4')}
-          src="images/signal-login.svg"
+          src="images/swarm-login.svg"
           width="98"
           height="56"
         />

@@ -21,9 +21,9 @@ const english = JSON.parse(
 const templateDir = path.join(ROOT_DIR, 'build/policy-templates');
 const templates = [
   {
-    name: 'org.signalapp.enable-backups.policy',
+    name: 'green.swarm.enable-backups.policy',
     content: await fs.readFile(
-      path.join(templateDir, 'org.signalapp.enable-backups.policy'),
+      path.join(templateDir, 'green.swarm.enable-backups.policy'),
       'utf8'
     ),
     description:
@@ -31,18 +31,18 @@ const templates = [
     message: 'icu:Preferences__local-backups--enable--os-prompt-message--linux',
   },
   {
-    name: 'org.signalapp.plaintext-export.policy',
+    name: 'green.swarm.plaintext-export.policy',
     content: await fs.readFile(
-      path.join(templateDir, 'org.signalapp.plaintext-export.policy'),
+      path.join(templateDir, 'green.swarm.plaintext-export.policy'),
       'utf8'
     ),
     description: 'icu:PlaintextExport--OSPrompt--description--Linux',
     message: 'icu:PlaintextExport--OSPrompt--message--Linux',
   },
   {
-    name: 'org.signalapp.view-aep.policy',
+    name: 'green.swarm.view-aep.policy',
     content: await fs.readFile(
-      path.join(templateDir, 'org.signalapp.view-aep.policy'),
+      path.join(templateDir, 'green.swarm.view-aep.policy'),
       'utf8'
     ),
     description:

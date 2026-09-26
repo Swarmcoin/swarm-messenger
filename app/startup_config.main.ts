@@ -3,7 +3,6 @@
 
 import { app } from 'electron';
 
-import { packageJson } from '../ts/util/packageJson.main.ts';
 import { createLogger } from '../ts/logging/log.std.ts';
 import * as GlobalErrors from './global_errors.main.ts';
 
@@ -15,7 +14,9 @@ GlobalErrors.addHandler();
 // set such that only we have read access to our files
 process.umask(0o077);
 
-export const AUMID = `org.whispersystems.${packageJson.name}`;
+// SWARM change (M1): our own Windows Application User Model ID. Must match
+// build.appId in package.json.
+export const AUMID = 'green.swarm.messenger';
 log.info('Set Windows Application User Model ID (AUMID)', {
   AUMID,
 });

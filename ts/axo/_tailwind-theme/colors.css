@@ -19,7 +19,8 @@
  */
 
 @theme {
-  --axo-color-brand-primary: #3b45fd;
+  /* SWARM change (M1): Hive Orange is the brand colour. */
+  --axo-color-brand-primary: #ff8a1f;
 }
 
 /**

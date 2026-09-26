@@ -25,7 +25,7 @@ export function PageHeader(): JSX.Element {
       <div className={styles.grow} />
       <a
         className={styles.guidelines}
-        href="https://support.signal.org/hc/articles/360031836512-Stickers#sticker_creator"
+        href="https://swarm.green/support"
         target="_blank"
         rel="noreferrer"
       >

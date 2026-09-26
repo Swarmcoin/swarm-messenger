@@ -2723,14 +2723,11 @@ export function Preferences({
                   }
                 />
               )}
-              <PreferencesButton
-                symbol="heart"
-                label={i18n('icu:Preferences__button--donate')}
-                current={isDonationsPage(settingsLocation.page)}
-                onClick={() =>
-                  setSettingsLocation({ page: SettingsPage.Donations })
-                }
-              />
+              {/*
+                SWARM change (M1): SWARM Messenger takes no donations, so the
+                Donations settings page has no entry point. The page itself is
+                left in the tree untouched to keep upstream merges small.
+              */}
               <div className={tw('mx-3.5 my-2 border-be border-primary')} />
               <PreferencesButton
                 symbol="settings"

@@ -74,7 +74,7 @@ const Variants = {
     fontOffsetY: 0,
     badgeShadowBlur: 0,
     badgeShadowOffsetY: 0,
-    image: join(trayIconsBaseDir, 'signal-tray-icon-16x16-base.png'),
+    image: join(trayIconsBaseDir, 'swarm-tray-icon-16x16-base.png'),
   },
   [TrayIconSizes.Size32]: {
     size: 32,
@@ -85,7 +85,7 @@ const Variants = {
     fontOffsetY: 0,
     badgeShadowBlur: 1,
     badgeShadowOffsetY: 1,
-    image: join(trayIconsBaseDir, 'signal-tray-icon-32x32-base.png'),
+    image: join(trayIconsBaseDir, 'swarm-tray-icon-32x32-base.png'),
   },
   [TrayIconSizes.Size48]: {
     size: 48,
@@ -96,7 +96,7 @@ const Variants = {
     fontOffsetY: -1,
     badgeShadowBlur: 1,
     badgeShadowOffsetY: 1,
-    image: join(trayIconsBaseDir, 'signal-tray-icon-48x48-base.png'),
+    image: join(trayIconsBaseDir, 'swarm-tray-icon-48x48-base.png'),
   },
   [TrayIconSizes.Size256]: {
     size: 256,
@@ -107,7 +107,7 @@ const Variants = {
     badgePadding: 32,
     badgeShadowBlur: 8,
     badgeShadowOffsetY: 8,
-    image: join(trayIconsBaseDir, 'signal-tray-icon-256x256-base.png'),
+    image: join(trayIconsBaseDir, 'swarm-tray-icon-256x256-base.png'),
   },
 };
 
@@ -275,7 +275,7 @@ await Promise.all(
     const text = trayIconValueToText(value, variant);
 
     const fileDir = join(trayIconsAlertsDir);
-    const fileName = `signal-tray-icon-${size}x${size}-alert-${text}.png`;
+    const fileName = `swarm-tray-icon-${size}x${size}-alert-${text}.png`;
     const filePath = join(fileDir, fileName);
 
     const fileContents = await generateTrayIconImage({ size, value });

@@ -144,6 +144,11 @@ $NavTabs__ProfileAvatar__size: 28px;
   @include NavTabs__Icon('../images/icons/v3/menu/menu.svg');
 }
 
+// SWARM addition (M1): the wallet entry in the left navigation.
+.NavTabs__ItemIcon--Wallet {
+  @include NavTabs__Icon('../images/icons/v3/payment/payment.svg');
+}
+
 .NavTabs__ItemIcon--Settings {
   @include NavTabs__Icon('../images/icons/v3/settings/settings.svg');
   .NavTabs__Item:active &,

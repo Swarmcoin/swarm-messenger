@@ -233,7 +233,8 @@ export function createIPCEvents(
       await setEphemeralSetting('systemTraySetting', value);
     },
     getThemeSetting: async () => {
-      return (await getEphemeralSetting('themeSetting')) ?? 'system';
+      // SWARM change (M1): dark by default.
+      return (await getEphemeralSetting('themeSetting')) ?? 'dark';
     },
     setThemeSetting: async (value: ThemeType) => {
       await setEphemeralSetting('themeSetting', value);

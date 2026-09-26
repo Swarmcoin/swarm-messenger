@@ -60,6 +60,7 @@ import './startup_config.main.ts';
 import type { RendererConfigType } from '../ts/types/RendererConfig.std.ts';
 import { rendererConfigSchema } from '../ts/types/RendererConfig.std.ts';
 import config from './config.main.ts';
+import { enforceSwarmConfig } from './swarmStartupGuard.main.ts';
 import {
   Environment,
   getEnvironment,
@@ -335,14 +336,17 @@ async function getThemeSetting({
   if (value !== undefined) {
     log.info('got fast theme-setting value', value);
   } else if (ephemeralOnly) {
-    return 'system';
+    // SWARM change (M1): the SWARM design system is a dark one, so dark is the
+    // default rather than following the OS. The user can still choose.
+    return 'dark';
   }
 
-  // Default to `system` if setting doesn't exist or is invalid
+  // Default to `dark` if setting doesn't exist or is invalid (SWARM change M1;
+  // upstream defaulted to `system`).
   const validatedResult =
     value === 'light' || value === 'dark' || value === 'system'
       ? value
-      : 'system';
+      : 'dark';
 
   if (value !== validatedResult) {
     ephemeralConfig.set('theme-setting', validatedResult);
@@ -638,7 +642,7 @@ const rootDir = getAppRootDir();
 if (OS.isWindows()) {
   windowIcon = join(rootDir, 'build', 'icons', 'win', 'icon.ico');
 } else if (OS.isLinux()) {
-  windowIcon = join(rootDir, 'images', 'signal-logo-desktop-linux.png');
+  windowIcon = join(rootDir, 'images', 'swarm-logo-desktop-linux.png');
 } else {
   windowIcon = join(rootDir, 'build', 'icons', 'png', '512x512.png');
 }
@@ -1286,7 +1290,7 @@ function openContactUs() {
 function openJoinTheBeta() {
   // If we omit the language, the site will detect the language and redirect
   drop(
-    shell.openExternal('https://support.signal.org/hc/articles/360007318471')
+    shell.openExternal('https://swarm.green/support')
   );
 }
 
@@ -1306,12 +1310,13 @@ function openReleaseNotes() {
 function openSupportPage() {
   // If we omit the language, the site will detect the language and redirect
   drop(
-    shell.openExternal('https://support.signal.org/hc/sections/360001602812')
+    shell.openExternal('https://swarm.green/support')
   );
 }
 
 function openForums() {
-  drop(shell.openExternal('https://community.signalusers.org/'));
+  // SWARM change (M1): our own support page, not Signal's community forum.
+  drop(shell.openExternal('https://swarm.green/support'));
 }
 
 function showKeyboardShortcuts() {
@@ -2068,7 +2073,7 @@ const onDatabaseInitializationError = async (error: Error) => {
   } else if (buttonIndex === goToSupportPageButtonIndex) {
     drop(
       shell.openExternal(
-        'https://support.signal.org/hc/articles/9045714156314#desktop'
+        'https://swarm.green/support'
       )
     );
   }
@@ -2181,6 +2186,10 @@ electronProtocol.registerSchemesAsPrivileged([
 // Some APIs can only be used after this event occurs.
 let ready = false;
 app.on('ready', async () => {
+  // SWARM addition (M1): refuse to run a build that points at Signal's servers
+  // or still carries placeholder server parameters. Before any window opens.
+  enforceSwarmConfig(config, log);
+
   dns.setFallback(await getDNSFallback());
   if (DISABLE_IPV6) {
     dns.setIPv6Enabled(false);
@@ -2954,7 +2963,10 @@ ipc.on('get-config', async event => {
     cdnUrl0: config.get<string>('cdn.0'),
     cdnUrl2: config.get<string>('cdn.2'),
     cdnUrl3: config.get<string>('cdn.3'),
-    certificateAuthority: config.get<string>('certificateAuthority'),
+    // SWARM change (M1): optional - absent means "use the system CA store".
+    certificateAuthority: config.has('certificateAuthority')
+      ? config.get<string>('certificateAuthority')
+      : undefined,
     environment:
       !isTestEnvironment(getEnvironment()) && ciMode
         ? Environment.PackagedApp
@@ -2979,7 +2991,10 @@ ipc.on('get-config', async event => {
     registrationChallengeUrl: config.get<string>('registrationChallengeUrl'),
     serverPublicParams: config.get<string>('serverPublicParams'),
     serverTrustRoots: config.get<Array<string>>('serverTrustRoots'),
-    stripePublishableKey: config.get<string>('stripePublishableKey'),
+    // SWARM change (M1): SWARM Messenger has no donations, so no Stripe key.
+    stripePublishableKey: config.has('stripePublishableKey')
+      ? config.get<string>('stripePublishableKey')
+      : undefined,
     genericServerPublicParams: config.get<string>('genericServerPublicParams'),
     backupServerPublicParams: config.get<string>('backupServerPublicParams'),
     theme,

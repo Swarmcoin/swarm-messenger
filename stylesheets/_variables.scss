@@ -1,8 +1,13 @@
 // Copyright 2015 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
+// SWARM change (M1): the SWARM type system. Manrope carries running text, Sora
+// carries display, JetBrains Mono carries numbers, hashes and addresses. Inter
+// stays in the stack as a fallback so no glyph is lost. The variable name is
+// kept as $inter because it is used in hundreds of places.
 // Note: Add language-specific fallbacks in @localized-fonts mixin
 $inter:
+  Manrope,
   Inter,
   'Source Sans Pro',
   'Source Han Sans',
@@ -17,14 +22,24 @@ $inter:
   Arial,
   sans-serif;
 
+// SWARM change (M1): Sora for display headings.
+$swarm-display:
+  Sora,
+  Manrope,
+  Inter,
+  -apple-system,
+  system-ui,
+  'Segoe UI',
+  sans-serif;
+
 // Note: This font-family is checked for in matchMonospace, to support paste scenarios
 $monospace:
-  'SF Mono', SFMono-Regular, ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas,
-  monospace;
+  'JetBrains Mono', 'SF Mono', SFMono-Regular, ui-monospace, 'DejaVu Sans Mono',
+  Menlo, Consolas, monospace;
 
 // -- V3 Colors
 
-$color-accent-blue: #2c6bed;
+$color-accent-blue: #ff8a1f; // SWARM (M1): Hive Orange
 $color-accent-green: #4caf50;
 $color-accent-red: #f44336;
 $color-accent-yellow: #ffd624;
@@ -87,13 +102,13 @@ $color-black-alpha-90: rgba($color-black, 0.9);
 
 $color-transparent: rgba(0, 0, 0, 0);
 
-$color-ultramarine-dark: #1851b4;
-$color-ultramarine-logo: #3b45fd;
-$color-ultramarine-light: #6191f3;
-$color-ultramarine-dawn: #406ec9;
-$color-ultramarine-pastel: #abc4f8;
-$color-ultramarine-pale: #d2dffb;
-$color-ultramarine: #2c6bed;
+$color-ultramarine-dark: #b35f0d; // SWARM (M1)
+$color-ultramarine-logo: #ff8a1f; // SWARM (M1)
+$color-ultramarine-light: #ffa751; // SWARM (M1)
+$color-ultramarine-dawn: #e07b18; // SWARM (M1)
+$color-ultramarine-pastel: #ffd08a; // SWARM (M1)
+$color-ultramarine-pale: #ffe6c2; // SWARM (M1)
+$color-ultramarine: #ff8a1f; // SWARM (M1): Hive Orange
 $color-link: #315ff4;
 
 // Flat colors

@@ -121,12 +121,12 @@ async function promptOSAuthLinux(
   let command: string;
   if (reason === 'enable-backups') {
     command =
-      'pkcheck -u --process $$ --action-id org.signalapp.enable-backups';
+      'pkcheck -u --process $$ --action-id green.swarm.enable-backups';
   } else if (reason === 'view-aep') {
-    command = 'pkcheck -u --process $$ --action-id org.signalapp.view-aep';
+    command = 'pkcheck -u --process $$ --action-id green.swarm.view-aep';
   } else if (reason === 'plaintext-export') {
     command =
-      'pkcheck -u --process $$ --action-id org.signalapp.plaintext-export';
+      'pkcheck -u --process $$ --action-id green.swarm.plaintext-export';
   } else {
     throw missingCaseError(reason);
   }
@@ -161,11 +161,11 @@ async function isPromptOSAuthAvailableLinux(
   // Avoid string interpolation in exec() command
   let actionCommand: string;
   if (reason === 'enable-backups') {
-    actionCommand = 'pkaction --action-id org.signalapp.enable-backups';
+    actionCommand = 'pkaction --action-id green.swarm.enable-backups';
   } else if (reason === 'view-aep') {
-    actionCommand = 'pkaction --action-id org.signalapp.view-aep';
+    actionCommand = 'pkaction --action-id green.swarm.view-aep';
   } else if (reason === 'plaintext-export') {
-    actionCommand = 'pkaction --action-id org.signalapp.plaintext-export';
+    actionCommand = 'pkaction --action-id green.swarm.plaintext-export';
   } else {
     throw missingCaseError(reason);
   }

@@ -41,7 +41,7 @@
   margin-inline: 0;
 
   @include mixins.color-svg(
-    '../images/signal-logo.svg',
+    '../images/swarm-mark.svg',
     light-dark(variables.$color-ultramarine-logo, variables.$color-white)
   );
 
