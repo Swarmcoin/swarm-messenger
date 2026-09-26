@@ -55,20 +55,20 @@ export function initializeNetworkObserver(
   let outageTimer: NodeJS.Timeout | undefined;
 
   const checkOutage = async (): Promise<void> => {
-    electronLookup('uptime.signal.org', { all: false }, (error, address) => {
+    electronLookup('uptime.swarm.green', { all: false }, (error, address) => {
       if (error) {
         log.error('outage check failure', error);
         return;
       }
 
       if (address === OUTAGE_HEALTY_ADDR) {
-        log.info('got healthy response from uptime.signal.org');
+        log.info('got healthy response from uptime.swarm.green');
         onOutageEnd();
       } else if (address === OUTAGE_NO_SERVICE_ADDR) {
         log.warn('service is down');
         networkActions.setOutage(true);
       } else {
-        log.error('unexpected DNS response for uptime.signal.org');
+        log.error('unexpected DNS response for uptime.swarm.green');
       }
     });
   };

@@ -322,6 +322,12 @@ export abstract class Updater {
   }
 
   protected getUpdatesPublicKey(): Buffer<ArrayBuffer> {
+    // SWARM change (M1): say so plainly rather than failing inside node-config.
+    if (!config.has('updatesPublicKey')) {
+      throw new Error(
+        'SWARM Messenger ships no update feed and no update signing key, so there is nothing to verify an update against. This code should be unreachable while updatesEnabled is false. See docs/SWARM-CONFIG.md.'
+      );
+    }
     return hexToBinary(config.get('updatesPublicKey'));
   }
 

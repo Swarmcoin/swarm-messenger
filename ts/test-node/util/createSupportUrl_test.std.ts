@@ -9,21 +9,21 @@ describe('createSupportUrl', () => {
   it('returns support url for "en" locale', () => {
     assert.strictEqual(
       createSupportUrl({ locale: 'en' }),
-      'https://support.signal.org/hc/en-us/requests/new?desktop'
+      'https://swarm.green/support'
     );
   });
 
   it('returns support url for "fr" locale', () => {
     assert.strictEqual(
       createSupportUrl({ locale: 'fr' }),
-      'https://support.signal.org/hc/fr/requests/new?desktop'
+      'https://swarm.green/support'
     );
   });
 
   it('returns support url with a query', () => {
     assert.strictEqual(
       createSupportUrl({ locale: 'en', query: { debugLog: 'https://' } }),
-      'https://support.signal.org/hc/en-us/requests/new?' +
+      'https://swarm.green/support' +
         'desktop&debugLog=https%3A%2F%2F'
     );
   });

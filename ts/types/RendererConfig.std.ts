@@ -29,7 +29,9 @@ export const rendererConfigSchema = z.object({
   cdnUrl2: configRequiredStringSchema,
   cdnUrl3: configRequiredStringSchema,
   challengeUrl: configRequiredStringSchema,
-  certificateAuthority: configRequiredStringSchema,
+  // SWARM change (M1): absent for SWARM endpoints so the system certificate
+  // store is used; set it only for a staging server with a private root.
+  certificateAuthority: configOptionalStringSchema,
   contentProxyUrl: configRequiredStringSchema,
   crashDumpsPath: configRequiredStringSchema,
   ciMode: z.enum(['full', 'benchmark']).or(z.literal(false)),
@@ -63,7 +65,8 @@ export const rendererConfigSchema = z.object({
   serverUrl: configRequiredStringSchema,
   sfuUrl: configRequiredStringSchema,
   storageUrl: configRequiredStringSchema,
-  stripePublishableKey: configRequiredStringSchema,
+  // SWARM change (M1): SWARM Messenger has no donations, so no Stripe key.
+  stripePublishableKey: configOptionalStringSchema,
   theme: themeSettingSchema,
   updatesUrl: configRequiredStringSchema,
   resourcesUrl: configRequiredStringSchema,

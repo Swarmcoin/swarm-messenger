@@ -7,6 +7,7 @@ import { getUserAgent } from '../util/getUserAgent.node.ts';
 import { isStagingServer } from '../util/isStagingServer.dom.ts';
 import { getMockServerPort } from '../util/getMockServerPort.dom.ts';
 import { isMockServer } from '../util/isMockServer.dom.ts';
+import { describeLibsignalNetTarget } from '../util/swarm/endpointGuard.std.ts';
 import { pemToDer } from '../util/pemToDer.std.ts';
 import { drop } from '../util/drop.std.ts';
 import { toLogFormat } from '../types/errors.std.ts';
@@ -23,6 +24,30 @@ function resolveLibsignalNet(
 ): Net.Net {
   const userAgent = getUserAgent(version);
   log.info(`libsignal net url: ${url}`);
+  // SWARM change (M1): libsignal-client 0.101.2 can only be pointed at Signal
+  // staging, Signal production or a loopback test server - its environments are
+  // compiled into the Rust crate. Upstream fell through to
+  // Net.Environment.Production for anything it did not recognise, which for a
+  // SWARM hostname would mean talking to Signal's production servers. That must
+  // never happen, so refuse instead, in words that say what has to change.
+  const swarmTarget = describeLibsignalNetTarget(url);
+  if (swarmTarget === 'signal-staging' || swarmTarget === 'signal-production') {
+    throw new Error(
+      `SWARM Messenger refuses to connect: serverUrl ${url} is a Signal ` +
+        'server. Point serverUrl at a SWARM endpoint (see docs/SWARM-CONFIG.md).'
+    );
+  }
+  if (swarmTarget === 'unsupported-custom-host') {
+    throw new Error(
+      `SWARM Messenger cannot reach ${url} yet. libsignal-net has no custom ` +
+        'environment: it only knows Signal staging, Signal production and a ' +
+        'loopback test server. Until libsignal gains a SWARM environment, the ' +
+        'SWARM chat server has to be reachable at https://localhost:<port> ' +
+        '(directly or through a tunnel) with its root certificate in the ' +
+        'certificateAuthority config value. See docs/SWARM-CONFIG.md.'
+    );
+  }
+
   if (isStagingServer(url)) {
     log.info('libsignal net environment resolved to staging');
     return new Net.Net({
@@ -57,30 +82,70 @@ function resolveLibsignalNet(
 // for providing network layer API and related functionality.
 // It's important to have a single instance of this class as it holds
 // resources that are shared across all other use cases.
-let libsignalNet: Net.Net;
+let libsignalNet: Net.Net | undefined;
+
+// SWARM change (M1): when resolveLibsignalNet() refuses (see above), remember
+// why. The app still starts and shows its window - the refusal surfaces the
+// moment something actually needs the network, with the same explanation.
+let libsignalNetError: Error | undefined;
 
 export function getLibsignalNet(): Net.Net {
+  if (libsignalNetError !== undefined) {
+    // Callers capture this at module load, so we cannot throw here without
+    // breaking the whole renderer. Hand back an object that throws the
+    // explanation the first time anything actually touches the network.
+    const error = libsignalNetError;
+    return new Proxy({} as Net.Net, {
+      get() {
+        throw error;
+      },
+      set() {
+        throw error;
+      },
+    });
+  }
+  if (libsignalNet === undefined) {
+    throw new Error(
+      'getLibsignalNet: no network layer - serverUrl is not configured'
+    );
+  }
   return libsignalNet;
+}
+
+/** SWARM addition: why there is no libsignal-net instance, if there is none. */
+export function getLibsignalNetError(): Error | undefined {
+  return libsignalNetError;
 }
 
 // Not defined in tests
 if (window.SignalContext.config?.serverUrl) {
   const { config } = window.SignalContext;
 
-  libsignalNet = resolveLibsignalNet(
-    config.serverUrl,
-    config.version,
-    config.certificateAuthority
-  );
+  try {
+    libsignalNet = resolveLibsignalNet(
+      config.serverUrl,
+      config.version,
+      config.certificateAuthority
+    );
+  } catch (error) {
+    libsignalNetError =
+      error instanceof Error ? error : new Error(String(error));
+    log.error(`SWARM: no libsignal network layer: ${libsignalNetError.message}`);
+  }
+}
 
-  libsignalNet.setIpv6Enabled(!config.disableIPv6);
+const readyNet = libsignalNet;
+if (readyNet !== undefined) {
+  const { config } = window.SignalContext;
+
+  readyNet.setIpv6Enabled(!config.disableIPv6);
   if (config.proxyUrl) {
     log.info('WebAPI: Setting libsignal proxy');
     try {
-      libsignalNet.setProxyFromUrl(config.proxyUrl);
+      readyNet.setProxyFromUrl(config.proxyUrl);
     } catch (error) {
       log.error(`WebAPI: Failed to set proxy: ${error}`);
-      libsignalNet.clearProxy();
+      readyNet.clearProxy();
     }
   }
 
@@ -88,7 +153,7 @@ if (window.SignalContext.config?.serverUrl) {
     (async () => {
       try {
         log.info('WebAPI: preconnect start');
-        await libsignalNet.preconnectChat();
+        await readyNet.preconnectChat();
         log.info('WebAPI: preconnect done');
       } catch (error) {
         log.error(`WebAPI: Failed to preconnect: ${toLogFormat(error)}`);

@@ -10,14 +10,11 @@ const resolve4 = promisify(resolve4Cb);
 const resolve6 = promisify(resolve6Cb);
 
 const FALLBACK_DOMAINS = [
-  'chat.signal.org',
-  'storage.signal.org',
-  'cdsi.signal.org',
-  'cdn.signal.org',
-  'cdn2.signal.org',
-  'cdn3.signal.org',
-  'updates2.signal.org',
-  'sfu.voip.signal.org',
+  'chat.swarm.green',
+  'storage.chat.swarm.green',
+  'cdn.chat.swarm.green',
+  'sfu.chat.swarm.green',
+  'static.swarm.green',
 ];
 
 const config = await Promise.all(

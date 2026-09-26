@@ -60,6 +60,12 @@ export class LinuxAppImageUpdater extends Updater {
   }
 
   override getUpdatesPublicKey(): Buffer<ArrayBuffer> {
+    // SWARM change (M1): see common.main.ts.
+    if (!config.has('appImageUpdatesPublicKey')) {
+      throw new Error(
+        'SWARM Messenger ships no update feed and no update signing key, so there is nothing to verify an update against. This code should be unreachable while updatesEnabled is false. See docs/SWARM-CONFIG.md.'
+      );
+    }
     return hexToBinary(config.get('appImageUpdatesPublicKey'));
   }
 

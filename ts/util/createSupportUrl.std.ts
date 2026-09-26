@@ -43,11 +43,13 @@ export function createSupportUrl({
   locale,
   query = {},
 }: CreateSupportUrlOptionsType): string {
+  // SWARM change (M1): swarm.green/support is a single page - it does not have
+  // Signal's per-language support paths, so the locale is passed as a query
+  // parameter for whoever reads the request instead of going into the path.
   const language = SUPPORT_LANGUAGES.includes(locale) ? locale : 'en-us';
 
-  // This URL needs a hardcoded language because the '?desktop' is dropped if
-  //   the page auto-redirects to the proper URL
-  const url = new URL(`https://support.signal.org/hc/${language}/requests/new`);
+  const url = new URL('https://swarm.green/support');
+  url.searchParams.set('lang', language);
 
   url.searchParams.set('desktop', '');
 

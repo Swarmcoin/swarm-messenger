@@ -35,26 +35,15 @@ const CONNECT_TIMEOUT_MS = 10 * SECOND;
 
 const electronLookup = promisify(electronLookupWithCb);
 
+// SWARM change (M1): these are the SWARM endpoints, not Signal's. The set only
+// decides which hosts get their connection timings logged.
 const HOST_LOG_ALLOWLIST = new Set([
-  // Production
-  'chat.signal.org',
-  'storage.signal.org',
-  'cdsi.signal.org',
-  'cdn.signal.org',
-  'cdn2.signal.org',
-  'cdn3.signal.org',
-
-  // Staging
-  'chat.staging.signal.org',
-  'storage-staging.signal.org',
-  'cdsi.staging.signal.org',
-  'cdn-staging.signal.org',
-  'cdn2-staging.signal.org',
-  'create.staging.signal.art',
-
-  // Common
-  'updates2.signal.org',
-  'sfu.voip.signal.org',
+  'chat.swarm.green',
+  'storage.chat.swarm.green',
+  'cdn.chat.swarm.green',
+  'sfu.chat.swarm.green',
+  'contentproxy.chat.swarm.green',
+  'static.swarm.green',
 ]);
 
 class Agent extends HTTPSAgent {
