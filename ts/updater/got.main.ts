@@ -20,8 +20,12 @@ function getProxyUrl(): string | undefined {
   return process.env.HTTPS_PROXY || process.env.https_proxy;
 }
 
-function getCertificateAuthority(): string {
-  return config.get('certificateAuthority');
+// SWARM change (M1): certificateAuthority is optional now - absent means "use
+// the system certificate store", which is what a public TLS certificate needs.
+function getCertificateAuthority(): string | undefined {
+  return config.has('certificateAuthority')
+    ? config.get<string>('certificateAuthority')
+    : undefined;
 }
 
 export type { GotOptions };

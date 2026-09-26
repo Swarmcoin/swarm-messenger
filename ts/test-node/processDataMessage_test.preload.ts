@@ -460,14 +460,14 @@ describe('processDataMessage', () => {
             'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
           image: UNPROCESSED_ATTACHMENT,
           title: 'Signal Private Messenger #1',
-          url: 'https://signal.org',
+          url: 'https://swarm.green',
           date: null,
         },
         {
           description: 'Say "hello" again',
           image: UNPROCESSED_ATTACHMENT,
           title: 'Signal Private Messenger #2',
-          url: 'https://signal.org',
+          url: 'https://swarm.green',
           date: null,
         },
       ],
@@ -480,7 +480,7 @@ describe('processDataMessage', () => {
           'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
         image: PROCESSED_ATTACHMENT,
         title: 'Signal Private Messenger #1',
-        url: 'https://signal.org',
+        url: 'https://swarm.green',
       },
     ]);
   });

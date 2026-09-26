@@ -497,18 +497,18 @@ describe('backup/attachments', () => {
       await asymmetricRoundtripHarness(
         [
           composeMessage(1, {
-            body: 'https://signal.org',
+            body: 'https://swarm.green',
             preview: [
-              { url: 'https://signal.org', date: 1, image: attachment },
+              { url: 'https://swarm.green', date: 1, image: attachment },
             ],
           }),
         ],
         [
           composeMessage(1, {
-            body: 'https://signal.org',
+            body: 'https://swarm.green',
             preview: [
               {
-                url: 'https://signal.org',
+                url: 'https://swarm.green',
                 date: 1,
                 image: expectedRoundtrippedFields(attachment),
               },
@@ -525,10 +525,10 @@ describe('backup/attachments', () => {
       await asymmetricRoundtripHarness(
         [
           composeMessage(1, {
-            body: 'https://signal.org',
+            body: 'https://swarm.green',
             preview: [
               {
-                url: 'https://signal.org',
+                url: 'https://swarm.green',
                 date: 1,
                 title: 'title',
                 description: 'description',
@@ -539,10 +539,10 @@ describe('backup/attachments', () => {
         ],
         [
           composeMessage(1, {
-            body: 'https://signal.org',
+            body: 'https://swarm.green',
             preview: [
               {
-                url: 'https://signal.org',
+                url: 'https://swarm.green',
                 date: 1,
                 title: 'title',
                 description: 'description',

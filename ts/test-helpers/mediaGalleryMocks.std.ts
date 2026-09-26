@@ -124,8 +124,8 @@ function createRandomLink(
     type: 'link',
     message: createRandomMessage(startTime, timeWindow),
     preview: {
-      url: 'https://signal.org/',
-      domain: 'signal.org',
+      url: 'https://swarm.green/',
+      domain: 'swarm.green',
       title: 'Signal',
       description: 'description',
       image: Math.random() > 0.7 ? createRandomAttachment('png') : undefined,

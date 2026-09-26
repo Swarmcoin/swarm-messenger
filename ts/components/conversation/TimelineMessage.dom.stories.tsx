@@ -459,7 +459,7 @@ export function EmojiMessages(): JSX.Element {
         {...createProps({
           previews: [
             {
-              domain: 'signal.org',
+              domain: 'swarm.green',
               image: fakeAttachment({
                 contentType: IMAGE_PNG,
                 fileName: 'the-sax.png',
@@ -472,7 +472,7 @@ export function EmojiMessages(): JSX.Element {
               title: 'Signal',
               description:
                 'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
-              url: 'https://www.signal.org',
+              url: 'https://swarm.green',
               date: new Date(2020, 2, 10).valueOf(),
             },
           ],
@@ -1333,7 +1333,7 @@ export const LinkPreviewInGroup = Template.bind({});
 LinkPreviewInGroup.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       image: fakeAttachment({
         contentType: IMAGE_PNG,
         fileName: 'the-sax.png',
@@ -1346,12 +1346,12 @@ LinkPreviewInGroup.args = {
       title: 'Signal',
       description:
         'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: new Date(2020, 2, 10).valueOf(),
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
   conversationType: 'group',
   contactNameColor: '100',
 };
@@ -1360,7 +1360,7 @@ export const LinkPreviewWithLongWord = Template.bind({});
 LinkPreviewWithLongWord.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       image: fakeAttachment({
         contentType: IMAGE_PNG,
         fileName: 'the-sax.png',
@@ -1372,12 +1372,12 @@ LinkPreviewWithLongWord.args = {
       isCallLink: false,
       title: 'Signal',
       description: `Say "hello" to a ${'Different'.repeat(10)} messaging experience.`,
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: new Date(2020, 2, 10).valueOf(),
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
   conversationType: 'group',
   contactNameColor: '100',
 };
@@ -1398,7 +1398,7 @@ LinkPreviewWithQuote.args = {
   },
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       image: fakeAttachment({
         contentType: IMAGE_PNG,
         fileName: 'the-sax.png',
@@ -1411,12 +1411,12 @@ LinkPreviewWithQuote.args = {
       title: 'Signal',
       description:
         'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: new Date(2020, 2, 10).valueOf(),
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
   conversationType: 'group',
   contactNameColor: '100',
 };
@@ -1425,7 +1425,7 @@ export const LinkPreviewWithSmallImage = Template.bind({});
 LinkPreviewWithSmallImage.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       image: fakeAttachment({
         contentType: IMAGE_PNG,
         fileName: 'the-sax.png',
@@ -1438,19 +1438,19 @@ LinkPreviewWithSmallImage.args = {
       title: 'Signal',
       description:
         'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: new Date(2020, 2, 10).valueOf(),
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
 };
 
 export const LinkPreviewImageThatFailsToLoad = Template.bind({});
 LinkPreviewImageThatFailsToLoad.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       image: fakeAttachment({
         contentType: IMAGE_PNG,
         fileName: 'the-sax.png',
@@ -1464,19 +1464,19 @@ LinkPreviewImageThatFailsToLoad.args = {
       title: 'Signal',
       description:
         'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: new Date(2020, 2, 10).valueOf(),
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
 };
 
 export const LinkPreviewWithUndownloadedImage = Template.bind({});
 LinkPreviewWithUndownloadedImage.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       image: fakeAttachment({
         contentType: IMAGE_PNG,
         fileName: 'sax.png',
@@ -1488,19 +1488,19 @@ LinkPreviewWithUndownloadedImage.args = {
       title: 'Signal',
       description:
         'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: new Date(2020, 2, 10).valueOf(),
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
 };
 
 export const LinkPreviewWithDownloadingImage = Template.bind({});
 LinkPreviewWithDownloadingImage.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       image: fakeAttachment({
         contentType: IMAGE_PNG,
         fileName: 'sax.png',
@@ -1514,19 +1514,19 @@ LinkPreviewWithDownloadingImage.args = {
       title: 'Signal',
       description:
         'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: new Date(2020, 2, 10).valueOf(),
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
 };
 
 export const LinkPreviewWithUndownloadedSmallImage = Template.bind({});
 LinkPreviewWithUndownloadedSmallImage.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       image: fakeAttachment({
         contentType: IMAGE_PNG,
         fileName: 'the-sax.png',
@@ -1540,19 +1540,19 @@ LinkPreviewWithUndownloadedSmallImage.args = {
       title: 'Signal',
       description:
         'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: new Date(2020, 2, 10).valueOf(),
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
 };
 
 export const LinkPreviewWithDownloadingSmallImage = Template.bind({});
 LinkPreviewWithDownloadingSmallImage.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       image: fakeAttachment({
         contentType: IMAGE_PNG,
         fileName: 'the-sax.png',
@@ -1568,53 +1568,53 @@ LinkPreviewWithDownloadingSmallImage.args = {
       title: 'Signal',
       description:
         'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: new Date(2020, 2, 10).valueOf(),
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
 };
 
 export const LinkPreviewWithoutImage = Template.bind({});
 LinkPreviewWithoutImage.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       isStickerPack: false,
       isCallLink: false,
       title: 'Signal',
       description:
         'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: new Date(2020, 2, 10).valueOf(),
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
 };
 
 export const LinkPreviewWithNoDescription = Template.bind({});
 LinkPreviewWithNoDescription.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       isStickerPack: false,
       isCallLink: false,
       title: 'Signal',
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: Date.now(),
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
 };
 
 export const LinkPreviewWithLongDescription = Template.bind({});
 LinkPreviewWithLongDescription.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       isStickerPack: false,
       isCallLink: false,
       title: 'Signal',
@@ -1623,19 +1623,19 @@ LinkPreviewWithLongDescription.args = {
           'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.'
         )
         .join(' '),
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: Date.now(),
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
 };
 
 export const LinkPreviewWithSmallImageLongDescription = Template.bind({});
 LinkPreviewWithSmallImageLongDescription.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       image: fakeAttachment({
         contentType: IMAGE_PNG,
         fileName: 'the-sax.png',
@@ -1651,19 +1651,19 @@ LinkPreviewWithSmallImageLongDescription.args = {
           'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.'
         )
         .join(' '),
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: Date.now(),
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
 };
 
 export const LinkPreviewWithNoDate = Template.bind({});
 LinkPreviewWithNoDate.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       image: fakeAttachment({
         contentType: IMAGE_PNG,
         fileName: 'the-sax.png',
@@ -1676,18 +1676,18 @@ LinkPreviewWithNoDate.args = {
       title: 'Signal',
       description:
         'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
 };
 
 export const LinkPreviewWithTooNewADate = Template.bind({});
 LinkPreviewWithTooNewADate.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       image: fakeAttachment({
         contentType: IMAGE_PNG,
         fileName: 'the-sax.png',
@@ -1700,12 +1700,12 @@ LinkPreviewWithTooNewADate.args = {
       title: 'Signal',
       description:
         'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: Date.now() + 3000000000,
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
 };
 
 export const LinkPreviewWithCallLink = Template.bind({});
@@ -1780,11 +1780,11 @@ LinkPreviewWithSticker.args = {
       isCallLink: false,
       title: 'Cat stickers',
       description: 'Sticker pack by Ann Chovy',
-      url: 'https://signal.art/addstickers#pack_id=abc&pack_key=123',
+      url: 'https://stickers.swarm.green/addstickers#pack_id=abc&pack_key=123',
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
 };
 
 export function Image(): JSX.Element {
@@ -3440,7 +3440,7 @@ export const NotApprovedWithLinkPreview = Template.bind({});
 NotApprovedWithLinkPreview.args = {
   previews: [
     {
-      domain: 'signal.org',
+      domain: 'swarm.green',
       image: fakeAttachment({
         contentType: IMAGE_PNG,
         fileName: 'the-sax.png',
@@ -3453,12 +3453,12 @@ NotApprovedWithLinkPreview.args = {
       title: 'Signal',
       description:
         'Say "hello" to a different messaging experience. An unexpected focus on privacy, combined with all of the features you expect.',
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       date: new Date(2020, 2, 10).valueOf(),
     },
   ],
   status: 'sent',
-  text: 'Be sure to look at https://www.signal.org',
+  text: 'Be sure to look at https://swarm.green',
   isMessageRequestAccepted: false,
 };
 

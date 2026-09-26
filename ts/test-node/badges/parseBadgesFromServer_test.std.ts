@@ -11,7 +11,7 @@ import { parseBadgesFromServer } from '../../badges/parseBadgesFromServer.std.ts
 const { omit } = lodash;
 
 describe('parseBadgesFromServer', () => {
-  const UPDATES_URL = 'https://updates2.signal.org/desktop';
+  const UPDATES_URL = 'https://static.swarm.green/desktop';
 
   const validBadgeData = {
     id: 'fake-badge-id',
@@ -32,15 +32,15 @@ describe('parseBadgesFromServer', () => {
     images: [
       ...['small', 'medium', 'large'].map(size => ({
         [BadgeImageTheme.Dark]: {
-          url: `https://updates2.signal.org/static/badges/${size}%20badge%20dark.svg`,
+          url: `https://static.swarm.green/static/badges/${size}%20badge%20dark.svg`,
         },
         [BadgeImageTheme.Light]: {
-          url: `https://updates2.signal.org/static/badges/${size}%20badge%20light.svg`,
+          url: `https://static.swarm.green/static/badges/${size}%20badge%20light.svg`,
         },
       })),
       {
         [BadgeImageTheme.Transparent]: {
-          url: 'https://updates2.signal.org/static/badges/huge%20badge.svg',
+          url: 'https://static.swarm.green/static/badges/huge%20badge.svg',
         },
       },
     ],

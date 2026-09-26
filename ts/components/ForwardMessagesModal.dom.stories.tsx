@@ -132,14 +132,14 @@ export function LinkPreview(): JSX.Element {
       {...useProps({
         drafts: [
           getMessageForwardDraft({
-            messageBody: 'signal.org',
+            messageBody: 'swarm.green',
             previews: [
               {
                 description: LONG_DESCRIPTION,
                 // oxlint-disable-next-line react/purity
                 date: Date.now(),
-                domain: 'https://www.signal.org',
-                url: 'signal.org',
+                domain: 'https://swarm.green',
+                url: 'swarm.green',
                 image: createAttachment({
                   url: '/fixtures/kitten-4-112-112.jpg',
                   contentType: IMAGE_JPEG,

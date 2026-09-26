@@ -20,7 +20,7 @@ export function DonationPrivacyInformationModal({
 }: DonationPrivacyInformationModalProps): JSX.Element {
   const handleDonationFAQsClick = () => {
     openLinkInWebBrowser(
-      'https://support.signal.org/hc/articles/360031949872-Donor-FAQs'
+      'https://swarm.green/support'
     );
   };
 
@@ -50,7 +50,7 @@ export function DonationPrivacyInformationModal({
             alt={i18n(
               'icu:PreferencesDonations__privacy-modal-icon-accessibility-label'
             )}
-            src="images/signal-heart.svg"
+            src="images/swarm-heart.svg"
           />
           <div className={tw('flex flex-col gap-4 pt-1.5 pb-4')}>
             <div className={tw('mt-1 mb-2')}>

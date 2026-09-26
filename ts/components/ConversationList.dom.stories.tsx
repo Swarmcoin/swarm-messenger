@@ -417,7 +417,7 @@ export const ConversationEmojiInMessage = (): JSX.Element =>
 export const ConversationLinkInMessage = (): JSX.Element =>
   renderConversation({
     lastMessage: {
-      text: 'Download at http://signal.org',
+      text: 'Download at http://swarm.green',
       status: 'read',
       deletedForEveryone: false,
     },

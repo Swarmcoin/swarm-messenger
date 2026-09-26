@@ -146,7 +146,7 @@ export function LongTextMostlySpoiler(): JSX.Element {
 export function Links(): JSX.Element {
   return (
     <MessageBodyReadMoreTest
-      text={`${'test '.repeat(176)}https://www.signal.org`}
+      text={`${'test '.repeat(176)}https://swarm.green`}
     />
   );
 }

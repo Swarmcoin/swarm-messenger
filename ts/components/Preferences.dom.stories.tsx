@@ -719,7 +719,7 @@ export default {
     setGroupSvcMode: action('setGroupSvcMode'),
     groupSvcModeForScreenshare: SVC_DEFAULT_MODE_FOR_SCREENSHARE,
     setGroupSvcModeForScreenshare: action('setGroupSvcModeForScreenshare'),
-    sfuUrl: 'https://sfu.voip.signal.org',
+    sfuUrl: 'https://sfu.voip.swarm.green',
     setSfuUrl: action('setSfuUrl'),
     saveAccountKeysPDF: async () => {
       await sleep(1000);
@@ -1093,7 +1093,7 @@ DonationsPaypalInProgress.args = {
         currencyType: 'USD',
         id: 'a',
         returnToken: 'a',
-        approvalUrl: 'https://www.signal.org',
+        approvalUrl: 'https://swarm.green',
       },
     }),
 };

@@ -48,7 +48,7 @@ const createProps = (overrideProps: Partial<Props> = {}): Props => ({
 
 export function LinksEnabled(): JSX.Element {
   const props = createProps({
-    text: 'Check out https://www.signal.org',
+    text: 'Check out https://swarm.green',
   });
 
   return <MessageBody {...props} />;
@@ -57,7 +57,7 @@ export function LinksEnabled(): JSX.Element {
 export function LinksDisabled(): JSX.Element {
   const props = createProps({
     disableLinks: true,
-    text: 'Check out https://www.signal.org',
+    text: 'Check out https://swarm.green',
   });
 
   return <MessageBody {...props} />;
@@ -108,7 +108,7 @@ export function JumbomojiDisabledByText(): JSX.Element {
 
 export function TextPending(): JSX.Element {
   const props = createProps({
-    text: 'Check out https://www.signal.org',
+    text: 'Check out https://swarm.green',
     textAttachment: {
       pending: true,
     },
@@ -119,7 +119,7 @@ export function TextPending(): JSX.Element {
 
 export function MessageTooLong(): JSX.Element {
   const props = createProps({
-    text: 'Check out https://www.signal.org',
+    text: 'Check out https://swarm.green',
     textAttachment: {
       wasTooBig: true,
     },
@@ -210,7 +210,7 @@ export function ComplexMessageBody(): JSX.Element {
       },
     ],
     direction: 'outgoing',
-    text: 'Hey \uFFFC\nCheck out https://www.signal.org I think you will really like it 😍\n\ncc \uFFFC \uFFFC',
+    text: 'Hey \uFFFC\nCheck out https://swarm.green I think you will really like it 😍\n\ncc \uFFFC \uFFFC',
   });
 
   return (
@@ -435,8 +435,8 @@ export function FormattingComplex(): JSX.Element {
     'The evolution of a process is directed by a pattern of rules called a program. ' +
     'People create programs to direct processes. In effect, we conjure the spirits of ' +
     'the computer with our spells.\n\n' +
-    'link preceded by emoji: 🤖https://signal.org/\n\n' +
-    'link overlapping strikethrough: https://signal.org/ (up to "...//signal")\n\n' +
+    'link preceded by emoji: 🤖https://swarm.green/\n\n' +
+    'link overlapping strikethrough: https://swarm.green/ (up to "...//signal")\n\n' +
     'strikethrough going through mention \uFFFC all the way';
 
   const props = createProps({

@@ -74,7 +74,8 @@ const getExpectedViewMenu = (): MenuItemConstructorOptions => ({
     { label: 'Debug Log', click: showDebugLog },
     { type: 'separator' },
     { label: 'Toggle Developer Tools', role: 'toggleDevTools' },
-    { label: 'Force Update', click: forceUpdate },
+    // SWARM change (M1): "Force Update" is gone - SWARM Messenger has no update
+    // feed.
   ],
 });
 
@@ -98,7 +99,7 @@ const getExpectedHelpMenu = (
     ...(includeAbout
       ? ([
           { type: 'separator' },
-          { label: 'About Signal Desktop', click: showAbout },
+          { label: 'About SWARM Messenger', click: showAbout },
         ] as MenuListType)
       : []),
   ],
@@ -106,9 +107,9 @@ const getExpectedHelpMenu = (
 
 const EXPECTED_MACOS: MenuListType = [
   {
-    label: 'Signal Desktop',
+    label: 'SWARM Messenger',
     submenu: [
-      { label: 'About Signal Desktop', click: showAbout },
+      { label: 'About SWARM Messenger', click: showAbout },
       { type: 'separator' },
       {
         label: 'Preferences…',
@@ -122,7 +123,7 @@ const EXPECTED_MACOS: MenuListType = [
       { label: 'Hide Others', role: 'hideOthers' },
       { label: 'Show All', role: 'unhide' },
       { type: 'separator' },
-      { label: 'Quit Signal', role: 'quit' },
+      { label: 'Quit SWARM Messenger', role: 'quit' },
     ],
   },
   {
@@ -160,7 +161,7 @@ const EXPECTED_WINDOWS: MenuListType = [
         click: showSettings,
       },
       { type: 'separator' },
-      { label: 'Quit Signal', role: 'quit' },
+      { label: 'Quit SWARM Messenger', role: 'quit' },
     ],
   },
   getExpectedEditMenu(false),
@@ -173,17 +174,9 @@ const EXPECTED_WINDOWS: MenuListType = [
   getExpectedHelpMenu(true),
 ];
 
-const EXPECTED_LINUX: MenuListType = EXPECTED_WINDOWS.map(menuItem => {
-  if (menuItem.label === '&View' && Array.isArray(menuItem.submenu)) {
-    return {
-      ...menuItem,
-      submenu: menuItem.submenu.filter(
-        submenuItem => submenuItem.label !== 'Force Update'
-      ),
-    };
-  }
-  return menuItem;
-});
+// SWARM change (M1): upstream stripped "Force Update" from the Linux View menu.
+// There is no such item on any platform now, so Linux matches Windows exactly.
+const EXPECTED_LINUX: MenuListType = EXPECTED_WINDOWS;
 
 const PLATFORMS = [
   {
@@ -280,6 +273,13 @@ describe('createTemplate', () => {
               submenu: [
                 { label: 'Set Up as New Device', click: setupAsNewDevice },
                 { type: 'separator' },
+                // SWARM change (M1): registering on this computer is a
+                // first-class path, not a development-only shortcut, so this
+                // item is always here.
+                {
+                  label: 'Create account on this computer',
+                  click: setupAsStandalone,
+                },
                 ...menuItem.submenu,
               ],
             };

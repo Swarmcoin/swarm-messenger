@@ -41,6 +41,12 @@ function isLicenceOrAttributionLine(line: string): boolean {
   if (/based on Signal Desktop by Signal Messenger, LLC/.test(line)) {
     return true;
   }
+  // A comment citing upstream source on GitHub. Not an endpoint: nothing is
+  // fetched from it, and removing the citation would make the code harder to
+  // follow. e.g. ts/groups.preload.ts pointing at Signal-Android.
+  if (/^\s*(\/\/|\*|#)/.test(line) && /github\.com\/signalapp\//.test(line)) {
+    return true;
+  }
   return false;
 }
 

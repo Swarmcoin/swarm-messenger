@@ -98,7 +98,7 @@ export function ProfileEntryScreen({
         <div>
           <a
             className={tw('text-primary')}
-            href="https://support.signal.org/hc/articles/360007459591-Signal-Profiles-and-Message-Requests"
+            href="https://swarm.green/support"
           >
             {i18n('icu:StandaloneRegistration--ProfileEntry--learn-more')}
           </a>

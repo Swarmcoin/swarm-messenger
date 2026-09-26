@@ -22,7 +22,7 @@ describe('graphemeAndLinkAwareSlice', () => {
   });
 
   it('should include entire url and detect no more to read', () => {
-    const input = 'Hello, Signal! https://signal.org';
+    const input = 'Hello, Signal! https://swarm.green';
     const result = graphemeAndLinkAwareSlice(input, 16, 0);
 
     assert.strictEqual(result.text, input);
@@ -30,8 +30,8 @@ describe('graphemeAndLinkAwareSlice', () => {
   });
 
   it('should include entire url and detect more to read', () => {
-    const input = 'Hello, Signal! https://signal.org additional text';
-    const inputProperlyTruncated = 'Hello, Signal! https://signal.org';
+    const input = 'Hello, Signal! https://swarm.green additional text';
+    const inputProperlyTruncated = 'Hello, Signal! https://swarm.green';
 
     const result = graphemeAndLinkAwareSlice(input, 16, 0);
     assert.strictEqual(result.text, inputProperlyTruncated);
@@ -39,7 +39,7 @@ describe('graphemeAndLinkAwareSlice', () => {
   });
 
   it('should truncate normally when url present after truncation', () => {
-    const input = 'Hello, Signal! https://signal.org additional text';
+    const input = 'Hello, Signal! https://swarm.green additional text';
     const inputProperlyTruncated = 'Hello, Signal!';
 
     const result = graphemeAndLinkAwareSlice(input, 14, 0);
@@ -49,9 +49,9 @@ describe('graphemeAndLinkAwareSlice', () => {
 
   it('truncates after url when url present before and at truncation point', () => {
     const input =
-      'Hello, Signal! https://signal.org additional text https://example.com/example more text';
+      'Hello, Signal! https://swarm.green additional text https://example.com/example more text';
     const inputProperlyTruncated =
-      'Hello, Signal! https://signal.org additional text https://example.com/example';
+      'Hello, Signal! https://swarm.green additional text https://example.com/example';
 
     const result = graphemeAndLinkAwareSlice(input, 55, 0);
     assert.strictEqual(result.text, inputProperlyTruncated);
@@ -60,8 +60,8 @@ describe('graphemeAndLinkAwareSlice', () => {
 
   it('truncates after url when url present at and after truncation point', () => {
     const input =
-      'Hello, Signal! https://signal.org additional text https://example.com/example more text';
-    const inputProperlyTruncated = 'Hello, Signal! https://signal.org';
+      'Hello, Signal! https://swarm.green additional text https://example.com/example more text';
+    const inputProperlyTruncated = 'Hello, Signal! https://swarm.green';
 
     const result = graphemeAndLinkAwareSlice(input, 26, 0);
     assert.strictEqual(result.text, inputProperlyTruncated);

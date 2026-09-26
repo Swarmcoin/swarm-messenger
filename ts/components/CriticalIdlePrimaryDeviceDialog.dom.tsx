@@ -14,7 +14,7 @@ export type PropsType = {
 };
 
 export const CRITICAL_IDLE_PRIMARY_DEVICE_SUPPORT_PAGE =
-  'https://support.signal.org/hc/articles/8997185514138-Re-connect-your-primary-device-to-continue-using-Signal-Desktop';
+  'https://swarm.green/support';
 
 export function CriticalIdlePrimaryDeviceDialog({
   containerWidthBreakpoint,

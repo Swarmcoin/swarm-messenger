@@ -18,7 +18,7 @@ const createProps = (overrideProps: Partial<Props> = {}): Props => ({
 
 export function OnlyLink(): JSX.Element {
   const props = createProps({
-    text: 'https://www.signal.org',
+    text: 'https://swarm.green',
   });
 
   return <Linkify {...props} />;
@@ -26,7 +26,7 @@ export function OnlyLink(): JSX.Element {
 
 export function LinksWithText(): JSX.Element {
   const props = createProps({
-    text: 'you should see this: https://www.signal.org - it is good. Also: https://placekitten.com!',
+    text: 'you should see this: https://swarm.green - it is good. Also: https://placekitten.com!',
   });
 
   return <Linkify {...props} />;
@@ -34,7 +34,7 @@ export function LinksWithText(): JSX.Element {
 
 export function LinksWithEmojiWithoutSpace(): JSX.Element {
   const props = createProps({
-    text: '👍https://www.signal.org😎',
+    text: '👍https://swarm.green😎',
   });
 
   return <Linkify {...props} />;
@@ -74,7 +74,7 @@ export function MissingProtocols(): JSX.Element {
 
 export function CustomTextRender(): JSX.Element {
   const props = createProps({
-    text: 'you should see this: https://www.signal.org - it is good. Also: https://placekitten.com!',
+    text: 'you should see this: https://swarm.green - it is good. Also: https://placekitten.com!',
     renderNonLink: ({ text: theText, key }) => (
       <div key={key} style={{ backgroundColor: 'aquamarine' }}>
         {theText}

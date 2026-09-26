@@ -34,7 +34,7 @@ export function ChatSessionRefreshedNotification(
     setIsDialogOpen(false);
 
     const url =
-      'https://support.signal.org/hc/requests/new?desktop&chat_refreshed';
+      'https://swarm.green/support';
 
     openLinkInWebBrowser(url);
   }, [setIsDialogOpen]);

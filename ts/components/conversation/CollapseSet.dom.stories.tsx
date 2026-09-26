@@ -22,7 +22,7 @@ export default {
 function renderItem({ item }: RenderItemProps) {
   return (
     <div className={tw('py-2.5 text-center')}>
-      Message {item.id} - <a href="https://signal.org">Use Signal</a>
+      Message {item.id} - <a href="https://swarm.green">Use Signal</a>
     </div>
   );
 }
@@ -130,11 +130,11 @@ export function GroupWithTen(): JSX.Element {
   return (
     <div>
       <div className={tw('py-2.5 text-center')}>
-        Message id0 - <a href="https://signal.org">Use Signal</a>
+        Message id0 - <a href="https://swarm.green">Use Signal</a>
       </div>
       <CollapseSetViewer {...props} />
       <div className={tw('py-2.5 text-center')}>
-        Message id11 - <a href="https://signal.org">Use Signal</a>
+        Message id11 - <a href="https://swarm.green">Use Signal</a>
       </div>
     </div>
   );

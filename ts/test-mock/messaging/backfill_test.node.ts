@@ -553,7 +553,7 @@ describe('attachment backfill', function (this: Mocha.Suite) {
         authorAci: null,
       },
       preview: {
-        url: 'https://signal.org',
+        url: 'https://swarm.green',
         title: 'Signal',
         image: {
           ...catAttachment,
@@ -564,7 +564,7 @@ describe('attachment backfill', function (this: Mocha.Suite) {
         description: null,
         date: null,
       },
-      text: 'https://signal.org',
+      text: 'https://swarm.green',
       timestamp,
     });
 

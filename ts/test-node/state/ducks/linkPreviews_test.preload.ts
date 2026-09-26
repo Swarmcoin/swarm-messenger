@@ -14,9 +14,9 @@ describe('both/state/ducks/linkPreviews', () => {
   function getMockLinkPreview(): LinkPreviewForUIType {
     return {
       title: 'Hello World',
-      domain: 'signal.org',
+      domain: 'swarm.green',
       image: undefined,
-      url: 'https://www.signal.org',
+      url: 'https://swarm.green',
       isStickerPack: false,
       isCallLink: false,
     };

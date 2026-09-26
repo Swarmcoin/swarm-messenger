@@ -143,7 +143,7 @@ describe('Conversations', () => {
       [],
       [
         {
-          url: 'https://sometest.signal.org/',
+          url: 'https://sometest.swarm.green/',
           isCallLink: false,
         },
       ]
@@ -155,7 +155,7 @@ describe('Conversations', () => {
       [],
       [
         {
-          url: 'https://sometest.signal.org/',
+          url: 'https://sometest.swarm.green/',
           image: {
             contentType: IMAGE_PNG,
             size: 100,

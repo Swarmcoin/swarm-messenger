@@ -26,7 +26,7 @@ const createConversation = (): ConversationType =>
     type: 'group',
     lastUpdated: 0,
     title: 'Some Conversation',
-    groupDescription: 'This is a group description. https://www.signal.org',
+    groupDescription: 'This is a group description. https://swarm.green',
   });
 
 function Wrapper(overrideProps: Partial<Props>) {

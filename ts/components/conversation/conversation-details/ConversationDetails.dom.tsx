@@ -504,7 +504,7 @@ export function ConversationDetails({
                 label={i18n('icu:ConversationDetails--support-center')}
                 arrow="external-link"
                 onClick={() => {
-                  openLinkInWebBrowser('https://support.signal.org');
+                  openLinkInWebBrowser('https://swarm.green/support');
                 }}
               />
               <AxoClickableItem.Root

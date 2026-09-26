@@ -280,7 +280,7 @@ export function StandaloneRegistration({
       <TitlebarDragArea />
       <img
         className="StandaloneRegistration--SignalLogo"
-        src="images/signal-logo-with-text.svg"
+        src="images/swarm-lockup-with-text.svg"
         alt={i18n('icu:StandaloneRegistration--signal-logo')}
       />
       <Spacer className={tw('h-8')} />

@@ -180,7 +180,7 @@ export function LinkPreview(): JSX.Element {
       textAttachment={{
         color: 4294951251,
         preview: {
-          url: 'https://www.signal.org/workworkwork',
+          url: 'https://swarm.green/workworkwork',
           title: 'Signal >> Careers',
           isCallLink: false,
         },
@@ -197,7 +197,7 @@ export function LinkPreviewThumbnail(): JSX.Element {
       textAttachment={{
         color: 4294951251,
         preview: {
-          url: 'https://www.signal.org/workworkwork',
+          url: 'https://swarm.green/workworkwork',
           title: 'Signal >> Careers',
           isCallLink: false,
         },

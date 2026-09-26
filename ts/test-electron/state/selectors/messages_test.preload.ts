@@ -59,7 +59,7 @@ describe('state/selectors/messages', () => {
 
     it('drops links', () => {
       const body =
-        'You should download it from https://signal.org/download. Then read something on https://signal.org/blog. Then donate at https://signal.org/donate.';
+        'You should download it from https://swarm.green/download/. Then read something on https://swarm.green/blog. Then donate at https://swarm.green/donate.';
       const expected =
         'You should download it from . Then read something on . Then donate at .';
       const actual = cleanBodyForDirectionCheck(body);
@@ -68,7 +68,7 @@ describe('state/selectors/messages', () => {
 
     it('drops all of them at the same time', () => {
       const body =
-        'https://signal.org/download 😮 \uFFFC Did you really join Signal?';
+        'https://swarm.green/download/ 😮 \uFFFC Did you really join Signal?';
       const expected = '   Did you really join Signal?';
       const actual = cleanBodyForDirectionCheck(body);
       assert.strictEqual(actual, expected);

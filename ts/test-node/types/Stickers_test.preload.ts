@@ -40,32 +40,32 @@ describe('Stickers', () => {
 
     it("returns undefined for URLs that don't have a hash", () => {
       assert.isUndefined(
-        Stickers.getDataFromLink('https://signal.art/addstickers/')
+        Stickers.getDataFromLink('https://stickers.swarm.green/addstickers/')
       );
       assert.isUndefined(
-        Stickers.getDataFromLink('https://signal.art/addstickers/#')
+        Stickers.getDataFromLink('https://stickers.swarm.green/addstickers/#')
       );
     });
 
     it('returns undefined when no key or pack ID is found', () => {
       assert.isUndefined(
         Stickers.getDataFromLink(
-          'https://signal.art/addstickers/#pack_id=c8c83285b547872ac4c589d64a6edd6a'
+          'https://stickers.swarm.green/addstickers/#pack_id=c8c83285b547872ac4c589d64a6edd6a'
         )
       );
       assert.isUndefined(
         Stickers.getDataFromLink(
-          'https://signal.art/addstickers/#pack_id=c8c83285b547872ac4c589d64a6edd6a&pack_key='
+          'https://stickers.swarm.green/addstickers/#pack_id=c8c83285b547872ac4c589d64a6edd6a&pack_key='
         )
       );
       assert.isUndefined(
         Stickers.getDataFromLink(
-          'https://signal.art/addstickers/#pack_key=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e'
+          'https://stickers.swarm.green/addstickers/#pack_key=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e'
         )
       );
       assert.isUndefined(
         Stickers.getDataFromLink(
-          'https://signal.art/addstickers/#pack_key=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e&pack_id='
+          'https://stickers.swarm.green/addstickers/#pack_key=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e&pack_id='
         )
       );
     });
@@ -73,7 +73,7 @@ describe('Stickers', () => {
     it('returns undefined when the pack ID is invalid', () => {
       assert.isUndefined(
         Stickers.getDataFromLink(
-          'https://signal.art/addstickers/#pack_id=garbage&pack_key=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e'
+          'https://stickers.swarm.green/addstickers/#pack_id=garbage&pack_key=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e'
         )
       );
     });
@@ -81,12 +81,12 @@ describe('Stickers', () => {
     it('returns undefined if the ID or key are passed as arrays', () => {
       assert.isUndefined(
         Stickers.getDataFromLink(
-          'https://signal.art/addstickers/#pack_id[]=c8c83285b547872ac4c589d64a6edd6a&pack_key=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e'
+          'https://stickers.swarm.green/addstickers/#pack_id[]=c8c83285b547872ac4c589d64a6edd6a&pack_key=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e'
         )
       );
       assert.isUndefined(
         Stickers.getDataFromLink(
-          'https://signal.art/addstickers/#pack_id=c8c83285b547872ac4c589d64a6edd6a&pack_key[]=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e'
+          'https://stickers.swarm.green/addstickers/#pack_id=c8c83285b547872ac4c589d64a6edd6a&pack_key[]=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e'
         )
       );
     });
@@ -94,7 +94,7 @@ describe('Stickers', () => {
     it('parses the ID and key from the hash', () => {
       assert.deepEqual(
         Stickers.getDataFromLink(
-          'https://signal.art/addstickers/#pack_id=c8c83285b547872ac4c589d64a6edd6a&pack_key=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e'
+          'https://stickers.swarm.green/addstickers/#pack_id=c8c83285b547872ac4c589d64a6edd6a&pack_key=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e'
         ),
         {
           id: 'c8c83285b547872ac4c589d64a6edd6a',
@@ -106,7 +106,7 @@ describe('Stickers', () => {
     it('ignores additional hash parameters', () => {
       assert.deepEqual(
         Stickers.getDataFromLink(
-          'https://signal.art/addstickers/#pack_id=c8c83285b547872ac4c589d64a6edd6a&pack_key=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e&pack_foo=bar'
+          'https://stickers.swarm.green/addstickers/#pack_id=c8c83285b547872ac4c589d64a6edd6a&pack_key=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e&pack_foo=bar'
         ),
         {
           id: 'c8c83285b547872ac4c589d64a6edd6a',
@@ -118,7 +118,7 @@ describe('Stickers', () => {
     it('only parses the first ID and key from the hash if more than one is supplied', () => {
       assert.deepEqual(
         Stickers.getDataFromLink(
-          'https://signal.art/addstickers/#pack_id=c8c83285b547872ac4c589d64a6edd6a&pack_key=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e&pack_id=extra&pack_key=extra'
+          'https://stickers.swarm.green/addstickers/#pack_id=c8c83285b547872ac4c589d64a6edd6a&pack_key=59bb3a8860f0e6a5a83a5337a015c8d55ecd2193f82d77202f3b8112a845636e&pack_id=extra&pack_key=extra'
         ),
         {
           id: 'c8c83285b547872ac4c589d64a6edd6a',

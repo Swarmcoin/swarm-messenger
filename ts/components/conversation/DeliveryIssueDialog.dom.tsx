@@ -32,7 +32,7 @@ export function DeliveryIssueDialog(props: PropsType): ReactElement {
       <Button
         onClick={() =>
           openLinkInWebBrowser(
-            'https://support.signal.org/hc/articles/4404859745690'
+            'https://swarm.green/support'
           )
         }
         size={ButtonSize.Medium}

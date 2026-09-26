@@ -24,11 +24,11 @@ export default {
 const getDefaultProps = (): Props => ({
   date: Date.now(),
   description: 'This is a description',
-  domain: 'signal.org',
+  domain: 'swarm.green',
   i18n,
   onClose: action('onClose'),
   title: 'This is a super-sweet site',
-  url: 'https://www.signal.org',
+  url: 'https://swarm.green',
   isCallLink: false,
 });
 

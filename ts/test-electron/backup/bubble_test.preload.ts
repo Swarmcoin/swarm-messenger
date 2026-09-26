@@ -1058,13 +1058,13 @@ describe('backup/bubble messages', () => {
           sent_at: 3,
           timestamp: 3,
           sourceServiceId: CONTACT_A,
-          body: 'https://signal.org is a cool place',
+          body: 'https://swarm.green is a cool place',
           readStatus: ReadStatus.Unread,
           seenStatus: SeenStatus.Unseen,
           unidentifiedDeliveryReceived: true,
           preview: [
             {
-              url: 'https://signal.org',
+              url: 'https://swarm.green',
               title: 'Signal',
             },
           ],
@@ -1092,7 +1092,7 @@ describe('backup/bubble messages', () => {
             ...message,
             preview: [
               {
-                url: 'https://signal.org',
+                url: 'https://swarm.green',
                 title: 'Signal',
               },
             ],

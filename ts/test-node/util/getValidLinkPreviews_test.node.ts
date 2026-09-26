@@ -15,18 +15,18 @@ describe('getValidLinkPreviews', () => {
 
   it('keeps an https preview whose url appears in the body', () => {
     const result = getValidLinkPreviews(
-      [composePreview('https://signal.org')],
-      'Check this out: https://signal.org today',
+      [composePreview('https://swarm.green')],
+      'Check this out: https://swarm.green today',
       { isStory: false }
     );
     assert.lengthOf(result, 1);
     assert.exists(result[0]);
-    assert.strictEqual(result[0].url, 'https://signal.org');
+    assert.strictEqual(result[0].url, 'https://swarm.green');
   });
 
   it('drops a preview whose url is absent from the body', () => {
     const result = getValidLinkPreviews(
-      [composePreview('https://signal.org')],
+      [composePreview('https://swarm.green')],
       'There is no link in this body',
       { isStory: false }
     );
@@ -35,8 +35,8 @@ describe('getValidLinkPreviews', () => {
 
   it('drops a non-https preview even when the url is in the body', () => {
     const result = getValidLinkPreviews(
-      [composePreview('http://signal.org')],
-      'Insecure link: http://signal.org',
+      [composePreview('http://swarm.green')],
+      'Insecure link: http://swarm.green',
       { isStory: false }
     );
     assert.lengthOf(result, 0);
@@ -44,7 +44,7 @@ describe('getValidLinkPreviews', () => {
 
   it('exempts stories from the url-in-body requirement', () => {
     const result = getValidLinkPreviews(
-      [composePreview('https://signal.org')],
+      [composePreview('https://swarm.green')],
       '',
       {
         isStory: true,
@@ -52,7 +52,7 @@ describe('getValidLinkPreviews', () => {
     );
     assert.lengthOf(result, 1);
     assert.exists(result[0]);
-    assert.strictEqual(result[0].url, 'https://signal.org');
+    assert.strictEqual(result[0].url, 'https://swarm.green');
   });
 
   it('call links also require url in the body', () => {

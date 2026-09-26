@@ -983,7 +983,7 @@ describe('both/state/ducks/stories', () => {
     it('preview not downloaded, queued for download', async () => {
       const storyId = generateUuid();
       const preview = {
-        url: 'https://signal.org',
+        url: 'https://swarm.green',
         image: {
           contentType: IMAGE_JPEG,
           digest: 'digest-1',

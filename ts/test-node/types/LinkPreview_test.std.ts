@@ -16,20 +16,20 @@ describe('Link previews', () => {
     it('returns false for random, non-https URLs', () => {
       assert.isFalse(isValidLink(''));
       assert.isFalse(isValidLink('signal.com'));
-      assert.isFalse(isValidLink('signal.org'));
+      assert.isFalse(isValidLink('swarm.green'));
       assert.isFalse(isValidLink('https'));
       assert.isFalse(isValidLink('https://'));
       assert.isFalse(isValidLink('https://bad url'));
-      assert.isFalse(isValidLink('http://signal.org'));
+      assert.isFalse(isValidLink('http://swarm.green'));
     });
 
     it('returns true for https:// URLs', () => {
-      assert.isTrue(isValidLink('https://signal.org'));
-      assert.isTrue(isValidLink('https://somewhere.someplace.signal.org/'));
-      assert.isTrue(isValidLink('https://signal.org/something/another/#thing'));
+      assert.isTrue(isValidLink('https://swarm.green'));
+      assert.isTrue(isValidLink('https://somewhere.someplace.swarm.green/'));
+      assert.isTrue(isValidLink('https://swarm.green/something/another/#thing'));
       assert.isTrue(
         isValidLink(
-          'https://signal.org/something/another/?one=two&three=four#thing'
+          'https://swarm.green/something/another/?one=two&three=four#thing'
         )
       );
     });
@@ -42,18 +42,18 @@ describe('Link previews', () => {
       assert.isFalse(shouldPreviewHref('https://'));
       assert.isFalse(shouldPreviewHref('https://bad url'));
       assert.isFalse(shouldPreviewHref('signal.com'));
-      assert.isFalse(shouldPreviewHref('signal.org'));
+      assert.isFalse(shouldPreviewHref('swarm.green'));
     });
 
     it('returns false for non-HTTPS URLs', () => {
-      assert.isFalse(shouldPreviewHref('http://signal.org'));
-      assert.isFalse(shouldPreviewHref('ftp://signal.org'));
+      assert.isFalse(shouldPreviewHref('http://swarm.green'));
+      assert.isFalse(shouldPreviewHref('ftp://swarm.green'));
       assert.isFalse(shouldPreviewHref('file://signal'));
     });
 
     it('returns false if the link is "sneaky"', () => {
       // See `isLinkSneaky` tests below for more thorough checking.
-      assert.isFalse(shouldPreviewHref('https://user:pass@signal.org'));
+      assert.isFalse(shouldPreviewHref('https://user:pass@swarm.green'));
       assert.isFalse(shouldPreviewHref('https://aquí.signal'));
       assert.isFalse(shouldPreviewHref('https://aqu%C3%AD.signal'));
     });
@@ -70,11 +70,11 @@ describe('Link previews', () => {
     });
 
     it('returns true for "safe" urls', () => {
-      assert.isTrue(shouldPreviewHref('https://signal.org'));
-      assert.isTrue(shouldPreviewHref('https://example.signal.org'));
+      assert.isTrue(shouldPreviewHref('https://swarm.green'));
+      assert.isTrue(shouldPreviewHref('https://example.swarm.green'));
       assert.isTrue(shouldPreviewHref('https://myexample.com'));
       assert.isTrue(
-        shouldPreviewHref('https://signal.org/foo/bar?query=string#hash')
+        shouldPreviewHref('https://swarm.green/foo/bar?query=string#hash')
       );
     });
   });

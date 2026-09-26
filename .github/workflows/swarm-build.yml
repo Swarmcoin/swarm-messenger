@@ -1,0 +1,188 @@
+# Copyright 2026 SWARM
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# SWARM Messenger M1 build.
+#
+# Upstream .github/workflows/ci.yml is left untouched; it targets Signal's own
+# self-hosted runners (ubuntu-22.04-8-cores, windows-latest-8-cores) which do not
+# exist in the Swarm-Official org, and it builds beta channels we do not have.
+# This workflow uses the standard GitHub runners and does three things:
+#
+#   1. lint + typecheck + unit tests on Linux (upstream also typechecks on Linux:
+#      fs-xattr is an optional, non-Windows dependency, so `check:types` cannot
+#      pass on a Windows runner - see docs/SWARM-CHANGES.md)
+#   2. an UNSIGNED Windows installer, checked by scripts/swarm-brand-check.mjs
+#      against the packaged app
+#   3. the installer and its sha256 attached to a GitHub Release
+#
+# The release, not an artifact, is the deliverable: the org's Actions artifact
+# storage quota is exhausted, so actions/upload-artifact is best-effort only and
+# must never fail the run.
+
+name: SWARM build
+
+on:
+  push:
+    branches:
+      - swarm-main
+  pull_request:
+    branches:
+      - swarm-main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: swarm-build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Keep every cache off the system drive layout assumptions; on the runners this
+  # is just a stable location.
+  ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
+  ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
+
+jobs:
+  lint-and-test:
+    name: Lint, typecheck and unit tests (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run generate
+        run: pnpm run generate
+
+      - name: Check TypeScript
+        run: pnpm run check:types
+
+      - name: Check Oxlint
+        run: pnpm run oxlint:ci
+
+      - name: Check prettier
+        run: pnpm run lint-prettier
+
+      - name: Run node tests (includes the SWARM endpoint scan)
+        run: pnpm run test-node
+
+  windows-installer:
+    name: Unsigned Windows installer
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      # Deliberately NOT setting SWARM_ALLOW_MISSING_NATIVE here: a release build
+      # must fail if a native addon cannot be compiled.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run generate
+        run: pnpm run generate
+
+      - name: Run node tests (includes the SWARM endpoint scan)
+        run: pnpm run test-node
+
+      - name: Build unsigned NSIS installer
+        run: pnpm run build:release --publish=never
+        env:
+          DISABLE_INSPECT_FUSE: on
+
+      - name: Check the packaged app for leftover Signal branding
+        run: node scripts/swarm-brand-check.mjs release
+
+      - name: Collect installer and hashes
+        id: collect
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist-out
+          # electron-builder writes swarm-messenger-win-x64-<version>.exe
+          found=0
+          for f in release/*.exe; do
+            [ -e "$f" ] || continue
+            cp "$f" dist-out/
+            found=1
+          done
+          if [ "$found" -ne 1 ]; then
+            echo "No installer produced under release/" >&2
+            ls -la release || true
+            exit 1
+          fi
+          cd dist-out
+          sha256sum *.exe > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          {
+            echo 'sha256<<EOF'
+            cat SHA256SUMS.txt
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+          echo "short_sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      # Best effort only: the org's artifact storage quota is exhausted, and a
+      # failure here must not fail the build. The GitHub Release below is the
+      # deliverable.
+      - name: Upload installer as an artifact (best effort)
+        continue-on-error: true
+        uses: actions/upload-artifact@v5
+        with:
+          name: swarm-messenger-windows-unsigned
+          path: dist-out
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Publish installer to a GitHub Release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: swarm-messenger-m1-${{ steps.collect.outputs.short_sha }}
+          name: SWARM Messenger M1 (${{ steps.collect.outputs.short_sha }})
+          body: |
+            Unsigned Windows installer for SWARM Messenger, built from
+            `${{ github.sha }}` on `${{ github.ref_name }}`.
+
+            Not signed. Windows SmartScreen will warn. Do not distribute this
+            outside the SWARM team.
+
+            This build still carries placeholder server parameters, so it refuses
+            to start until `config/` is filled in from the staging chat server -
+            see `docs/SWARM-CONFIG.md`.
+
+            ```
+            ${{ steps.collect.outputs.sha256 }}
+            ```
+          files: |
+            dist-out/*.exe
+            dist-out/SHA256SUMS.txt
+          draft: false
+          prerelease: true
