@@ -1278,6 +1278,9 @@ export type RedeemReceiptOptionsType = Readonly<{
 
 export type RequestVerificationResultType = Readonly<{
   sessionId: string;
+  // SWARM addition (M1): whether the server asked for a captcha. Upstream threw
+  // when a server did not ask; a SWARM staging server legitimately may not.
+  captchaRequired: boolean;
 }>;
 
 export type SetBackupIdOptionsType = Readonly<{
@@ -1670,6 +1673,19 @@ const {
   updatesUrl,
   version,
 } = window.SignalContext.config;
+
+// SWARM addition (M1): donations are not part of SWARM Messenger. The Stripe
+// calls below are unreachable from the UI, and they refuse rather than send a
+// half-formed request if anything ever reaches them.
+function requireStripePublishableKey(): string {
+  if (stripePublishableKey == null || stripePublishableKey === '') {
+    throw new Error(
+      'SWARM Messenger has no donations and no Stripe key configured. This code ' +
+        'path should be unreachable.'
+    );
+  }
+  return stripePublishableKey;
+}
 
 const cdnUrlObject: Readonly<{
   '0': string;
@@ -2707,18 +2723,27 @@ export async function createVerificationSession(
     e164: phoneNumber,
   });
 
-  // Verify that captcha is expected
-  if (!session.sessionState.requestedInformation.has('captcha')) {
-    throw new Error('createVerificationSession: Expected captcha requirement');
+  // SWARM change (M1): upstream threw here when the server did not ask for a
+  // captcha, because Signal's server always does. A SWARM chat server may not
+  // have a captcha service at all, so report the requirement instead of
+  // refusing, and let the caller skip the captcha step.
+  const captchaRequired =
+    session.sessionState.requestedInformation.has('captcha');
+
+  if (!captchaRequired) {
+    log.info(
+      'createVerificationSession: server did not request a captcha; ' +
+        'the captcha step will be skipped'
+    );
   }
 
-  if (session.sessionState.allowedToRequestCode) {
+  if (captchaRequired && session.sessionState.allowedToRequestCode) {
     log.warn(
       'createVerificationSession: allowedToRequestCode was unexpectedly true!'
     );
   }
 
-  return { sessionId: session.sessionId };
+  return { sessionId: session.sessionId, captchaRequired };
 }
 
 export async function submitCaptchaForVerificationSession(options: {
@@ -4744,7 +4769,9 @@ export function confirmIntentWithStripe(
     return_url: returnUrl,
   };
   const basicAuth = getBasicAuth({
-    username: stripePublishableKey,
+    // SWARM change (M1): SWARM Messenger has no donations and no Stripe key, so
+    // this path is dead. Say so rather than sending an empty credential.
+    username: requireStripePublishableKey(),
     password: '',
   });
   const formBytes = Bytes.fromString(qs.encode(formData));
@@ -4782,7 +4809,9 @@ export function createPaymentMethodWithStripe(
     'card[number]': cardDetail.number,
   };
   const basicAuth = getBasicAuth({
-    username: stripePublishableKey,
+    // SWARM change (M1): SWARM Messenger has no donations and no Stripe key, so
+    // this path is dead. Say so rather than sending an empty credential.
+    username: requireStripePublishableKey(),
     password: '',
   });
   const formBytes = Bytes.fromString(qs.encode(formData));

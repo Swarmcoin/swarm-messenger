@@ -32,6 +32,7 @@ const DEFAULT_UPDATES = {
 const DEFAULT_PROPS: Omit<PropsType, 'provisioningUrl'> = {
   i18n,
   isStaging: false,
+  openStandalone: action('openStandalone'),
   updates: DEFAULT_UPDATES,
   OS: 'macOS',
   startUpdate: action('startUpdate'),

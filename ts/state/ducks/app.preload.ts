@@ -6,7 +6,7 @@ import type { ReadonlyDeep } from 'type-fest';
 import type { StateType as RootStateType } from '../reducer.preload.ts';
 import { createLogger } from '../../logging/log.std.ts';
 import { AppViewType } from '../../types/app.std.ts';
-import { getEnvironment, Environment } from '../../environment.std.ts';
+import { getEnvironment } from '../../environment.std.ts';
 import {
   START_INSTALLER,
   type StartInstallerActionType,
@@ -15,6 +15,8 @@ import {
   cancelInstall,
 } from './installer.preload.ts';
 import { startRegistration } from './standaloneInstaller.preload.ts';
+import { useBoundActions } from '../../hooks/useBoundActions.std.ts';
+import type { BoundActionCreatorsMapObject } from '../../hooks/useBoundActions.std.ts';
 
 const log = createLogger('app');
 
@@ -53,6 +55,12 @@ export const actions = {
   openStandalone,
 };
 
+// SWARM addition (M1): so the install screen can offer "Create account on this
+// computer" next to "Link to a phone".
+export const useAppActions = (): BoundActionCreatorsMapObject<
+  typeof actions
+> => useBoundActions(actions);
+
 function initialLoadComplete(): InitialLoadCompleteActionType {
   return {
     type: INITIAL_LOAD_COMPLETE,
@@ -85,12 +93,11 @@ function openStandalone(
   OpenStandaloneActionType
 > {
   return async (dispatch, getState) => {
-    if (!window.SignalCI && getEnvironment() === Environment.PackagedApp) {
-      log.warn(
-        `openStandalone: refusing because environment is ${getEnvironment()}`
-      );
-      return;
-    }
+    // SWARM change (M1): upstream only allowed standalone (phone-number)
+    // registration outside a packaged build, because a Signal Desktop is always
+    // a linked device. SWARM Messenger has to be usable as a first device, so
+    // this path stays open in packaged builds too.
+    log.info(`openStandalone: environment is ${getEnvironment()}`);
 
     cancelInstall()(dispatch, getState, undefined);
 

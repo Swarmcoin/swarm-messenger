@@ -204,7 +204,7 @@ export function moveToCaptchaStage({
   waitNeeded?: number;
   workflow: PhoneNumberStage;
 }): ThunkAction<Promise<void>, StateType, unknown, UpdateWorkflowActionType> {
-  return async dispatch => {
+  return async (dispatch, getState) => {
     const logId = `moveToCaptchaStage(waitNeeded=${waitNeeded}, profileData=${Boolean(previousWorkflow.profileData)})`;
     log.info(logId);
 
@@ -247,6 +247,53 @@ export function moveToCaptchaStage({
       profileData,
     };
     dispatch(updateWorkflow(nextWorkflow));
+
+    // SWARM change (M1): a SWARM chat server need not run a captcha service.
+    // When the server did not ask for a captcha, do not show the captcha step
+    // at all - go straight on to the verification code.
+    if (!result.captchaRequired) {
+      log.info(`${logId}: server asked for no captcha, skipping that step`);
+      dispatch(
+        updateWorkflow({
+          ...nextWorkflow,
+          status: { type: 'in-progress', startedAt: Date.now() },
+        })
+      );
+      await proceedToVerificationCode({ workflow: nextWorkflow })(
+        dispatch,
+        getState,
+        undefined
+      );
+    }
+  };
+}
+
+/**
+ * SWARM addition (M1): the tail of moveToVerificationStage, so that both the
+ * normal captcha path and the skip-captcha path ask for the verification code in
+ * exactly the same way.
+ */
+function proceedToVerificationCode({
+  workflow,
+}: {
+  workflow: CaptchaStage;
+}): ThunkAction<Promise<void>, StateType, unknown, UpdateWorkflowActionType> {
+  return async (dispatch, getState) => {
+    const nextWorkflow: VerificationCodeStage = {
+      ...workflow,
+      stage: RegistrationStage.VERIFICATION_CODE,
+      codeSendCount: 0,
+      failedSubmitCodeCount: 0,
+      status: {
+        type: 'ready',
+      },
+      failedToCall: false,
+      failedToSendSMS: false,
+    };
+    await requestVerificationCode({
+      transport: VerificationTransport.SMS,
+      workflow: nextWorkflow,
+    })(dispatch, getState, undefined);
   };
 }
 
@@ -357,22 +404,12 @@ export function moveToVerificationStage({
       return;
     }
 
-    const nextWorkflow: VerificationCodeStage = {
-      ...previousWorkflow,
-      stage: RegistrationStage.VERIFICATION_CODE,
-      codeSendCount: 0,
-      failedSubmitCodeCount: 0,
-      status: {
-        type: 'ready',
-      },
-      failedToCall: false,
-      failedToSendSMS: false,
-    };
     drop(
-      requestVerificationCode({
-        transport: VerificationTransport.SMS,
-        workflow: nextWorkflow,
-      })(dispatch, getState, undefined)
+      proceedToVerificationCode({ workflow: previousWorkflow })(
+        dispatch,
+        getState,
+        undefined
+      )
     );
   };
 }

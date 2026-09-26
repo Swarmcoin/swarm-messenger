@@ -9,6 +9,7 @@ import { getIntl } from '../selectors/user.std.ts';
 import { getUpdatesState } from '../selectors/updates.std.ts';
 import { getInstallerState } from '../selectors/installer.std.ts';
 import { useInstallerActions } from '../ducks/installer.preload.ts';
+import { useAppActions } from '../ducks/app.preload.ts';
 import { useUpdatesActions } from '../ducks/updates.preload.ts';
 import { hasExpired as hasExpiredSelector } from '../selectors/expiration.dom.ts';
 import { missingCaseError } from '../../util/missingCaseError.std.ts';
@@ -33,6 +34,8 @@ export const SmartInstallScreen = memo(function SmartInstallScreen() {
   const { continueInstallWithDataDeletion, startInstaller, retryBackupImport } =
     useInstallerActions();
   const { startUpdate, forceCheck } = useUpdatesActions();
+  // SWARM addition (M1): the first-run choice on the linking screen.
+  const { openStandalone } = useAppActions();
   const hasExpired = useSelector(hasExpiredSelector);
 
   const onCancelBackupImport = useCallback((): void => {
@@ -63,6 +66,7 @@ export const SmartInstallScreen = memo(function SmartInstallScreen() {
           continueInstallWithDataDeletion,
           OS: OS.getName(),
           isStaging: isStagingServer(),
+          openStandalone,
         },
       };
       break;

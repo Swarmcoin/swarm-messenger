@@ -38,6 +38,9 @@ export type PropsType = Readonly<{
   currentVersion: string;
   OS: string;
   isStaging: boolean;
+  // SWARM addition (M1): the first-run choice. SWARM Messenger can be a first
+  // device, so the linking screen offers registering on this computer as well.
+  openStandalone: () => void;
   retryGetQrCode: () => void;
   startUpdate: () => void;
   forceCheck: () => void;
@@ -50,8 +53,8 @@ const getQrCodeClassName = getClassNamesFor(
   'module-InstallScreenQrCodeNotScannedStep__qr-code'
 );
 
-const SUPPORT_PAGE =
-  'https://support.signal.org/hc/articles/360007320551-Linked-Devices';
+// SWARM change (M1): our own support page, never Signal's.
+const SUPPORT_PAGE = 'https://swarm.green/support';
 
 export function InstallScreenQrCodeNotScannedStep({
   currentVersion,
@@ -59,6 +62,7 @@ export function InstallScreenQrCodeNotScannedStep({
   i18n,
   isStaging,
   OS,
+  openStandalone,
   provisioningUrl,
   retryGetQrCode,
   startUpdate,
@@ -122,12 +126,22 @@ export function InstallScreenQrCodeNotScannedStep({
             </li>
           </ol>
           {isStaging ? (
-            'THIS IS A STAGING DESKTOP'
+            'THIS IS A SWARM STAGING DESKTOP'
           ) : (
             <a target="_blank" rel="noreferrer" href={SUPPORT_PAGE}>
               {i18n('icu:Install__support-link')}
             </a>
           )}
+          {/* SWARM addition (M1): the other half of the first-run choice. */}
+          <div className="module-InstallScreenQrCodeNotScannedStep__standalone">
+            <button
+              type="button"
+              className="module-InstallScreenQrCodeNotScannedStep__standalone-button"
+              onClick={openStandalone}
+            >
+              {i18n('icu:SwarmInstall__create-account-here')}
+            </button>
+          </div>
         </div>
       </div>
       {isConfirmingDataDeletion ? (

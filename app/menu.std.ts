@@ -36,7 +36,6 @@ export const createTemplate = (
     setupAsNewDevice,
     setupAsStandalone,
     stageLocalBackupForImport,
-    forceUpdate,
     showAbout,
     showDebugLog,
     showKeyboardShortcuts,
@@ -152,14 +151,10 @@ export const createTemplate = (
               },
             ]
           : []),
-        ...(devTools && platform !== 'linux' && !process.mas
-          ? [
-              {
-                label: i18n('icu:forceUpdate'),
-                click: forceUpdate,
-              },
-            ]
-          : []),
+        // SWARM change (M1): SWARM Messenger has no update feed
+        // (updatesEnabled is false and there are no publish targets), so
+        // "force update" is gone rather than left to fail.
+
       ],
     },
     {
@@ -232,12 +227,13 @@ export const createTemplate = (
         });
       }
 
-      if (options.development) {
-        fileMenu.submenu.unshift({
-          label: i18n('icu:menuSetupAsStandalone'),
-          click: setupAsStandalone,
-        });
-      }
+      // SWARM change (M1): standalone (phone-number) registration is a
+      // first-class path in SWARM Messenger, not a development-only shortcut,
+      // so this item is always present.
+      fileMenu.submenu.unshift({
+        label: i18n('icu:menuSetupAsStandalone'),
+        click: setupAsStandalone,
+      });
 
       fileMenu.submenu.unshift({
         type: 'separator',
