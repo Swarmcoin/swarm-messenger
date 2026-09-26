@@ -106,6 +106,33 @@ describe('SWARM: no Signal endpoints', () => {
     );
   });
 
+  it('keeps the AGPL attribution, word for word', () => {
+    // The licence requires it and the About window is where a user sees it, so
+    // this is the one place Signal must still be named. Removing or rewording
+    // it is a licence breach, not a branding tidy-up.
+    const attribution =
+      'SWARM Messenger is based on Signal Desktop by Signal Messenger, LLC, ' +
+      'AGPL-3.0';
+
+    const messages = JSON.parse(
+      readFileSync(join(ROOT, '_locales', 'en', 'messages.json'), 'utf8')
+    );
+    assert.strictEqual(
+      messages['icu:SwarmAbout__attribution']?.messageformat,
+      attribution
+    );
+
+    const about = readFileSync(
+      join(ROOT, 'ts', 'components', 'About.dom.tsx'),
+      'utf8'
+    );
+    assert.include(
+      about,
+      "i18n('icu:SwarmAbout__attribution')",
+      'the About window must render the attribution'
+    );
+  });
+
   it('app/ never mentions a Signal domain outside licences', () => {
     const offences = findOffences('app', ['.ts', '.tsx']);
     assert.deepStrictEqual(
