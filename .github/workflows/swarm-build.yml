@@ -85,11 +85,14 @@ jobs:
       # helper binary was found, but is not configured correctly" (run
       # 36288590467). Upstream's ci.yml runs these tests on ubuntu-22.04, which
       # has no such restriction, and under xvfb-run; this does the same on 24.04.
+      # libpulse0 is upstream's other apt package: RingRTC's native library
+      # links it, and without it the calling tests fail to load (run
+      # 36336532878: "libpulse.so.0: cannot open shared object file").
       - name: Let Electron start on the runner (user namespaces, virtual display)
         run: |
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           sudo apt-get update -qq
-          sudo apt-get install -y -qq xvfb
+          sudo apt-get install -y -qq xvfb libpulse0
 
       - name: Run node tests (includes the SWARM endpoint scan)
         run: xvfb-run --auto-servernum pnpm run test-node
