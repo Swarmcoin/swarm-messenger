@@ -98,6 +98,8 @@ const NODE_PACKAGES = new Set([
   'read-last-lines',
   'socks-proxy-agent',
   'split2',
+  // SWARM addition (M3): the wallet wrapper reads and writes the wallet file.
+  'swarm-wallet-core',
   'write-file-atomic',
 
   // Dev dependencies

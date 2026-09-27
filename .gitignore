@@ -49,3 +49,7 @@ ts/protobuf/*.d.ts
 /.zed
 *.sublime*
 *.map
+
+# SWARM addition (M3): the wallet addon, fetched and hash-checked by
+# scripts/swarm-fetch-wallet-addon.mjs (about 80 MB, one per platform)
+/vendor/swarm-wallet-native/
