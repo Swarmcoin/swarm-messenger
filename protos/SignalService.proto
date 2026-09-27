@@ -227,9 +227,38 @@ message DataMessage {
       optional Type type = 1;
     }
 
+    // SWARM addition (M3 wave 2): a SWARM payment that has already happened
+    // on-chain, shielded, when this message is sent. It carries only what the
+    // recipient needs to recognise the payment in their own wallet - never a
+    // key, never a viewing key - and it travels inside this end-to-end
+    // encrypted DataMessage, so the server sees nothing of it. The notice is
+    // not the payment: a lost notice loses the notice, never the money, and a
+    // client shows "received" only when its own wallet has found `txid`.
+    // Design: swarm-wallet-core docs/MESSENGER-INTEGRATION.md section 6.
+    message SwarmNotification {
+      // The transaction id: the 32 bytes whose hex is the txid a node and the
+      // explorer print.
+      optional bytes txid = 1;
+      // The amount in zatoshi. 100,000,000 zatoshi = 1 SWM.
+      optional uint64 amountZat = 2;
+      // SHA-256 of the memo put in the shielded output: its bytes as the wallet
+      // wrote them, without the trailing zero padding (for a text memo, its
+      // UTF-8). Absent when the payment carried no memo.
+      optional bytes memoHash = 3;
+      // The sender's SWARM address, for paying back. Only when the sender
+      // chose to include it.
+      optional string senderAddress = 4;
+      // Which SWARM network, the chain label: "swarm-mainnet" or
+      // "swarm-testnet". A notice for another network is refused.
+      optional string chain = 5;
+      // Free text the sender typed with the payment.
+      optional string note = 6;
+    }
+
     oneof Item {
       Notification notification = 1;
       Activation activation = 2;
+      SwarmNotification swarmNotification = 3;
     }
 
     reserved /*request*/ 1002;
@@ -413,6 +442,26 @@ message DataMessage {
     optional uint64 targetSentTimestamp = 2;
   }
 
+  // SWARM addition (M3 wave 2): asking for, or sharing, a SWARM address. A
+  // sibling of Payment so that a share is never mistaken for a payment. An
+  // address travels only inside this end-to-end encrypted message: never
+  // through the server, never in a profile. A request is an ask; nothing is
+  // shared without the recipient pressing Share.
+  // Design: swarm-wallet-core docs/MESSENGER-INTEGRATION.md section 7.
+  message SwarmAddress {
+    enum Type {
+      SHARE = 0;
+      REQUEST = 1;
+    }
+
+    optional Type type = 1;
+    // Set for SHARE, absent for REQUEST.
+    optional string address = 2;
+    // The chain the address belongs to (or, for a REQUEST, is asked for):
+    // "swarm-mainnet" or "swarm-testnet".
+    optional string chain = 3;
+  }
+
   optional string body = 1;
   repeated AttachmentPointer attachments = 2;
   reserved /*groupV1*/ 3;
@@ -441,7 +490,9 @@ message DataMessage {
   optional PinMessage pinMessage = 27;
   optional UnpinMessage unpinMessage = 28;
   optional AdminDelete adminDelete = 29;
-  // NEXT ID: 30
+  // SWARM addition (M3 wave 2).
+  optional SwarmAddress swarmAddress = 30;
+  // NEXT ID: 31
 }
 
 message NullMessage {

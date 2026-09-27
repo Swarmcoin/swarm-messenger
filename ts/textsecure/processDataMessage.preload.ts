@@ -48,6 +48,12 @@ import {
 } from '../util/durations/index.std.ts';
 import type { AnyPaymentEvent } from '../types/Payment.std.ts';
 import { PaymentEventKind } from '../types/Payment.std.ts';
+import {
+  processSwarmAddressMessage,
+  processSwarmPaymentNotice,
+} from '../util/swarm/swarmChatPayments.std.ts';
+import type { SwarmReceiveContextType } from '../util/swarm/swarmChatPayments.std.ts';
+import { getSwarmWalletChain } from '../util/swarm/swarmWalletChain.dom.ts';
 import { filterAndClean } from '../util/BodyRange.node.ts';
 import { bytesToUuid } from '../util/uuidToBytes.std.ts';
 import { createName } from '../util/attachmentPath.node.ts';
@@ -169,10 +175,26 @@ export function processGroupV2Context(
 }
 
 function processPayment(
-  payment?: Proto.DataMessage.Payment | null
+  payment: Proto.DataMessage.Payment | null | undefined,
+  swarmContext: SwarmReceiveContextType
 ): AnyPaymentEvent | undefined {
   if (!payment) {
     return undefined;
+  }
+
+  // SWARM addition (M3 wave 2): a SWARM payment notice. One for another SWARM
+  // network, or sent to a group, is refused here - dropped, not shown - so the
+  // message channel cannot present a payment on a chain this wallet is not on.
+  if (payment.Item?.swarmNotification != null) {
+    const processed = processSwarmPaymentNotice(
+      payment.Item.swarmNotification,
+      swarmContext
+    );
+    if (!processed.ok) {
+      log.warn(`processPayment: refused a SWARM notice (${processed.refusal})`);
+      return undefined;
+    }
+    return processed.event;
   }
 
   if (payment.Item?.notification != null) {
@@ -198,6 +220,25 @@ function processPayment(
   }
 
   return undefined;
+}
+
+// SWARM addition (M3 wave 2): an address request or an address share. Stored
+// with the message as a payment event, like upstream's payment activation.
+function processSwarmAddress(
+  swarmAddress: Proto.DataMessage.SwarmAddress | null | undefined,
+  swarmContext: SwarmReceiveContextType
+): AnyPaymentEvent | undefined {
+  if (swarmAddress == null) {
+    return undefined;
+  }
+  const processed = processSwarmAddressMessage(swarmAddress, swarmContext);
+  if (!processed.ok) {
+    log.warn(
+      `processSwarmAddress: refused a SWARM address message (${processed.refusal})`
+    );
+    return undefined;
+  }
+  return processed.event;
 }
 
 function processQuote(
@@ -557,6 +598,13 @@ export function processDataMessage(
     { logId }
   );
 
+  // SWARM addition (M3 wave 2): what a SWARM payment notice or address is
+  // held to - this wallet's network, and a one-to-one chat.
+  const swarmContext: SwarmReceiveContextType = {
+    walletChain: getSwarmWalletChain(),
+    inGroup: message.groupV2 != null,
+  };
+
   const renderableAttachments = getValidMessageAttachments(attachments);
   if (attachments[0] && renderableAttachments.length < attachments.length) {
     log.warn(
@@ -578,7 +626,11 @@ export function processDataMessage(
         ? Bytes.toBase64(message.profileKey)
         : undefined,
     timestamp,
-    payment: processPayment(message.payment),
+    // SWARM change (M3 wave 2): a SWARM notice or address message is a payment
+    // event too; a message never carries both.
+    payment:
+      processPayment(message.payment, swarmContext) ??
+      processSwarmAddress(message.swarmAddress, swarmContext),
     quote: processQuote(message.quote),
     contact: processContact(message.contact),
     preview: processPreview(message.preview),

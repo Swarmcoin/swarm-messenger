@@ -15,7 +15,10 @@ import { Emojify } from './Emojify.dom.tsx';
 import { TextAttachment } from '../TextAttachment.dom.tsx';
 import { getClassNamesFor } from '../../util/getClassNamesFor.std.ts';
 import { getCustomColorStyle } from '../../util/getCustomColorStyle.dom.ts';
-import { PaymentEventKind } from '../../types/Payment.std.ts';
+import {
+  PaymentEventKind,
+  isSwarmPaymentEvent,
+} from '../../types/Payment.std.ts';
 import { getPaymentEventNotificationText } from '../../messages/payments.std.ts';
 import { shouldTryToCopyFromQuotedMessage } from '../../messages/helpers.std.ts';
 import { RenderLocation } from './MessageTextRenderer.dom.tsx';
@@ -91,6 +94,12 @@ function validateQuote(quote: Props): boolean {
   }
 
   if (quote.payment?.kind === PaymentEventKind.Notification) {
+    return true;
+  }
+
+  // SWARM addition (M3 wave 2): a reply to a SWARM payment notice or address
+  // message quotes it as its one-line label.
+  if (isSwarmPaymentEvent(quote.payment)) {
     return true;
   }
 

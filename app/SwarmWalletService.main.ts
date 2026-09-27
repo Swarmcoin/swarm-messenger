@@ -244,6 +244,11 @@ export class SwarmWalletService {
     );
   }
 
+  /** The chain label of the network the wallet is on, e.g. `swarm-mainnet`. */
+  chainLabel(): 'swarm-mainnet' | 'swarm-testnet' {
+    return this.#network === 'mainnet' ? 'swarm-mainnet' : 'swarm-testnet';
+  }
+
   /** Seals the wallet file and stops the worker. Called on the way out. */
   async shutdown(): Promise<void> {
     if (this.#timer != null) {

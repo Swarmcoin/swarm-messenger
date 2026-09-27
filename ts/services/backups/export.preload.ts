@@ -37,7 +37,10 @@ import {
   bodyRangeSchema,
   type RawBodyRange,
 } from '../../types/BodyRange.std.ts';
-import { PaymentEventKind } from '../../types/Payment.std.ts';
+import {
+  PaymentEventKind,
+  isSwarmPaymentEvent,
+} from '../../types/Payment.std.ts';
 import { MessageRequestResponseEvent } from '../../types/MessageRequestResponseEvent.std.ts';
 import type {
   ConversationAttributesType,
@@ -1640,6 +1643,14 @@ export class BackupExportStream extends Readable {
     }
 
     if (message.type === 'story') {
+      return undefined;
+    }
+
+    // SWARM addition (M3 wave 2): SWARM payment notices and address messages
+    // carry transaction ids and addresses. The backup format has no place for
+    // them, and a chat backup is not where a wallet's history belongs: the
+    // wallet keeps its own, restored from the recovery phrase. Left out.
+    if (isSwarmPaymentEvent(message.payment)) {
       return undefined;
     }
 

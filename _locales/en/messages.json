@@ -12520,5 +12520,45 @@
   "icu:SwarmWallet__developer--testnet": {
     "messageformat": "Testnet",
     "description": "Developer switch option."
+  },
+  "icu:SwarmChat__notice--label": {
+    "messageformat": "SWARM payment",
+    "description": "SWARM (M3 wave 2): a chat-list preview, a notification or a quote of a SWARM payment notice. No amount on purpose."
+  },
+  "icu:SwarmChat__notice": {
+    "messageformat": "{sender} sent you {amount} SWM",
+    "description": "SWARM (M3 wave 2): what a received payment notice says. amount is what the notice claims, eight decimals; whether it arrived is said separately, from the wallet."
+  },
+  "icu:SwarmChat__notice--you": {
+    "messageformat": "You sent {amount} SWM to {receiver}",
+    "description": "SWARM (M3 wave 2): a payment notice this device sent. amount has eight decimals."
+  },
+  "icu:SwarmChat__notice--you-without-receiver": {
+    "messageformat": "You sent {amount} SWM",
+    "description": "SWARM (M3 wave 2): a payment notice this device sent, when the conversation has no title."
+  },
+  "icu:SwarmChat__request": {
+    "messageformat": "{sender} wants your SWARM address",
+    "description": "SWARM (M3 wave 2): someone asked for a SWARM address in this chat. Nothing is shared until Share is pressed."
+  },
+  "icu:SwarmChat__request--you": {
+    "messageformat": "You asked {receiver} for their SWARM address",
+    "description": "SWARM (M3 wave 2): this device asked for an address."
+  },
+  "icu:SwarmChat__request--you-without-receiver": {
+    "messageformat": "You asked for a SWARM address",
+    "description": "SWARM (M3 wave 2): this device asked for an address, when the conversation has no title."
+  },
+  "icu:SwarmChat__share": {
+    "messageformat": "{sender} shared their SWARM address",
+    "description": "SWARM (M3 wave 2): someone shared a SWARM address in this chat."
+  },
+  "icu:SwarmChat__share--you": {
+    "messageformat": "You shared your SWARM address with {receiver}",
+    "description": "SWARM (M3 wave 2): this device shared an address."
+  },
+  "icu:SwarmChat__share--you-without-receiver": {
+    "messageformat": "You shared your SWARM address",
+    "description": "SWARM (M3 wave 2): this device shared an address, when the conversation has no title."
   }
 }

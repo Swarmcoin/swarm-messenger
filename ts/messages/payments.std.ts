@@ -8,6 +8,10 @@ import type { AnyPaymentEvent } from '../types/Payment.std.ts';
 import type { LocalizerType } from '../types/Util.std.ts';
 import type { ReadonlyMessageAttributesType } from '../model-types.d.ts';
 import { missingCaseError } from '../util/missingCaseError.std.ts';
+import {
+  formatZatoshiAsSwm,
+  zatoshiFromString,
+} from '../util/swarm/swmAmount.std.ts';
 
 export type MessageAttributesWithPaymentEvent = ReadonlyMessageAttributesType &
   ReadonlyDeep<{
@@ -29,6 +33,12 @@ export function getPaymentEventNotificationText(
 ): string {
   if (payment.kind === PaymentEventKind.Notification) {
     return i18n('icu:payment-event-notification-label');
+  }
+  // SWARM addition (M3 wave 2): a notification, a chat-list preview or a
+  // quote says that a payment notice is there, not how much it claims. The
+  // amount is shown in the chat, beside what the wallet has seen.
+  if (payment.kind === PaymentEventKind.SwarmNotification) {
+    return i18n('icu:SwarmChat__notice--label');
   }
   return getPaymentEventDescription(
     payment,
@@ -84,6 +94,44 @@ export function getPaymentEventDescription(
     return i18n('icu:payment-event-activated-label', {
       sender: senderTitle,
     });
+  }
+  // SWARM addition (M3 wave 2). The amount is the notice's own claim, in SWM
+  // with all eight decimals; whether it arrived is the wallet's to say, and the
+  // bubble says it beside this sentence.
+  if (kind === PaymentEventKind.SwarmNotification) {
+    const amount = formatZatoshiAsSwm(zatoshiFromString(payment.amountZat));
+    if (senderIsMe) {
+      if (conversationTitle != null) {
+        return i18n('icu:SwarmChat__notice--you', {
+          amount,
+          receiver: conversationTitle,
+        });
+      }
+      return i18n('icu:SwarmChat__notice--you-without-receiver', { amount });
+    }
+    return i18n('icu:SwarmChat__notice', { amount, sender: senderTitle });
+  }
+  if (kind === PaymentEventKind.SwarmAddressRequest) {
+    if (senderIsMe) {
+      if (conversationTitle != null) {
+        return i18n('icu:SwarmChat__request--you', {
+          receiver: conversationTitle,
+        });
+      }
+      return i18n('icu:SwarmChat__request--you-without-receiver');
+    }
+    return i18n('icu:SwarmChat__request', { sender: senderTitle });
+  }
+  if (kind === PaymentEventKind.SwarmAddressShare) {
+    if (senderIsMe) {
+      if (conversationTitle != null) {
+        return i18n('icu:SwarmChat__share--you', {
+          receiver: conversationTitle,
+        });
+      }
+      return i18n('icu:SwarmChat__share--you-without-receiver');
+    }
+    return i18n('icu:SwarmChat__share', { sender: senderTitle });
   }
   throw missingCaseError(kind);
 }
