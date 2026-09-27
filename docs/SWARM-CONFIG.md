@@ -106,9 +106,25 @@ keeping them identical. Then run `pnpm run test-node`: the assertions in
 and the zkgroup test starts verifying `serverPublicParams` again the moment it
 stops being a placeholder.
 
-That file carries three fields the desktop does not use, and they are dropped on
-purpose: `callingServerPublicParams` and `callingServerPublicParamsPreV101` (not
-in Signal Desktop's renderer config) and `registrationCaCertificatePem` (the
+Which server key set each field pairs with matters, because the desktop verifies
+credentials against them:
+
+| Desktop field               | Verifies                                                                                                                                                     | Server config                         |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------- |
+| `serverPublicParams`        | group auth, profile key and receipt credentials, group send endorsements                                                                                     | `groupsZkConfig`                      |
+| `genericServerPublicParams` | **calling** credentials: the call-link auth credentials that arrive with the group auth credentials (`groupCredentialFetcher`), create-call-link credentials | `callingZkConfig` (libsignal ≥ 0.101) |
+| `backupServerPublicParams`  | backup credentials                                                                                                                                           | `chatZkConfig`                        |
+
+So the server file's `callingServerPublicParams` is the same value as its
+`genericServerPublicParams`. Until 2026-09-27 the server's generator put the chat set
+in `genericServerPublicParams`; the desktop then rejected every call-link
+credential (`Verification failure in zkgroup`), and because those arrive in the same
+response as the group auth credentials, `groupCredentialFetcher` retried forever and
+no group could be created. Fixed on the server side in swarm-messenger-server
+`23a524ce1` and re-imported here.
+
+Two fields are dropped on purpose: `callingServerPublicParamsPreV101` (credentials
+for clients older than libsignal 0.101) and `registrationCaCertificatePem` (the
 stack's internal CA for the chat server's own gRPC hop to the registration stub;
 public HTTPS uses Let's Encrypt, so a client never needs it).
 
