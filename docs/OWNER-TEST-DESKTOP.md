@@ -19,7 +19,7 @@ one creates its own wallet, becomes its own account, and then A and B message ea
 | Text messages both ways, end-to-end encrypted, delivered in < 1 s  | Voice and video calls (no calling server yet)                                            |
 | Message request, Accept, read and delivery ticks                   | Groups (no groups server yet) and call links (their credentials fail to verify)          |
 | Closing both apps and opening them again: same accounts, same chat | Linking a second device, and the Linked devices screen                                   |
-| Photos, both ways (sent, stored on `cdn.chat.swarm.green`, shown)  | "Restore a wallet" landing on the same account (built, not yet tested live)              |
+| Photos and files both ways, and profile photos (section 6a)        | "Restore a wallet" landing on the same account (built, not yet tested live)              |
 
 This is the **staging** server. Everything on it is test data and may be wiped at any time. Treat
 both wallets as throwaway: never send SWARM to them.
@@ -92,8 +92,8 @@ Do this in window A, then the same in window B.
    "I have written down my 24 words and stored them safely", then **Continue**. The words go away
    and the **Create a wallet** button spins for a few seconds while the account is created.
 4. **"Set up your profile".** Type a first name (for example `Test A` in window A and `Test B` in
-   window B) and click **Continue**. Skip the photo for this test: profile photos have not been
-   tried in the app yet.
+   window B) and click **Continue**. The photo is optional: **Add photo** works, and section 6a
+   says when the other person sees it.
 5. **The chat list.** "Chats", "No chats", and on the right "Welcome to SWARM Messenger".
 
 If step 3 ends with "Could not reach the SWARM server", wait a minute and click **Create a wallet**
@@ -148,15 +148,29 @@ Then the restart test:
    a picture that is not private, and press **Enter**. The other window shows it within a few
    seconds.
 
+### 6a. Files and profile photos
+
+Tested on 2026-09-27 between 19:58 and 20:46 UTC with two fresh accounts. To send a file, click
+**+** at the right of the message box, choose **File**, pick a small document that is not private
+(a `.txt` or `.pdf`), type a line if you like and press **Enter**. The bubble shows the file's name
+and size and gets its ticks like a text message, and the other window shows the same file bubble
+within a few seconds. A profile photo is set with **Add photo** in step 4, or later under
+**Settings → Profile → Edit photo**, then **Photo**, a picture, and **Save**. Everything is
+encrypted by the app before it leaves the PC; `cdn.chat.swarm.green` stores only scrambled bytes.
+One thing looks like a fault but is not: until someone accepts your message request, their app
+downloads nothing from you, so B sees a blurred circle instead of A's photo and a download arrow
+instead of A's picture. Both appear the moment B clicks **Accept**. Once, a received file kept its
+spinning circle although it had arrived; quitting and reopening that window showed it.
+
 ---
 
 ## 7. Known limits
 
-- **Photos and files** go through `cdn.chat.swarm.green`. Files other than photos, voice notes
-  and profile photos should work the same way but were not part of this test. If an attachment
-  ever stays on its spinning circle, it holds up every later message in that chat, because the
-  app sends a chat's messages strictly in order. Hover over it, click **⋯**, **Delete**, then
-  **Delete for me**; the messages behind it go out within a few minutes.
+- **Photos, files and profile photos** go through `cdn.chat.swarm.green` (section 6a). Voice
+  notes should work the same way but were not part of this test. If an attachment ever stays on
+  its spinning circle, it holds up every later message in that chat, because the app sends a
+  chat's messages strictly in order. Hover over it, click **⋯**, **Delete**, then **Delete for
+  me**; the messages behind it go out within a few minutes.
 - No calls, no groups, no call links, no stickers, no second devices (see section 1).
 - Settings and contacts do not sync to a server (there is no storage service yet). The app keeps
   working; it only logs `404` for it.
