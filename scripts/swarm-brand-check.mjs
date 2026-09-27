@@ -87,21 +87,31 @@ async function* walk(dir) {
   }
 }
 
-function findPackagedApp() {
-  const candidates = [
-    join(releaseDir, 'win-unpacked', 'resources', 'app.asar'),
-    join(releaseDir, 'win-arm64-unpacked', 'resources', 'app.asar'),
-    join(releaseDir, 'linux-unpacked', 'resources', 'app.asar'),
+// electron-builder names the unpacked app directory after the platform, plus
+// the architecture for every architecture but x64: win-unpacked,
+// linux-unpacked, mac (x64), and win-arm64-unpacked, linux-arm64-unpacked,
+// mac-arm64, mac-universal. SWARM's macOS build is arm64, so it lands in
+// mac-arm64. Every packaged app found is checked, not only the first.
+function findPackagedApps() {
+  const macApp = dir =>
     join(
       releaseDir,
-      'mac',
+      dir,
       'SWARM Messenger.app',
       'Contents',
       'Resources',
       'app.asar'
-    ),
+    );
+  const candidates = [
+    join(releaseDir, 'win-unpacked', 'resources', 'app.asar'),
+    join(releaseDir, 'win-arm64-unpacked', 'resources', 'app.asar'),
+    join(releaseDir, 'linux-unpacked', 'resources', 'app.asar'),
+    join(releaseDir, 'linux-arm64-unpacked', 'resources', 'app.asar'),
+    macApp('mac'),
+    macApp('mac-arm64'),
+    macApp('mac-universal'),
   ];
-  return candidates.find(candidate => existsSync(candidate));
+  return candidates.filter(candidate => existsSync(candidate));
 }
 
 const domainOffences = [];
@@ -160,9 +170,48 @@ function scanEnglishStrings(relPath, text) {
   }
 }
 
+// Unpacks one app.asar and scans it. `label` prefixes every reported path when
+// more than one packaged app is checked, so a finding names its platform.
+async function scanApp(appAsar, label) {
+  const dir = await mkdtemp(join(tmpdir(), 'swarm-brand-check-'));
+  process.stdout.write(`swarm-brand-check: unpacking ${appAsar}\n`);
+  asar.extractAll(appAsar, dir);
+
+  let scanned = 0;
+  try {
+    for await (const file of walk(dir)) {
+      const rel = relative(dir, file);
+      if (isExcusedPath(rel)) {
+        continue;
+      }
+      const ext = extname(file).toLowerCase();
+      if (!TEXT_EXTENSIONS.has(ext)) {
+        continue;
+      }
+      const info = await stat(file);
+      if (info.size > 32 * 1024 * 1024) {
+        continue;
+      }
+      const text = await readFile(file, 'utf8');
+      const where = label === undefined ? rel : `${label}/${rel}`;
+      scanned += 1;
+      scanText(where, text);
+      if (
+        basename(file) === 'values.json' &&
+        rel.split('\\').join('/').includes('_locales/en/')
+      ) {
+        scanEnglishStrings(where, text);
+      }
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+  return scanned;
+}
+
 async function main() {
-  const appAsar = findPackagedApp();
-  if (appAsar === undefined) {
+  const appAsars = findPackagedApps();
+  if (appAsars.length === 0) {
     process.stderr.write(
       `swarm-brand-check: no packaged app found under ${releaseDir}/. ` +
         'Run `pnpm run build` first.\n'
@@ -170,36 +219,16 @@ async function main() {
     process.exit(2);
   }
 
-  const dir = await mkdtemp(join(tmpdir(), 'swarm-brand-check-'));
-  process.stdout.write(`swarm-brand-check: unpacking ${appAsar}\n`);
-  asar.extractAll(appAsar, dir);
-
   let scanned = 0;
-  for await (const file of walk(dir)) {
-    const rel = relative(dir, file);
-    if (isExcusedPath(rel)) {
-      continue;
-    }
-    const ext = extname(file).toLowerCase();
-    if (!TEXT_EXTENSIONS.has(ext)) {
-      continue;
-    }
-    const info = await stat(file);
-    if (info.size > 32 * 1024 * 1024) {
-      continue;
-    }
-    const text = await readFile(file, 'utf8');
-    scanned += 1;
-    scanText(rel, text);
-    if (
-      basename(file) === 'values.json' &&
-      rel.split('\\').join('/').includes('_locales/en/')
-    ) {
-      scanEnglishStrings(rel, text);
-    }
+  for (const appAsar of appAsars) {
+    const label =
+      appAsars.length === 1
+        ? undefined
+        : relative(releaseDir, appAsar).split(/[\\/]/)[0];
+    // One archive at a time keeps the temporary copy small.
+    // oxlint-disable-next-line no-await-in-loop
+    scanned += await scanApp(appAsar, label);
   }
-
-  await rm(dir, { recursive: true, force: true });
 
   process.stdout.write(`swarm-brand-check: scanned ${scanned} text files\n`);
   process.stdout.write(

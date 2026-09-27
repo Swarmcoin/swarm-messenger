@@ -394,14 +394,13 @@
         {
           "target": "zip",
           "arch": [
-            "x64",
             "arm64"
           ]
         },
         {
           "target": "dmg",
           "arch": [
-            "universal"
+            "arm64"
           ]
         }
       ],
@@ -502,6 +501,10 @@
       "target": [
         {
           "target": "deb",
+          "arch": "x64"
+        },
+        {
+          "target": "AppImage",
           "arch": "x64"
         }
       ],
