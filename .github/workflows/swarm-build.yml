@@ -221,10 +221,13 @@ jobs:
         run: node scripts/swarm-brand-check.mjs release
 
       # swarm-brand-check.mjs reads app.asar. What apt shows - the control
-      # fields - and what dpkg runs as root - the maintainer scripts - are
-      # outside it, so they are checked here. The postinst touches
-      # .signal-postinst, a marker upstream's updater code looks for; it is the
-      # one "signal" allowed in those scripts.
+      # fields - what the desktop shows - the menu entry - and what dpkg runs
+      # as root - the maintainer scripts - are outside it, so they are checked
+      # here. Two mentions are allowed: the postinst touches .signal-postinst,
+      # a marker upstream's updater code looks for, and the entry's MimeType
+      # registers the sgnl: and signalcaptcha: link schemes, which
+      # docs/SWARM-CHANGES.md section 7 keeps on purpose. Only the entry's
+      # visible keys are checked for the word.
       - name: Check the .deb's metadata, desktop entry and maintainer scripts
         run: |
           set -euo pipefail
@@ -244,8 +247,8 @@ jobs:
           entry=$(dpkg-deb --fsys-tarfile "$deb" | tar -t | grep 'usr/share/applications/.*\.desktop$')
           desktop=$(dpkg-deb --fsys-tarfile "$deb" | tar -xO "$entry")
           printf '%s\n%s\n' "$entry" "$desktop"
-          if grep -i signal <<<"$desktop"; then
-            echo "The .deb's desktop entry mentions Signal" >&2
+          if grep -i -E '^(Name|GenericName|Comment|Keywords|Icon|Exec)(\[[^]]*\])?=.*signal' <<<"$desktop"; then
+            echo "The .deb's desktop entry shows Signal" >&2
             exit 1
           fi
           dpkg-deb --contents "$deb" | grep -E 'opt/SWARM Messenger/(swarm-messenger|resources/green\.swarm\..*\.policy)$'

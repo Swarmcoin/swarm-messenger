@@ -5,11 +5,12 @@
 # SWARM addition (M4): the .deb postinst, set as build.deb.afterInstall in
 # package.json. It is electron-builder 26.11.1's templates/linux/after-install.tpl
 # as patched by patches/app-builder-lib.patch, with one difference: the polkit
-# policies are SWARM's green.swarm.* files. Signal's patch copies
-# org.signalapp.* files, which a SWARM build does not ship, so with the default
-# template every install printed three "cp: cannot stat" errors and never
-# registered the green.swarm.* actions that ts/util/os/promptOSAuthMain.main.ts
-# asks pkcheck about.
+# policies are SWARM's green.swarm.* files. The patch copies upstream's own
+# policy files, which a SWARM build does not ship, so with the default template
+# every install printed three "cp: cannot stat" errors and never registered
+# the green.swarm.* actions that ts/util/os/promptOSAuthMain.main.ts asks
+# pkcheck about. Nothing in this script may name upstream's policies: the
+# installer-linux CI job fails if it does.
 
 if type update-alternatives >/dev/null 2>&1; then
     # Remove previous link if it doesn't use update-alternatives
@@ -67,7 +68,7 @@ if apparmor_status --enabled > /dev/null 2>&1; then
   fi
 fi
 
-# SWARM CHANGES BEGIN (Signal's patch installed org.signalapp.* here)
+# SWARM CHANGES BEGIN (upstream's patch installs its own policies here)
 
 if command -v pkcheck >/dev/null 2>&1; then
   POLICY_SOURCE_PATH='/opt/${sanitizedProductName}/resources'
