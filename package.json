@@ -48,6 +48,7 @@
     "test-release": "node scripts/test-release.mjs",
     "test-node": "cross-env NODE_ENV=test NODE_OPTIONS='--import=tsx' LANG=en-us electron-mocha --timeout 10000  --extension ts,tsx,js,mjs --file ts/test-node/setup.preload.ts --recursive ts/test-node scripts/**/*_test.mjs",
     "test-node:swarm": "cross-env NODE_ENV=test NODE_OPTIONS='--import=tsx' LANG=en-us electron-mocha --timeout 10000 --extension ts,tsx --file ts/test-node/setup.preload.ts --recursive ts/test-node/swarm",
+    "swarm:fetch-wallet-addon": "node scripts/swarm-fetch-wallet-addon.mjs",
     "test-mock": "node scripts/mocha-separator.mjs --require ts/test-mock/setup-ci.node.ts -- ts/test-mock/**/*_test.node.ts",
     "test-mock-docker": "mocha --require ts/test-mock/setup-ci.node.ts ts/test-mock/**/*_test.docker.node.ts",
     "test-oxlint": "mocha --require .oxlint/test-setup.mjs .oxlint/rules/**/*.test.mjs",
@@ -332,6 +333,7 @@
     "stylelint-config-recommended-scss": "17.0.1",
     "stylelint-use-logical-spec": "5.0.1",
     "svgo": "4.1.0",
+    "swarm-wallet-core": "file:./vendor/swarm-wallet-core-0.2.0.tgz",
     "synckit": "0.11.12",
     "tailwindcss": "4.3.0",
     "tinykeys": "3.1.0",
@@ -627,7 +629,8 @@
       "node_modules/@indutny/mac-screen-share/prebuilds/${platform}-${arch}/*.node",
       "node_modules/fs-xattr/build/Release/*.node",
       "!node_modules/tar",
-      "sticker-creator/dist/**"
+      "sticker-creator/dist/**",
+      "vendor/swarm-wallet-native/native-${platform}-${arch}.node"
     ]
   },
   "volta": {
