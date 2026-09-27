@@ -140,7 +140,15 @@ No change to libsignal, to the protocol, or to any cryptographic primitive: the
 checksum and the seed are Node's, the HKDF and the signature are libsignal's. The
 server half is in `Swarm-Official/swarm-messenger-server`, `docs/WALLET-SIGN-IN.md`.
 
-## 3b. Usernames: the three writes go over REST
+## 3b. Usernames: the three writes went over REST (superseded)
+
+**Superseded the same day by 3c** (Opus M-H): with libsignal `0.101.2-swarm.2` the
+SWARM environment has the HTTP/2 connection these calls need, so
+`reserveUsername`, `deleteUsername` and `replaceUsernameLink` in
+`ts/textsecure/WebAPI.preload.ts` and the error mapping in
+`ts/services/username.preload.ts` are upstream's code again (libsignal's gRPC
+`reserveUsernameHash` / `deleteUsernameHash` / `setUsernameLink`), as the
+workaround's own comment asked. The record of the workaround follows.
 
 Added 2026-09-27 (Opus M-G), found by the first desktop-to-desktop test on
 `chat.swarm.green`. A SWARM account has no dialable number and there is no
