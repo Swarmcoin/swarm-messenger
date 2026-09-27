@@ -54,7 +54,9 @@ library for arm64 only, so an x64 or universal app would not start. There is
 no Windows or Linux arm64 build for the same reason.
 
 The .deb needs glibc 2.34 or newer (`libc6 (>= 2.34)`), which is Ubuntu 22.04,
-Debian 12 or later.
+Debian 12 or later. The Mac app needs macOS 13 (Ventura) or later: its
+`LSMinimumSystemVersion` is `13.0` (read from the built app in CI run
+36346185304).
 
 ## How each file is built
 
@@ -66,12 +68,12 @@ module that fails to build fails the release - runs `pnpm run generate`, then
 `build` section of `package.json`. Then `scripts/swarm-brand-check.mjs` unpacks
 the packaged app and fails on any Signal domain or Signal wording.
 
-| Job                 | Runner           | Also runs                                                                                                                                                                                                                                                                 |
-| ------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `installer-windows` | `windows-latest` | the SWARM endpoint and guard tests (`pnpm run test-node:swarm`)                                                                                                                                                                                                           |
-| `installer-linux`   | `ubuntu-latest`  | a check of what the brand check cannot see: the .deb's control fields and desktop entry must not mention Signal, and its maintainer scripts must install the `green.swarm.*` polkit policies                                                                              |
-| `installer-mac`     | `macos-latest`   | `scripts/swarm-prepare-unsigned-mac-build.mjs` first (see "Signing" below), the SWARM tests, then `codesign --verify --deep --strict` on the app, and a start of the packaged app that must open its main window within 120 seconds                                       |
-| `release`           | `ubuntu-latest`  | waits for the three installer jobs **and** `lint-and-test`, downloads the installers, checks there is exactly one of each kind, writes `SHA256SUMS.txt` and the release text (`scripts/swarm-release-notes.mjs`), and on a push to `swarm-main` publishes the pre-release |
+| Job                 | Runner           | Also runs                                                                                                                                                                                                                                                                                                                                                               |
+| ------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `installer-windows` | `windows-latest` | the SWARM endpoint and guard tests (`pnpm run test-node:swarm`)                                                                                                                                                                                                                                                                                                         |
+| `installer-linux`   | `ubuntu-latest`  | a check of what the brand check cannot see (the .deb's control fields and desktop entry must not mention Signal, its maintainer scripts must use the `green.swarm.*` polkit policies); then `sudo apt install` of the .deb, a start of the installed app with its sandbox that must open the main window within 120 seconds, `apt remove`; then a start of the AppImage |
+| `installer-mac`     | `macos-latest`   | `scripts/swarm-prepare-unsigned-mac-build.mjs` first (see "Signing" below), the SWARM tests, then `codesign --verify --deep --strict` on the app, and a start of the packaged app that must open its main window within 120 seconds                                                                                                                                     |
+| `release`           | `ubuntu-latest`  | waits for the three installer jobs **and** `lint-and-test`, downloads the installers, checks there is exactly one of each kind, writes `SHA256SUMS.txt` and the release text (`scripts/swarm-release-notes.mjs`), and on a push to `swarm-main` publishes the pre-release                                                                                               |
 
 A release build cannot be made on the Windows workstation: it has no Visual
 Studio, so the Windows Hello addon cannot be compiled there (see
@@ -134,15 +136,16 @@ Download from the release page: the file for your system and
 2. If SmartScreen says "Windows protected your PC": click **More info**, then
    **Run anyway**.
 3. The installer needs no administrator rights. It installs to
-   `%LOCALAPPDATA%\Programs\SWARM Messenger`, adds **SWARM Messenger** to the
+   `%LOCALAPPDATA%\Programs\swarm-messenger`, adds **SWARM Messenger** to the
    Start menu and the desktop, and starts the app.
-4. The first screen offers to create an account on this computer - sign in
-   with your SWARM wallet (create one, or restore one from its 24 words).
+4. The first screen shows a device-link code and, under it, **Create account
+   on this computer**. Click that: the next screen is **Your SWARM wallet**,
+   with **Create a wallet** and **Restore a wallet** (from its 24 words).
 
 Later starts: Start menu or desktop, **SWARM Messenger**.
 
 Uninstall: Settings, Apps, Installed apps, **SWARM Messenger**, Uninstall - or
-run `%LOCALAPPDATA%\Programs\SWARM Messenger\Uninstall SWARM Messenger.exe`.
+run `%LOCALAPPDATA%\Programs\swarm-messenger\Uninstall SWARM Messenger.exe`.
 Uninstalling also deletes the app's data folder, `%APPDATA%\SWARM Messenger`
 (upstream's `nsis.deleteAppDataOnUninstall`), and with it the message history
 on this computer; your 24 words restore the account, not the messages.
