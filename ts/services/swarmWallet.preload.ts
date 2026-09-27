@@ -13,15 +13,22 @@ import { toBase64 } from '../Bytes.std.ts';
 import { signalProtocolStore } from '../SignalProtocolStore.preload.ts';
 import { itemStorage } from '../textsecure/Storage.preload.ts';
 import { parseUnknown } from '../util/schemas.std.ts';
+import { noteSwarmWalletChain } from '../util/swarm/swarmWalletChain.dom.ts';
 import {
+  CheckAddressResultSchema,
   ConfirmSendResultSchema,
+  FindTransactionResultSchema,
+  NewAddressResultSchema,
   QuoteSendResultSchema,
   SWARM_WALLET_CHANNEL,
   SwarmWalletProblemSchema,
   SwarmWalletStateSchema,
 } from '../types/SwarmWallet.std.ts';
 import type {
+  CheckAddressResultType,
   ConfirmSendResultType,
+  FindTransactionResultType,
+  NewAddressResultType,
   QuoteSendResultType,
   SwarmWalletNetworkIdType,
   SwarmWalletProblemType,
@@ -54,13 +61,23 @@ function getAccountKey(): string | undefined {
   return toBase64(keyPair.publicKey.serialize());
 }
 
+/**
+ * SWARM change (M3 wave 2): every state the renderer receives says which
+ * network the wallet is on, and payment notices are held to that network.
+ */
+function parseState(answer: unknown): SwarmWalletStateType {
+  const state = parseUnknown(SwarmWalletStateSchema, answer);
+  noteSwarmWalletChain(state.network.chain);
+  return state;
+}
+
 export async function getSwarmWalletState(): Promise<SwarmWalletStateType> {
   const accountKey = getAccountKey();
   const answer: unknown = await ipcRenderer.invoke(
     SWARM_WALLET_CHANNEL.getState,
     accountKey == null ? {} : { accountKey }
   );
-  return parseUnknown(SwarmWalletStateSchema, answer);
+  return parseState(answer);
 }
 
 /**
@@ -86,14 +103,18 @@ export async function openSwarmWalletWithPhrase({
       ? { phrase, isNewPhrase }
       : { phrase, isNewPhrase, accountKey }
   );
-  return parseUnknown(OpenWithPhraseResultSchema, answer);
+  const result = parseUnknown(OpenWithPhraseResultSchema, answer);
+  if (result.ok) {
+    noteSwarmWalletChain(result.state.network.chain);
+  }
+  return result;
 }
 
 export async function refreshSwarmWallet(): Promise<SwarmWalletStateType> {
   const answer: unknown = await ipcRenderer.invoke(
     SWARM_WALLET_CHANNEL.refresh
   );
-  return parseUnknown(SwarmWalletStateSchema, answer);
+  return parseState(answer);
 }
 
 export async function quoteSwarmWalletSend(request: {
@@ -129,5 +150,52 @@ export async function setSwarmWalletNetwork(
     SWARM_WALLET_CHANNEL.setNetwork,
     { network }
   );
-  return parseUnknown(SwarmWalletStateSchema, answer);
+  return parseState(answer);
+}
+
+// SWARM addition (M3 wave 2): payments inside a chat -----------------------------
+
+/** A new address of this wallet, for one conversation. */
+export async function newSwarmWalletAddress(): Promise<NewAddressResultType> {
+  const answer: unknown = await ipcRenderer.invoke(
+    SWARM_WALLET_CHANNEL.newAddress,
+    {}
+  );
+  return parseUnknown(NewAddressResultSchema, answer);
+}
+
+/** The wallet's check of an address somebody shared, for its own network. */
+export async function checkSwarmAddress(
+  address: string
+): Promise<CheckAddressResultType> {
+  const answer: unknown = await ipcRenderer.invoke(
+    SWARM_WALLET_CHANNEL.checkAddress,
+    { address }
+  );
+  return parseUnknown(CheckAddressResultSchema, answer);
+}
+
+/**
+ * What this wallet knows about the transaction a payment notice names. The one
+ * source of "received": the notice's own amount is never used for it.
+ */
+export async function findSwarmTransaction({
+  txid,
+  memoHash,
+}: {
+  txid: string;
+  memoHash: string | null;
+}): Promise<FindTransactionResultType> {
+  const accountKey = getAccountKey();
+  const answer: unknown = await ipcRenderer.invoke(
+    SWARM_WALLET_CHANNEL.findTransaction,
+    {
+      txid,
+      ...(memoHash == null ? {} : { memoHash }),
+      ...(accountKey == null ? {} : { accountKey }),
+    }
+  );
+  const result = parseUnknown(FindTransactionResultSchema, answer);
+  noteSwarmWalletChain(result.chain);
+  return result;
 }

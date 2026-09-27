@@ -11,17 +11,18 @@
 //
 // Sending takes two deliberate steps: "Review payment" asks the wallet for a
 // quote (nothing moves), and only the button on the confirmation screen, which
-// names the amount, the fee and the address, sends.
+// names the amount, the fee and the address, sends. Since M3 wave 2 that flow
+// is SwarmSendFlow.dom.tsx, shared with "Pay with SWARM" in a chat.
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { JSX, ReactNode } from 'react';
 
 import { tw } from '../axo/tw.dom.tsx';
 import { AxoButton } from '../axo/AxoButton.dom.tsx';
 import { QrCode } from './QrCode.dom.tsx';
+import { Amount, SwarmSendFlow } from './SwarmSendFlow.dom.tsx';
 import {
   formatZatoshiAsSwm,
-  parseSwmAmount,
   zatoshiFromString,
 } from '../util/swarm/swmAmount.std.ts';
 import { explorerTransactionUrl } from '../types/SwarmWallet.std.ts';
@@ -29,13 +30,24 @@ import type { LocalizerType } from '../types/Util.std.ts';
 import type {
   ConfirmSendResultType,
   QuoteSendResultType,
-  SendQuoteType,
-  SendRefusalType,
   SwarmWalletNetworkIdType,
   SwarmWalletProblemType,
   SwarmWalletStateType,
   SwarmWalletTransactionType,
 } from '../types/SwarmWallet.std.ts';
+
+// The refusal sentences moved with the send flow; the pane's tests read them
+// from here.
+export { refusalText } from './SwarmSendFlow.dom.tsx';
+
+/**
+ * SWARM addition (M3 wave 2): who a transaction was with, when a payment
+ * notice in a chat named it. By txid.
+ */
+export type SwarmTransactionLabelType = Readonly<{
+  title: string;
+  direction: 'incoming' | 'outgoing';
+}>;
 
 export type SwarmWalletPaneProps = Readonly<{
   i18n: LocalizerType;
@@ -52,6 +64,8 @@ export type SwarmWalletPaneProps = Readonly<{
   onCancelQuote: () => void;
   onSetNetwork: (network: SwarmWalletNetworkIdType) => void;
   onCopyAddress: (address: string) => void;
+  /** SWARM addition (M3 wave 2): "from Ada" beside a transaction, by txid. */
+  transactionLabels?: Readonly<Record<string, SwarmTransactionLabelType>>;
 }>;
 
 export function SwarmWalletPane(props: SwarmWalletPaneProps): JSX.Element {
@@ -356,8 +370,15 @@ function Ready(
           onCopyAddress={props.onCopyAddress}
         />
       ) : null}
-      <Send {...props} />
-      <History i18n={i18n} state={state} />
+      <SwarmSendFlow
+        i18n={i18n}
+        explorer={state.network.explorer}
+        frame={(title, children) => <Card title={title}>{children}</Card>}
+        onQuote={props.onQuote}
+        onConfirm={props.onConfirm}
+        onCancelQuote={props.onCancelQuote}
+      />
+      <History i18n={i18n} state={state} labels={props.transactionLabels} />
     </div>
   );
 }
@@ -376,24 +397,6 @@ function Card({
       <h2 className={tw('type-title-small text-primary')}>{title}</h2>
       {children}
     </section>
-  );
-}
-
-function Amount({
-  i18n,
-  zatoshi,
-  testId,
-}: {
-  i18n: LocalizerType;
-  zatoshi: bigint;
-  testId?: string;
-}): JSX.Element {
-  return (
-    <span data-testid={testId} className={tw('font-swarm-mono text-primary')}>
-      {i18n('icu:SwarmWallet__amount', {
-        amount: formatZatoshiAsSwm(zatoshi),
-      })}
-    </span>
   );
 }
 
@@ -494,364 +497,16 @@ function Receive({
   );
 }
 
-// Sending ------------------------------------------------------------------------
-
-type SendStepType =
-  | { step: 'form' }
-  | { step: 'quoting' }
-  | { step: 'confirm'; quote: SendQuoteType }
-  | { step: 'sending'; quote: SendQuoteType }
-  | { step: 'sent'; txids: ReadonlyArray<string>; saved: boolean };
-
-function Send({
-  i18n,
-  state,
-  onQuote,
-  onConfirm,
-  onCancelQuote,
-}: SwarmWalletPaneProps & { state: SwarmWalletStateType }): JSX.Element {
-  const [to, setTo] = useState('');
-  const [amount, setAmount] = useState('');
-  const [memo, setMemo] = useState('');
-  const [step, setStep] = useState<SendStepType>({ step: 'form' });
-  const [refusal, setRefusal] = useState<string | null>(null);
-
-  const review = useCallback(async () => {
-    setRefusal(null);
-    // What can be said without asking the wallet, is said without asking it.
-    if (to.trim() === '') {
-      setRefusal(i18n('icu:SwarmWallet__refusal--empty-address'));
-      return;
-    }
-    const parsed = parseSwmAmount(amount);
-    if (!parsed.ok) {
-      setRefusal(amountProblemText(i18n, parsed.problem));
-      return;
-    }
-    setStep({ step: 'quoting' });
-    try {
-      const result = await onQuote({ to: to.trim(), amount, memo });
-      if (result.ok) {
-        setStep({ step: 'confirm', quote: result.quote });
-      } else {
-        setStep({ step: 'form' });
-        setRefusal(refusalText(i18n, result.refusal));
-      }
-    } catch {
-      setStep({ step: 'form' });
-      setRefusal(i18n('icu:SwarmWallet__refusal--rejected'));
-    }
-  }, [amount, i18n, memo, onQuote, to]);
-
-  const send = useCallback(
-    async (quote: SendQuoteType) => {
-      setStep({ step: 'sending', quote });
-      try {
-        const result = await onConfirm(quote.quoteId);
-        if (result.ok) {
-          setStep({ step: 'sent', txids: result.txids, saved: result.saved });
-          setTo('');
-          setAmount('');
-          setMemo('');
-        } else {
-          setStep({ step: 'form' });
-          setRefusal(refusalText(i18n, result.refusal));
-        }
-      } catch {
-        setStep({ step: 'form' });
-        setRefusal(i18n('icu:SwarmWallet__refusal--rejected'));
-      }
-    },
-    [i18n, onConfirm]
-  );
-
-  if (step.step === 'confirm' || step.step === 'sending') {
-    const { quote } = step;
-    const sending = step.step === 'sending';
-    return (
-      <Card title={i18n('icu:SwarmWallet__confirm--title')}>
-        <dl
-          data-testid="send-confirm"
-          className={tw('grid grid-cols-[auto_1fr] gap-x-6 gap-y-2')}
-        >
-          <dt className={tw('type-body-medium text-secondary')}>
-            {i18n('icu:SwarmWallet__confirm--to')}
-          </dt>
-          <dd
-            className={tw(
-              'font-swarm-mono type-body-small break-all text-primary'
-            )}
-          >
-            {quote.to}
-          </dd>
-          <dt className={tw('type-body-medium text-secondary')}>
-            {i18n('icu:SwarmWallet__confirm--amount')}
-          </dt>
-          <dd>
-            <Amount i18n={i18n} zatoshi={zatoshiFromString(quote.amountZat)} />
-          </dd>
-          <dt className={tw('type-body-medium text-secondary')}>
-            {i18n('icu:SwarmWallet__confirm--fee')}
-          </dt>
-          <dd>
-            <Amount i18n={i18n} zatoshi={zatoshiFromString(quote.feeZat)} />
-          </dd>
-          <dt className={tw('type-body-medium text-secondary')}>
-            {i18n('icu:SwarmWallet__confirm--total')}
-          </dt>
-          <dd>
-            <Amount i18n={i18n} zatoshi={zatoshiFromString(quote.totalZat)} />
-          </dd>
-          {quote.memo != null ? (
-            <>
-              <dt className={tw('type-body-medium text-secondary')}>
-                {i18n('icu:SwarmWallet__confirm--memo')}
-              </dt>
-              <dd
-                className={tw('type-body-medium wrap-break-word text-primary')}
-              >
-                {quote.memo}
-              </dd>
-            </>
-          ) : null}
-        </dl>
-        <p className={tw('type-body-medium text-primary')}>
-          {i18n('icu:SwarmWallet__confirm--warning')}
-        </p>
-        {sending ? (
-          <p className={tw('type-body-small text-secondary')}>
-            {i18n('icu:SwarmWallet__sending')}
-          </p>
-        ) : null}
-        <div className={tw('flex flex-wrap gap-2')}>
-          <AxoButton.Root
-            variant="strong-primary"
-            size="md"
-            pending={sending}
-            onClick={() => {
-              if (sending) {
-                return;
-              }
-              void send(quote);
-            }}
-          >
-            {i18n('icu:SwarmWallet__confirm--send', {
-              amount: formatZatoshiAsSwm(zatoshiFromString(quote.totalZat)),
-            })}
-          </AxoButton.Root>
-          <AxoButton.Root
-            variant="subtle-secondary"
-            size="md"
-            disabled={sending}
-            onClick={() => {
-              onCancelQuote();
-              setStep({ step: 'form' });
-            }}
-          >
-            {i18n('icu:SwarmWallet__confirm--back')}
-          </AxoButton.Root>
-        </div>
-      </Card>
-    );
-  }
-
-  if (step.step === 'sent') {
-    return (
-      <Card title={i18n('icu:SwarmWallet__sent--title')}>
-        <div data-testid="send-result" className={tw('flex flex-col gap-2')}>
-          {step.txids.map(txid => (
-            <div key={txid} className={tw('flex flex-col gap-1')}>
-              <code
-                className={tw(
-                  'font-swarm-mono type-body-small break-all text-primary select-text'
-                )}
-              >
-                {i18n('icu:SwarmWallet__sent--txid', { txid })}
-              </code>
-              <a
-                className={tw('type-body-medium text-accent underline')}
-                href={explorerTransactionUrl(state.network.explorer, txid)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {i18n('icu:SwarmWallet__sent--explorer')}
-              </a>
-            </div>
-          ))}
-          {!step.saved ? (
-            <p className={tw('type-body-small text-secondary')}>
-              {i18n('icu:SwarmWallet__sent--not-saved')}
-            </p>
-          ) : null}
-          <div>
-            <AxoButton.Root
-              variant="subtle-secondary"
-              size="md"
-              onClick={() => setStep({ step: 'form' })}
-            >
-              {i18n('icu:SwarmWallet__sent--done')}
-            </AxoButton.Root>
-          </div>
-        </div>
-      </Card>
-    );
-  }
-
-  const quoting = step.step === 'quoting';
-  const fieldClass = tw(
-    'w-full rounded-lg border border-primary bg-surface-primary p-2',
-    'type-body-medium text-primary'
-  );
-
-  return (
-    <Card title={i18n('icu:SwarmWallet__send--title')}>
-      <form
-        data-testid="send-form"
-        className={tw('flex flex-col gap-3')}
-        onSubmit={event => {
-          // Nothing is sent from the keyboard: review is a button press.
-          event.preventDefault();
-        }}
-      >
-        <label className={tw('flex flex-col gap-1')}>
-          <span className={tw('type-body-small text-secondary')}>
-            {i18n('icu:SwarmWallet__send--to')}
-          </span>
-          <input
-            name="to"
-            className={tw(fieldClass, 'font-swarm-mono')}
-            disabled={quoting}
-            placeholder={i18n('icu:SwarmWallet__send--to-placeholder')}
-            spellCheck={false}
-            autoComplete="off"
-            value={to}
-            onChange={event => setTo(event.target.value)}
-          />
-        </label>
-        <label className={tw('flex flex-col gap-1')}>
-          <span className={tw('type-body-small text-secondary')}>
-            {i18n('icu:SwarmWallet__send--amount')}
-          </span>
-          <input
-            name="amount"
-            className={tw(fieldClass, 'font-swarm-mono')}
-            disabled={quoting}
-            inputMode="decimal"
-            placeholder="0.00000000"
-            spellCheck={false}
-            autoComplete="off"
-            value={amount}
-            onChange={event => setAmount(event.target.value)}
-          />
-        </label>
-        <label className={tw('flex flex-col gap-1')}>
-          <span className={tw('type-body-small text-secondary')}>
-            {i18n('icu:SwarmWallet__send--memo')}
-          </span>
-          <textarea
-            name="memo"
-            className={tw(fieldClass, 'h-16 resize-none')}
-            disabled={quoting}
-            spellCheck={false}
-            value={memo}
-            onChange={event => setMemo(event.target.value)}
-          />
-        </label>
-        {refusal != null ? (
-          <p
-            data-testid="send-refusal"
-            role="alert"
-            className={tw('type-body-medium text-destructive')}
-          >
-            {refusal}
-          </p>
-        ) : null}
-        <div>
-          <AxoButton.Root
-            variant="strong-primary"
-            size="md"
-            pending={quoting}
-            onClick={() => {
-              if (quoting) {
-                return;
-              }
-              void review();
-            }}
-          >
-            {i18n('icu:SwarmWallet__send--review')}
-          </AxoButton.Root>
-        </div>
-      </form>
-    </Card>
-  );
-}
-
-function amountProblemText(
-  i18n: LocalizerType,
-  problem: string | null
-): string {
-  switch (problem) {
-    case 'empty':
-      return i18n('icu:SwarmWallet__refusal--empty-amount');
-    case 'negative':
-      return i18n('icu:SwarmWallet__refusal--negative');
-    case 'too-many-decimals':
-      return i18n('icu:SwarmWallet__refusal--too-many-decimals');
-    case 'zero':
-      return i18n('icu:SwarmWallet__refusal--zero');
-    case 'too-large':
-      return i18n('icu:SwarmWallet__refusal--too-large');
-    case 'not-a-number':
-    default:
-      return i18n('icu:SwarmWallet__refusal--not-a-number');
-  }
-}
-
-/** The plain-words sentence for a refused payment. */
-export function refusalText(
-  i18n: LocalizerType,
-  refusal: SendRefusalType
-): string {
-  switch (refusal.kind) {
-    case 'invalid-address':
-      // The wallet's own sentence names the network the address belongs to.
-      return (
-        refusal.detail ?? i18n('icu:SwarmWallet__refusal--invalid-address')
-      );
-    case 'invalid-amount':
-      return amountProblemText(i18n, refusal.detail);
-    case 'invalid-memo':
-      return refusal.detail === 'transparent'
-        ? i18n('icu:SwarmWallet__refusal--memo-transparent')
-        : i18n('icu:SwarmWallet__refusal--memo-too-long');
-    case 'insufficient-funds':
-      if (refusal.needZat != null && refusal.haveZat != null) {
-        return i18n('icu:SwarmWallet__refusal--insufficient', {
-          need: formatZatoshiAsSwm(zatoshiFromString(refusal.needZat)),
-          have: formatZatoshiAsSwm(zatoshiFromString(refusal.haveZat)),
-        });
-      }
-      return i18n('icu:SwarmWallet__refusal--insufficient-plain');
-    case 'not-ready':
-      return i18n('icu:SwarmWallet__refusal--not-ready');
-    case 'offline':
-      return i18n('icu:SwarmWallet__refusal--offline');
-    case 'quote-expired':
-      return i18n('icu:SwarmWallet__refusal--quote-expired');
-    case 'rejected':
-    default:
-      return i18n('icu:SwarmWallet__refusal--rejected');
-  }
-}
-
 // History -------------------------------------------------------------------------
 
 function History({
   i18n,
   state,
+  labels,
 }: {
   i18n: LocalizerType;
   state: SwarmWalletStateType;
+  labels: Readonly<Record<string, SwarmTransactionLabelType>> | undefined;
 }): JSX.Element {
   return (
     <Card title={i18n('icu:SwarmWallet__history--title')}>
@@ -864,12 +519,16 @@ function History({
         </p>
       ) : (
         <ul data-testid="history" className={tw('flex flex-col gap-3')}>
-          {state.transactions.map(transaction => (
+          {state.transactions.map((transaction, index) => (
             <HistoryRow
-              key={transaction.txid}
+              // The wallet lists a transaction once per pool it was received
+              // into, so a txid alone is not a unique key.
+              // oxlint-disable-next-line react/no-array-index-key
+              key={`${transaction.txid}-${index}`}
               i18n={i18n}
               explorer={state.network.explorer}
               transaction={transaction}
+              label={labels?.[transaction.txid]}
             />
           ))}
         </ul>
@@ -882,10 +541,12 @@ function HistoryRow({
   i18n,
   explorer,
   transaction,
+  label: chatLabel,
 }: {
   i18n: LocalizerType;
   explorer: string;
   transaction: SwarmWalletTransactionType;
+  label: SwarmTransactionLabelType | undefined;
 }): JSX.Element {
   const { label, sign } = directionText(i18n, transaction.direction);
   return (
@@ -893,7 +554,24 @@ function HistoryRow({
       <div
         className={tw('flex flex-wrap items-baseline justify-between gap-2')}
       >
-        <span className={tw('type-body-medium text-primary')}>{label}</span>
+        <span className={tw('type-body-medium text-primary')}>
+          {label}
+          {chatLabel != null ? (
+            <span
+              data-testid="history-chat-label"
+              className={tw('type-body-small text-secondary')}
+            >
+              {' · '}
+              {chatLabel.direction === 'incoming'
+                ? i18n('icu:SwarmChat__history--from', {
+                    contact: chatLabel.title,
+                  })
+                : i18n('icu:SwarmChat__history--to', {
+                    contact: chatLabel.title,
+                  })}
+            </span>
+          ) : null}
+        </span>
         <span className={tw('font-swarm-mono type-body-medium text-primary')}>
           {sign}
           {i18n('icu:SwarmWallet__amount', {

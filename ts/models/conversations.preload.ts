@@ -150,6 +150,7 @@ import type {
   LinkPreviewWithHydratedData,
 } from '../types/message/LinkPreviews.std.ts';
 import type { PollCreateType } from '../types/Polls.dom.ts';
+import type { SwarmPaymentEvent } from '../types/Payment.std.ts';
 import {
   MINUTE,
   SECOND,
@@ -4261,6 +4262,7 @@ export class ConversationModel {
       quote,
       sticker,
       poll,
+      swarmPayment,
     }: {
       attachments: Array<AttachmentType>;
       body: string | undefined;
@@ -4271,6 +4273,9 @@ export class ConversationModel {
       quote?: QuotedMessageType;
       sticker?: StickerWithHydratedData;
       poll?: PollCreateType;
+      // SWARM addition (M3 wave 2): a SWARM payment notice or address message,
+      // stored on the message as its payment event.
+      swarmPayment?: SwarmPaymentEvent;
     },
     {
       dontClearDraft = false,
@@ -4420,6 +4425,7 @@ export class ConversationModel {
       storyId,
       storyReplyContext,
       poll,
+      ...(swarmPayment == null ? {} : { payment: swarmPayment }),
     });
 
     const model = window.MessageCache.register(new MessageModel(attributes));

@@ -50,6 +50,17 @@ export function isSwarmChainLabel(value: unknown): value is SwarmChainLabel {
 }
 
 /**
+ * The block explorer of each network, ending in a slash; transactions are at
+ * `<explorer>transactions/<txid>`. The same two the wallet uses
+ * (walletIpc.node.ts), checked by hand on 2026-09-27.
+ */
+export function swarmExplorerFor(chain: SwarmChainLabel): string {
+  return chain === 'swarm-mainnet'
+    ? 'https://mainnet.explore.swarm.green/'
+    : 'https://explore.swarm.green/';
+}
+
+/**
  * The longest address taken from a message. A SWARM unified address with an
  * Orchard and a Sapling receiver is about 190 characters; this leaves room for
  * one with every receiver and refuses anything that could only be abuse.

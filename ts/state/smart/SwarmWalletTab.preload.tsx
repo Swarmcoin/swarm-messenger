@@ -6,11 +6,13 @@
 // screen - a few seconds apart, never blocking anything - and turns the pane's
 // callbacks into IPC calls. The wallet itself is in the main process.
 
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import type { JSX } from 'react';
 import { useSelector } from 'react-redux';
 
 import { SwarmWalletPane } from '../../components/SwarmWalletPane.dom.tsx';
+import type { SwarmTransactionLabelType } from '../../components/SwarmWalletPane.dom.tsx';
+import { isSwarmChainLabel } from '../../util/swarm/swarmChatPayments.std.ts';
 import { getIntl } from '../selectors/user.std.ts';
 import { createLogger } from '../../logging/log.std.ts';
 import * as Errors from '../../types/errors.std.ts';
@@ -31,6 +33,40 @@ import type {
 } from '../../types/SwarmWallet.std.ts';
 
 const log = createLogger('SwarmWalletTab');
+
+/**
+ * SWARM addition (M3 wave 2): who each listed transaction was with, when a
+ * payment notice in a chat named it. From the conversations' own records, on
+ * this device.
+ */
+function transactionLabels(
+  state: SwarmWalletStateType | undefined
+): Record<string, SwarmTransactionLabelType> {
+  const labels: Record<string, SwarmTransactionLabelType> = {};
+  if (state == null || state.transactions.length === 0) {
+    return labels;
+  }
+  const { chain } = state.network;
+  if (!isSwarmChainLabel(chain)) {
+    return labels;
+  }
+  const listed = new Set(state.transactions.map(({ txid }) => txid));
+  for (const conversation of window.ConversationController.getAll()) {
+    const notices = conversation.get('swarmPayments')?.[chain]?.notices;
+    if (notices == null) {
+      continue;
+    }
+    for (const notice of notices) {
+      if (listed.has(notice.txid)) {
+        labels[notice.txid] = {
+          title: conversation.getTitle(),
+          direction: notice.direction,
+        };
+      }
+    }
+  }
+  return labels;
+}
 
 /** How often the pane asks for fresh state while it is shown. */
 const POLL_MS = 3000;
@@ -108,6 +144,8 @@ export const SmartSwarmWalletTab = memo(
       drop(navigator.clipboard.writeText(address));
     }, []);
 
+    const labels = useMemo(() => transactionLabels(state), [state]);
+
     return (
       <SwarmWalletPane
         i18n={i18n}
@@ -119,6 +157,7 @@ export const SmartSwarmWalletTab = memo(
         onCancelQuote={onCancelQuote}
         onSetNetwork={onSetNetwork}
         onCopyAddress={onCopyAddress}
+        transactionLabels={labels}
       />
     );
   }

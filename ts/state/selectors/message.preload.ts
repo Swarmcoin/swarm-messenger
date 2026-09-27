@@ -165,7 +165,10 @@ import { messageHasPaymentEvent } from '../../messages/payments.std.ts';
 
 import { calculateExpirationTimestamp } from '../../util/expirationTimer.std.ts';
 import type { AnyPaymentEvent } from '../../types/Payment.std.ts';
-import { isPaymentNotificationEvent } from '../../types/Payment.std.ts';
+import {
+  isPaymentNotificationEvent,
+  isSwarmPaymentEvent,
+} from '../../types/Payment.std.ts';
 import type {
   MessagePollVoteType,
   PollMessageAttribute,
@@ -1300,7 +1303,11 @@ export function getPropsForBubble(
 
   if (
     messageHasPaymentEvent(message) &&
-    !isPaymentNotificationEvent(message.payment)
+    !isPaymentNotificationEvent(message.payment) &&
+    // SWARM addition (M3 wave 2): a SWARM notice or address message is a
+    // message bubble from its sender, like upstream's payment notification,
+    // not a system line: it has a sender, a delivery state and buttons.
+    !isSwarmPaymentEvent(message.payment)
   ) {
     return {
       type: 'paymentEvent',

@@ -261,6 +261,7 @@ export type PropsType = PropsLocalType &
     | 'getPreferredBadge'
     | 'renderAudioAttachment'
     | 'renderReactionPicker'
+    | 'renderSwarmPayment'
     | 'shouldCollapseAbove'
     | 'shouldCollapseBelow'
     | 'shouldHideMetadata'

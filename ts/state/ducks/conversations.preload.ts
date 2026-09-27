@@ -262,6 +262,7 @@ import {
   getPinnedConversationLimit,
 } from '../../util/Conversation.preload.ts';
 import type { Emoji } from '../../axo/emoji.std.ts';
+import type { SwarmConversationStateType } from '../../util/swarm/swarmConversation.std.ts';
 import { isSignalConversation } from '../../util/isSignalConversation.dom.ts';
 import {
   type DurationSecs,
@@ -452,6 +453,8 @@ export type ConversationType = ReadonlyDeep<
     groupLink?: string;
     groupVerifiedNameHash?: string;
     terminated?: boolean;
+    // SWARM addition (M3 wave 2).
+    swarmPayments?: SwarmConversationStateType;
     acceptedMessageRequest: boolean;
     secretParams?: string;
     publicParams?: string;

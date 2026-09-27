@@ -47,6 +47,7 @@ import type { MessageRequestResponseEvent } from './types/MessageRequestResponse
 import type { QuotedMessageForComposerType } from './state/ducks/composer.preload.ts';
 import type { SEALED_SENDER } from './types/SealedSender.std.ts';
 import type { Emoji } from './axo/emoji.std.ts';
+import type { SwarmConversationStateType } from './util/swarm/swarmConversation.std.ts';
 
 export type LastMessageStatus =
   | 'paused'
@@ -517,6 +518,12 @@ export type ConversationAttributesType = {
   };
   announcementsOnly?: boolean;
   terminated?: boolean;
+
+  // SWARM addition (M3 wave 2): what this conversation remembers about SWARM
+  // payments - the other person's checked address, this conversation's own
+  // address, the notices sent and received. This device only: not a profile
+  // field and not in any record storage service syncs.
+  swarmPayments?: SwarmConversationStateType;
   avatar?: ContactAvatarType | null;
   avatars?: ReadonlyArray<Readonly<AvatarDataType>>;
   description?: string;

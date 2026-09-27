@@ -74,7 +74,12 @@ export type WorkerRequestType =
     }>
   | Readonly<{ kind: 'confirm'; quoteId: string }>
   | Readonly<{ kind: 'cancel' }>
-  | Readonly<{ kind: 'close' }>;
+  | Readonly<{ kind: 'close' }>
+  // SWARM addition (M3 wave 2): payments inside a chat.
+  /** A new unified address of the open wallet, for one conversation. */
+  | Readonly<{ kind: 'new-address' }>
+  /** Every value transfer of one transaction, for binding a payment notice. */
+  | Readonly<{ kind: 'find-transaction'; txid: string }>;
 
 export type WorkerMessageType = Readonly<{
   id: number;
@@ -107,6 +112,23 @@ export type TransactionSnapshotType = Readonly<{
   blockHeight: number | null;
   timestamp: number | null;
   memo: string | null;
+}>;
+
+/**
+ * SWARM addition (M3 wave 2): one value transfer of a transaction, as the chat
+ * binds a payment notice to it. The wallet lists one per pool a transaction
+ * was received into and one per recipient it paid, so a txid can have several.
+ */
+export type FoundTransferType = Readonly<{
+  direction: 'in' | 'out' | 'unknown';
+  /** A payment to this wallet's own addresses (change, shielding, memo to self). */
+  toSelf: boolean;
+  amountZat: string;
+  /** From the wallet's confirmation status: in a block, not yet, or failed. */
+  status: 'confirmed' | 'pending' | 'failed';
+  blockHeight: number | null;
+  /** The text memos the wallet read, without padding. */
+  memos: ReadonlyArray<string>;
 }>;
 
 /** Everything the pane shows that the wallet knows without the network. */

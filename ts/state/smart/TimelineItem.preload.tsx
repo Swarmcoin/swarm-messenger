@@ -34,6 +34,7 @@ import { SmartContactName } from './ContactName.preload.tsx';
 import { SmartUniversalTimerNotification } from './UniversalTimerNotification.dom.tsx';
 import { isSameDay } from '../../util/timestamp.std.ts';
 import { renderAudioAttachment } from './renderAudioAttachment.preload.tsx';
+import { renderSwarmPayment } from './SwarmPaymentBubble.preload.tsx';
 import { renderReactionPicker } from './renderReactionPicker.dom.tsx';
 import type { MessageRequestState } from '../../components/conversation/MessageRequestActionsConfirmation.dom.tsx';
 import { TargetedMessageSource } from '../ducks/conversationsEnums.std.ts';
@@ -251,6 +252,7 @@ export const SmartTimelineItem = memo(function SmartTimelineItem(
       isSelected={isSelected}
       isSignalConversation={isSignalConvo}
       renderAudioAttachment={renderAudioAttachment}
+      renderSwarmPayment={renderSwarmPayment}
       renderContact={renderContact}
       renderReactionPicker={renderReactionPicker}
       renderUniversalTimerNotification={renderUniversalTimerNotification}

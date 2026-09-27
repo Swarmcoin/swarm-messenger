@@ -44,24 +44,34 @@ import OS from '../ts/util/os/osMain.node.ts';
 import { zatoshiFromString } from '../ts/util/swarm/swmAmount.std.ts';
 import {
   SWARM_WALLET_NETWORKS,
+  chainLabelOf,
+  checkAddressFor,
   classifyWalletFailure,
   describeNetwork,
   isInsufficientFunds,
   isNetworkFailure,
+  memoHashFor,
+  parseCheckAddressRequest,
   parseConfirmSendRequest,
+  parseFindTransactionRequest,
   parseGetStateRequest,
+  parseNewAddressRequest,
   parseOpenWithPhraseRequest,
   parseServerOverride,
   parseSetNetworkRequest,
   redactForLog,
   refusal,
   sameAccountKey,
+  summarizeFoundTransfers,
   validateSendRequest,
   walletFileNameFor,
 } from '../ts/util/swarm/walletIpc.node.ts';
 import { SWARM_WALLET_CHANNEL } from '../ts/types/SwarmWallet.std.ts';
 import type {
+  CheckAddressResultType,
   ConfirmSendResultType,
+  FindTransactionResultType,
+  NewAddressResultType,
   QuoteSendResultType,
   SendQuoteType,
   SendRefusalKindType,
@@ -77,6 +87,7 @@ import {
 } from '../ts/workers/swarmWalletProtocol.std.ts';
 import type {
   CodedErrorType,
+  FoundTransferType,
   QuoteSnapshotType,
   SendSnapshotType,
   ServerSnapshotType,
@@ -236,6 +247,16 @@ export class SwarmWalletService {
     this.#handle(SWARM_WALLET_CHANNEL.cancelSend, () => this.#cancelSend());
     this.#handle(SWARM_WALLET_CHANNEL.setNetwork, payload =>
       this.#setNetwork(payload)
+    );
+    // SWARM addition (M3 wave 2): payments inside a chat.
+    this.#handle(SWARM_WALLET_CHANNEL.newAddress, payload =>
+      this.#newAddress(payload)
+    );
+    this.#handle(SWARM_WALLET_CHANNEL.checkAddress, payload =>
+      this.#checkAddress(payload)
+    );
+    this.#handle(SWARM_WALLET_CHANNEL.findTransaction, payload =>
+      this.#findTransaction(payload)
     );
 
     log.info(
@@ -463,7 +484,15 @@ export class SwarmWalletService {
         (sent.saved ? '' : '; the wallet file could not be saved yet')
     );
     drop(this.#refresh({ forceSync: true }));
-    return { ok: true, txids: [...sent.txids], saved: sent.saved };
+    return {
+      ok: true,
+      txids: [...sent.txids],
+      saved: sent.saved,
+      // What a payment notice in a chat carries, from what this process quoted
+      // and the wallet sent - not from the window.
+      chain: chainLabelOf(this.#network),
+      memoHash: memoHashFor(current.summary.memo),
+    };
   }
 
   async #cancelSend(): Promise<boolean> {
@@ -495,6 +524,114 @@ export class SwarmWalletService {
       });
     }
     return this.#state();
+  }
+
+  // Payments inside a chat (M3 wave 2) -----------------------------------------------
+
+  /**
+   * A new unified address of the open wallet, for one conversation: an address
+   * reused with everybody links everybody who paid it. Takes nothing from the
+   * window; answers the address and the chain it belongs to.
+   */
+  async #newAddress(payload: unknown): Promise<NewAddressResultType> {
+    if (!parseNewAddressRequest(payload)) {
+      throw new Error('Invalid request');
+    }
+    this.#lastAskedAt = Date.now();
+    if (this.#status === 'offline') {
+      return { ok: false, refusal: 'offline' };
+    }
+    if (this.#status !== 'ready') {
+      return { ok: false, refusal: 'not-ready' };
+    }
+    let address: string;
+    try {
+      address = (await this.#call(
+        { kind: 'new-address' },
+        TIMEOUT_MS.quick
+      )) as string;
+    } catch (error) {
+      log.warn(`newAddress: not made (${this.#describe(error)})`);
+      return { ok: false, refusal: 'rejected' };
+    }
+    // What the wallet made must be an address of this network, or it is not
+    // handed to a chat.
+    if (
+      typeof address !== 'string' ||
+      !checkAddressFor(address, this.#network).accepted
+    ) {
+      log.warn('newAddress: the wallet answered something that is not ours');
+      return { ok: false, refusal: 'rejected' };
+    }
+    log.info('newAddress: made a new address for a conversation');
+    return { ok: true, address, chain: chainLabelOf(this.#network) };
+  }
+
+  /**
+   * The wallet's own check of an address somebody shared in a chat, for the
+   * network the wallet is on. Needs no open wallet.
+   */
+  async #checkAddress(payload: unknown): Promise<CheckAddressResultType> {
+    const address = parseCheckAddressRequest(payload);
+    if (address == null) {
+      throw new Error('Invalid request');
+    }
+    const result = checkAddressFor(address, this.#network);
+    log.info(
+      `checkAddress: ${result.accepted ? 'accepted' : 'refused'} for ${result.chain}`
+    );
+    return result;
+  }
+
+  /**
+   * What the open wallet knows about one transaction: the binding between a
+   * payment notice in a chat and the payment itself. A notice is shown as
+   * received only from this answer, with the amount from here.
+   *
+   * Asking counts as looking at the wallet: it keeps the wallet syncing, and
+   * opens the signed-in account's wallet when it is not open yet.
+   */
+  async #findTransaction(payload: unknown): Promise<FindTransactionResultType> {
+    const request = parseFindTransactionRequest(payload);
+    if (request == null) {
+      throw new Error('Invalid request');
+    }
+    this.#lastAskedAt = Date.now();
+    this.#startTimer();
+
+    const { accountKey } = request;
+    if (
+      accountKey != null &&
+      this.#status !== 'unavailable' &&
+      (this.#accountKey == null ||
+        !sameAccountKey(accountKey, this.#accountKey))
+    ) {
+      this.#open(accountKey, undefined);
+    }
+
+    const chain = chainLabelOf(this.#network);
+    if (this.#status !== 'ready' && this.#status !== 'offline') {
+      return { status: 'wallet-not-ready', chain, wallet: this.#status };
+    }
+    let transfers: ReadonlyArray<FoundTransferType>;
+    try {
+      transfers = (await this.#call(
+        { kind: 'find-transaction', txid: request.txid },
+        TIMEOUT_MS.quick
+      )) as ReadonlyArray<FoundTransferType>;
+    } catch (error) {
+      log.warn(`findTransaction: not read (${this.#describe(error)})`);
+      return { status: 'wallet-not-ready', chain, wallet: this.#status };
+    }
+    if (transfers.length === 0) {
+      return {
+        status: 'not-found',
+        chain,
+        syncedHeight: this.#snapshot?.syncedHeight ?? null,
+        serverHeight: this.#serverHeight,
+      };
+    }
+    return summarizeFoundTransfers(transfers, request.memoHash, this.#network);
   }
 
   // Opening ---------------------------------------------------------------------

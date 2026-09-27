@@ -17,10 +17,15 @@
 import { randomBytes } from 'node:crypto';
 
 import { SwarmWallet, SwarmWalletError, WalletStore } from 'swarm-wallet-core';
-import type { NativeAddon, SendQuote } from 'swarm-wallet-core';
+import type {
+  NativeAddon,
+  SendQuote,
+  WalletTransaction,
+} from 'swarm-wallet-core';
 
 import { codeOf, codedError, messageOf } from './swarmWalletProtocol.std.ts';
 import type {
+  FoundTransferType,
   QuoteSnapshotType,
   SendSnapshotType,
   ServerSnapshotType,
@@ -103,6 +108,11 @@ export class SwarmWalletHandler {
       case 'close':
         await this.#close();
         return true;
+      // SWARM addition (M3 wave 2): payments inside a chat.
+      case 'new-address':
+        return this.#requireWallet().newAddress();
+      case 'find-transaction':
+        return this.#findTransaction(request.txid);
       default:
         throw codedError(
           'unexpected',
@@ -228,6 +238,11 @@ export class SwarmWalletHandler {
           if (!/^[0-9a-f]{64}$/.test(txid)) {
             return [];
           }
+          const {
+            status: transferStatus,
+            blockHeight,
+            memos,
+          } = readTransfer(transaction);
           return [
             {
               txid,
@@ -237,13 +252,40 @@ export class SwarmWalletHandler {
                 transaction.feeZat == null
                   ? null
                   : transaction.feeZat.toString(),
-              blockHeight: transaction.blockHeight,
+              // SWARM change (M3 wave 2): "in a block" from the wallet's own
+              // confirmation status; a transaction in the mempool has a target
+              // height, not a block.
+              blockHeight: transferStatus === 'confirmed' ? blockHeight : null,
               timestamp: transaction.timestamp,
-              memo: transaction.memo,
+              memo: memos.length === 0 ? null : memos.join('\n'),
             },
           ];
         }),
     };
+  }
+
+  /**
+   * SWARM addition (M3 wave 2): every value transfer of one transaction, as the
+   * wallet has it. Empty when the wallet has not seen the transaction.
+   */
+  async #findTransaction(
+    txid: string
+  ): Promise<ReadonlyArray<FoundTransferType>> {
+    const transactions = await this.#requireWallet().transactions();
+    return transactions
+      .filter(transaction => transaction.txid.toLowerCase() === txid)
+      .map(transaction => {
+        const { status, blockHeight, memos, toSelf } =
+          readTransfer(transaction);
+        return {
+          direction: transaction.direction,
+          toSelf,
+          amountZat: transaction.amountZat.toString(),
+          status,
+          blockHeight,
+          memos,
+        };
+      });
   }
 
   /** Starts one sync if none is running, and answers at once. */
@@ -338,6 +380,67 @@ export async function walletFileExists({
     chain,
     encryptionKey: new Uint8Array(32),
   }).exists();
+}
+
+/** Kinds the wallet uses for a payment to its own addresses. */
+const SELF_KINDS = new Set([
+  'sendtoself',
+  'memotoself',
+  'shield',
+  'shielding',
+  'refund',
+  'migration',
+]);
+
+/**
+ * SWARM addition (M3 wave 2): what swarm-wallet-core 0.2.0 does not read from a
+ * value transfer. The SDK (zingolib) writes `status` ("confirmed", "mempool",
+ * "transmitted", "calculated", "failed"), a `blockheight` that is only a
+ * target height until the status is "confirmed", and the text memos as an
+ * array `memos` - where the wrapper reads a single `memo`, so on its own the
+ * pane would never show a memo.
+ */
+export function readTransfer(transaction: WalletTransaction): {
+  status: 'confirmed' | 'pending' | 'failed';
+  blockHeight: number | null;
+  memos: ReadonlyArray<string>;
+  toSelf: boolean;
+} {
+  const raw: Record<string, unknown> =
+    transaction.raw != null && typeof transaction.raw === 'object'
+      ? (transaction.raw as Record<string, unknown>)
+      : {};
+  const stated =
+    typeof raw.status === 'string' ? raw.status.toLowerCase() : undefined;
+  let status: 'confirmed' | 'pending' | 'failed';
+  if (stated == null) {
+    status = transaction.blockHeight == null ? 'pending' : 'confirmed';
+  } else if (stated === 'confirmed') {
+    status = 'confirmed';
+  } else if (stated === 'failed') {
+    status = 'failed';
+  } else {
+    status = 'pending';
+  }
+
+  const memos: Array<string> = [];
+  const add = (memo: unknown) => {
+    if (typeof memo === 'string' && memo !== '' && !memos.includes(memo)) {
+      memos.push(memo);
+    }
+  };
+  add(transaction.memo);
+  if (Array.isArray(raw.memos)) {
+    raw.memos.forEach(add);
+  }
+
+  const kind = transaction.kind.toLowerCase().replace(/[^a-z]/g, '');
+  return {
+    status,
+    blockHeight: transaction.blockHeight,
+    memos,
+    toSelf: SELF_KINDS.has(kind),
+  };
 }
 
 /** `get_latest_block_server` answers a bare number or `{"height": N}`. */
