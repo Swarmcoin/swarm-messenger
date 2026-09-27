@@ -284,7 +284,10 @@ jobs:
             kill -0 "$runner" 2>/dev/null || break
             sleep 1
           done
+          pkill -o -f '/opt/SWARM Messenger/swarm-messenger' || true
+          sleep 3
           pkill -f '/opt/SWARM Messenger/swarm-messenger' || true
+          kill "$runner" 2>/dev/null || true
           wait "$runner" 2>/dev/null || true
           echo "::group::main.log"
           cat "$log" 2>/dev/null || echo "(no main.log)"
@@ -308,14 +311,15 @@ jobs:
       # The AppImage is for distributions without Ubuntu 24.04's user-namespace
       # restriction, so that restriction is lifted for this test (as
       # lint-and-test does), and the AppImage runs with its sandbox, extracted
-      # rather than FUSE-mounted.
+      # rather than FUSE-mounted. It keeps its data apart from the .deb's, in
+      # "<productName> AppImage" (app/user_config.main.ts).
       - name: Start the AppImage once
         run: |
           set -euo pipefail
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           appimage=$(ls release/*.AppImage)
           chmod +x "$appimage"
-          userdata="$HOME/.config/SWARM Messenger"
+          userdata="$HOME/.config/SWARM Messenger AppImage"
           log="$userdata/logs/main.log"
           rm -rf "$userdata"
           APPIMAGE_EXTRACT_AND_RUN=1 xvfb-run -a "./$appimage" > smoke-output.txt 2>&1 &
@@ -329,7 +333,10 @@ jobs:
             kill -0 "$runner" 2>/dev/null || break
             sleep 1
           done
-          pkill -f 'swarm-messenger' || true
+          pkill -o -f 'appimage_extracted_[^ ]*/swarm-messenger' || true
+          sleep 3
+          pkill -f 'appimage_extracted_[^ ]*/swarm-messenger' || true
+          kill "$runner" 2>/dev/null || true
           wait "$runner" 2>/dev/null || true
           echo "::group::main.log"
           cat "$log" 2>/dev/null || echo "(no main.log)"
@@ -484,6 +491,26 @@ jobs:
           done
           cd dist-out
           shasum -a 256 -- *
+
+      # The .dmg and the .zip are what people download, and the .zip has been
+      # rewritten by artifactBuildCompleted (rezip-electron), so each is opened
+      # the way Finder opens it and the app inside is checked again.
+      - name: Open the .dmg and the .zip and verify the app inside each
+        run: |
+          set -euo pipefail
+          dmg=$(ls dist-out/*.dmg)
+          zip=$(ls dist-out/*.zip)
+          mnt=$(mktemp -d)
+          hdiutil attach -nobrowse -readonly -mountpoint "$mnt" "$dmg"
+          ls -la "$mnt"
+          test -L "$mnt/Applications"
+          codesign --verify --deep --strict --verbose=1 "$mnt/SWARM Messenger.app"
+          hdiutil detach "$mnt"
+          unzipped=$(mktemp -d)
+          ditto -x -k "$zip" "$unzipped"
+          ls -la "$unzipped"
+          codesign --verify --deep --strict --verbose=1 "$unzipped/SWARM Messenger.app"
+          rm -rf "$unzipped"
 
       - name: Upload the .dmg and the .zip
         uses: actions/upload-artifact@v5

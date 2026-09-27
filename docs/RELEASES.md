@@ -190,11 +190,12 @@ Uninstall: move the app to the Bin. The app's data stays in
 
 ## Where the app keeps its data
 
-| System  | Folder                                          |
-| ------- | ----------------------------------------------- |
-| Windows | `%APPDATA%\SWARM Messenger`                     |
-| Linux   | `~/.config/SWARM Messenger`                     |
-| macOS   | `~/Library/Application Support/SWARM Messenger` |
+| System          | Folder                                                                                                             |
+| --------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Windows         | `%APPDATA%\SWARM Messenger`                                                                                        |
+| Linux, .deb     | `~/.config/SWARM Messenger`                                                                                        |
+| Linux, AppImage | `~/.config/SWARM Messenger AppImage` (kept apart from the .deb's on purpose, upstream's `app/user_config.main.ts`) |
+| macOS           | `~/Library/Application Support/SWARM Messenger`                                                                    |
 
 That folder holds the encrypted message database, the account's keys and the
 logs (`logs/main.log`). Deleting it while the app is closed starts the app from
