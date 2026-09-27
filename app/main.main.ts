@@ -86,6 +86,8 @@ import {
 } from './SystemTrayService.main.ts';
 import { SystemTraySettingCache } from './SystemTraySettingCache.node.ts';
 import { OptionalResourceService } from './OptionalResourceService.main.ts';
+// SWARM addition (M3): the wallet, for the Wallet pane.
+import { SwarmWalletService } from './SwarmWalletService.main.ts';
 import { EmojiService } from './EmojiService.main.ts';
 import { AssetService } from './AssetService.main.ts';
 import * as DevelopmentService from './DevelopmentService.main.ts';
@@ -164,6 +166,8 @@ if (OS.isMacOS()) {
 // Keep a global reference of the window object, if you don't, the window will
 //   be closed automatically when the JavaScript object is garbage collected.
 let mainWindow: BrowserWindow | undefined;
+// SWARM addition (M3): created once the app is ready; sealed on the way out.
+let swarmWalletService: SwarmWalletService | undefined;
 let mainWindowCreated = false;
 let loadingWindow: BrowserWindow | undefined;
 
@@ -980,6 +984,9 @@ async function createWindow() {
     windowState.markRequestedShutdown();
     await requestShutdown();
     windowState.markReadyForShutdown();
+
+    // SWARM addition (M3): seal the wallet file before the process goes.
+    await swarmWalletService?.shutdown();
 
     await sql.close();
     app.quit();
@@ -2218,6 +2225,14 @@ app.on('ready', async () => {
   );
   await EmojiService.create(resourceService);
   AssetService.create(resourceService);
+  // SWARM addition (M3): the wallet runs in a worker thread of this process and
+  // answers the Wallet pane over IPC. Nothing about it blocks startup.
+  if (getEnvironment() !== Environment.Test) {
+    swarmWalletService = SwarmWalletService.create({
+      userDataPath,
+      getMainWindow,
+    });
+  }
   DevelopmentService.start({
     isDevelopment: development && !app.isPackaged,
   });

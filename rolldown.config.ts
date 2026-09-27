@@ -187,6 +187,8 @@ export default defineConfig([
       // Workers
       'workers/sql': 'ts/sql/mainWorker.node.ts',
       'workers/heic': 'ts/workers/heicConverterWorker.node.ts',
+      // SWARM addition (M3): the wallet, off the main thread.
+      'workers/swarmWallet': 'ts/workers/swarmWalletWorker.node.ts',
     },
   },
 

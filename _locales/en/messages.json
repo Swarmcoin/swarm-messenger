@@ -12189,12 +12189,336 @@
     "messageformat": "Wallet",
     "description": "Left navigation label for the SWARM wallet tab."
   },
-  "icu:SwarmWallet__placeholder-title": {
+  "icu:SwarmWallet__title": {
     "messageformat": "Wallet",
-    "description": "Title of the placeholder wallet pane."
+    "description": "Heading of the SWARM wallet pane."
   },
-  "icu:SwarmWallet__placeholder-body": {
-    "messageformat": "Wallet arrives in the next build",
-    "description": "Body of the placeholder wallet pane."
+  "icu:SwarmWallet__network--mainnet": {
+    "messageformat": "SWARM mainnet",
+    "description": "Name of the SWARM production network, shown in the wallet pane header."
+  },
+  "icu:SwarmWallet__network--testnet": {
+    "messageformat": "SWARM testnet (coins have no value)",
+    "description": "Name of the SWARM test network, shown in the wallet pane header. Test coins are worthless."
+  },
+  "icu:SwarmWallet__server": {
+    "messageformat": "Light server {server}",
+    "description": "Which SWARM light server the wallet talks to, as host:port."
+  },
+  "icu:SwarmWallet__height": {
+    "messageformat": "Block {height, number}",
+    "description": "The current height of the SWARM chain as the light server reports it."
+  },
+  "icu:SwarmWallet__synced": {
+    "messageformat": "Up to date",
+    "description": "The wallet has scanned every block the light server knows about."
+  },
+  "icu:SwarmWallet__syncing": {
+    "messageformat": "Catching up: block {synced, number} of {height, number}",
+    "description": "The wallet is still scanning the chain; synced is how far it has got, height is the tip."
+  },
+  "icu:SwarmWallet__syncing--starting": {
+    "messageformat": "Catching up with the network",
+    "description": "The wallet is scanning the chain and has not reported how far it has got yet."
+  },
+  "icu:SwarmWallet__genesis--verified": {
+    "messageformat": "Chain checked",
+    "description": "The light server stated the genesis block this network is held to, and it matched."
+  },
+  "icu:SwarmWallet__genesis--unstated": {
+    "messageformat": "Chain not stated by the server",
+    "description": "The light server did not state a genesis block. Not an error; the connection is still TLS to the right host."
+  },
+  "icu:SwarmWallet__loading": {
+    "messageformat": "Opening your wallet…",
+    "description": "Shown while the wallet pane waits for the first answer from the wallet."
+  },
+  "icu:SwarmWallet__opening": {
+    "messageformat": "Opening your wallet. The first time can take a minute while it catches up with the network.",
+    "description": "Shown while the wallet is being opened or created."
+  },
+  "icu:SwarmWallet__unavailable": {
+    "messageformat": "This build of SWARM Messenger has no wallet component. Chats work as usual.",
+    "description": "Shown when the wallet addon is missing from the build."
+  },
+  "icu:SwarmWallet__offline--title": {
+    "messageformat": "Can’t reach the SWARM network",
+    "description": "Heading when the light server does not answer."
+  },
+  "icu:SwarmWallet__offline--body": {
+    "messageformat": "The light server {server} is not answering. Your wallet is safe on this computer, and chats keep working. The wallet tries again every 30 seconds.",
+    "description": "Explains the offline state in plain words. server is host:port."
+  },
+  "icu:SwarmWallet__offline--last-known": {
+    "messageformat": "Last known balance",
+    "description": "Label for the balance shown while offline, which may be out of date."
+  },
+  "icu:SwarmWallet__retry": {
+    "messageformat": "Try again",
+    "description": "Button: try to reach the light server again now."
+  },
+  "icu:SwarmWallet__error--wrong-chain": {
+    "messageformat": "The light server {server} is on a different chain from this wallet. Nothing was synced.",
+    "description": "The light server answered with the wrong chain or genesis."
+  },
+  "icu:SwarmWallet__error--wallet-file": {
+    "messageformat": "The wallet file could not be opened on this computer. Your 24 recovery words restore it on any computer.",
+    "description": "The wallet file could not be decrypted or read."
+  },
+  "icu:SwarmWallet__error--unexpected": {
+    "messageformat": "The wallet ran into a problem. Chats are not affected.",
+    "description": "An unexpected wallet error."
+  },
+  "icu:SwarmWallet__restore--title": {
+    "messageformat": "Open your wallet",
+    "description": "Heading of the form that opens the wallet from its recovery phrase."
+  },
+  "icu:SwarmWallet__restore--body": {
+    "messageformat": "Your wallet comes from the 24 words you wrote down when you created this account. Type them to open it on this computer. They stay on this computer.",
+    "description": "Explains why the recovery phrase is needed."
+  },
+  "icu:SwarmWallet__restore--placeholder": {
+    "messageformat": "The 24 words, separated by spaces",
+    "description": "Placeholder of the recovery phrase field in the wallet pane."
+  },
+  "icu:SwarmWallet__restore--button": {
+    "messageformat": "Open wallet",
+    "description": "Button that opens the wallet from the typed recovery phrase."
+  },
+  "icu:SwarmWallet__restore--wrong-phrase": {
+    "messageformat": "Those words belong to a different account. Use the words you wrote down for this one.",
+    "description": "The typed phrase is valid but derives another account."
+  },
+  "icu:SwarmWallet__restore--invalid-phrase": {
+    "messageformat": "That is not a valid recovery phrase. Check the 24 words and their order.",
+    "description": "The typed phrase failed the BIP-39 check."
+  },
+  "icu:SwarmWallet__balance--title": {
+    "messageformat": "Balance",
+    "description": "Heading of the balance section."
+  },
+  "icu:SwarmWallet__balance--confirmed": {
+    "messageformat": "Confirmed",
+    "description": "Label: the balance that can be spent now."
+  },
+  "icu:SwarmWallet__balance--pending": {
+    "messageformat": "Pending",
+    "description": "Label: received, not yet confirmed enough to spend."
+  },
+  "icu:SwarmWallet__amount": {
+    "messageformat": "{amount} SWM",
+    "description": "An amount of SWM. amount is already formatted with eight decimals."
+  },
+  "icu:SwarmWallet__not-encrypted": {
+    "messageformat": "This computer has no keychain for the wallet, so the wallet file is stored unencrypted.",
+    "description": "Warning when the OS keychain is unavailable."
+  },
+  "icu:SwarmWallet__receive--title": {
+    "messageformat": "Receive",
+    "description": "Heading of the receive section."
+  },
+  "icu:SwarmWallet__receive--body": {
+    "messageformat": "Your SWARM address. It is not secret, but everyone you give it to can link the payments they make to it.",
+    "description": "Explains the receive address."
+  },
+  "icu:SwarmWallet__receive--qr": {
+    "messageformat": "QR code of your SWARM address",
+    "description": "Alt text of the receive QR code."
+  },
+  "icu:SwarmWallet__copy": {
+    "messageformat": "Copy address",
+    "description": "Button that copies the receive address."
+  },
+  "icu:SwarmWallet__copied": {
+    "messageformat": "Copied",
+    "description": "Shown briefly after the address was copied."
+  },
+  "icu:SwarmWallet__send--title": {
+    "messageformat": "Send",
+    "description": "Heading of the send section."
+  },
+  "icu:SwarmWallet__send--to": {
+    "messageformat": "To",
+    "description": "Label of the recipient address field."
+  },
+  "icu:SwarmWallet__send--to-placeholder": {
+    "messageformat": "swm1…",
+    "description": "Placeholder of the recipient address field."
+  },
+  "icu:SwarmWallet__send--amount": {
+    "messageformat": "Amount in SWM",
+    "description": "Label of the amount field."
+  },
+  "icu:SwarmWallet__send--memo": {
+    "messageformat": "Memo (optional, only the recipient can read it)",
+    "description": "Label of the memo field."
+  },
+  "icu:SwarmWallet__send--review": {
+    "messageformat": "Review payment",
+    "description": "Button: get the fee and show the confirmation step. Nothing is sent yet."
+  },
+  "icu:SwarmWallet__confirm--title": {
+    "messageformat": "Confirm payment",
+    "description": "Heading of the confirmation step."
+  },
+  "icu:SwarmWallet__confirm--to": {
+    "messageformat": "To",
+    "description": "Label in the confirmation step."
+  },
+  "icu:SwarmWallet__confirm--amount": {
+    "messageformat": "Amount",
+    "description": "Label in the confirmation step."
+  },
+  "icu:SwarmWallet__confirm--fee": {
+    "messageformat": "Network fee",
+    "description": "Label in the confirmation step."
+  },
+  "icu:SwarmWallet__confirm--total": {
+    "messageformat": "Total",
+    "description": "Label in the confirmation step."
+  },
+  "icu:SwarmWallet__confirm--memo": {
+    "messageformat": "Memo",
+    "description": "Label in the confirmation step."
+  },
+  "icu:SwarmWallet__confirm--warning": {
+    "messageformat": "A payment cannot be undone. Check the address: coins sent to the wrong one are gone.",
+    "description": "Warning shown above the final send button."
+  },
+  "icu:SwarmWallet__confirm--send": {
+    "messageformat": "Send {amount} SWM",
+    "description": "The second, final confirmation button. amount is formatted."
+  },
+  "icu:SwarmWallet__confirm--back": {
+    "messageformat": "Back",
+    "description": "Leaves the confirmation step without sending."
+  },
+  "icu:SwarmWallet__sending": {
+    "messageformat": "Sending. Building the private transaction can take a minute.",
+    "description": "Shown while the payment is built, proved and broadcast."
+  },
+  "icu:SwarmWallet__sent--title": {
+    "messageformat": "Sent",
+    "description": "Heading after a payment went out."
+  },
+  "icu:SwarmWallet__sent--txid": {
+    "messageformat": "Transaction {txid}",
+    "description": "The transaction id of a payment that was sent."
+  },
+  "icu:SwarmWallet__sent--explorer": {
+    "messageformat": "View on the explorer",
+    "description": "Link to the transaction on the SWARM block explorer."
+  },
+  "icu:SwarmWallet__sent--not-saved": {
+    "messageformat": "The payment went out. The wallet file on this computer will catch up at the next sync.",
+    "description": "The wallet file could not be saved right after sending."
+  },
+  "icu:SwarmWallet__sent--done": {
+    "messageformat": "Done",
+    "description": "Closes the result of a payment."
+  },
+  "icu:SwarmWallet__refusal--invalid-address": {
+    "messageformat": "That is not a SWARM address.",
+    "description": "Generic refusal of a recipient address."
+  },
+  "icu:SwarmWallet__refusal--empty-address": {
+    "messageformat": "Enter the address to send to.",
+    "description": "The address field is empty."
+  },
+  "icu:SwarmWallet__refusal--empty-amount": {
+    "messageformat": "Enter an amount.",
+    "description": "Amount field is empty."
+  },
+  "icu:SwarmWallet__refusal--not-a-number": {
+    "messageformat": "Enter the amount as a number, like 0.5.",
+    "description": "Amount is not a number."
+  },
+  "icu:SwarmWallet__refusal--negative": {
+    "messageformat": "The amount cannot be negative.",
+    "description": "Amount is negative."
+  },
+  "icu:SwarmWallet__refusal--too-many-decimals": {
+    "messageformat": "SWM has at most 8 decimal places.",
+    "description": "Amount has more than eight decimals."
+  },
+  "icu:SwarmWallet__refusal--zero": {
+    "messageformat": "Enter more than 0 SWM.",
+    "description": "Amount is zero."
+  },
+  "icu:SwarmWallet__refusal--too-large": {
+    "messageformat": "That is more SWM than exists.",
+    "description": "Amount is above the whole supply."
+  },
+  "icu:SwarmWallet__refusal--memo-too-long": {
+    "messageformat": "The memo is longer than 512 bytes.",
+    "description": "Memo too long."
+  },
+  "icu:SwarmWallet__refusal--memo-transparent": {
+    "messageformat": "A transparent address cannot receive a memo. Remove the memo, or send to a private swm1 address.",
+    "description": "Memo given for a transparent destination."
+  },
+  "icu:SwarmWallet__refusal--insufficient": {
+    "messageformat": "Not enough SWM. This payment needs {need} SWM and {have} SWM is available.",
+    "description": "Refusal for insufficient funds. need and have are formatted amounts."
+  },
+  "icu:SwarmWallet__refusal--insufficient-plain": {
+    "messageformat": "Not enough SWM in this wallet for that payment.",
+    "description": "Refusal for insufficient funds when the amounts are unknown."
+  },
+  "icu:SwarmWallet__refusal--not-ready": {
+    "messageformat": "The wallet is still opening. Try again in a moment.",
+    "description": "The wallet has no balance yet."
+  },
+  "icu:SwarmWallet__refusal--offline": {
+    "messageformat": "The SWARM network can’t be reached right now. Nothing was sent.",
+    "description": "Refusal while offline."
+  },
+  "icu:SwarmWallet__refusal--quote-expired": {
+    "messageformat": "That payment was reviewed too long ago. Review it again.",
+    "description": "The quote expired before the second confirmation."
+  },
+  "icu:SwarmWallet__refusal--rejected": {
+    "messageformat": "The wallet refused this payment. Nothing was sent.",
+    "description": "Any other refusal."
+  },
+  "icu:SwarmWallet__history--title": {
+    "messageformat": "Transactions",
+    "description": "Heading of the transaction list."
+  },
+  "icu:SwarmWallet__history--empty": {
+    "messageformat": "No transactions yet.",
+    "description": "The transaction list is empty."
+  },
+  "icu:SwarmWallet__history--received": {
+    "messageformat": "Received",
+    "description": "A transaction that brought SWM in."
+  },
+  "icu:SwarmWallet__history--sent": {
+    "messageformat": "Sent",
+    "description": "A transaction that sent SWM out."
+  },
+  "icu:SwarmWallet__history--unknown": {
+    "messageformat": "Transaction",
+    "description": "A transaction whose direction the wallet did not report."
+  },
+  "icu:SwarmWallet__history--pending": {
+    "messageformat": "Not yet in a block",
+    "description": "A transaction still in the mempool."
+  },
+  "icu:SwarmWallet__history--block": {
+    "messageformat": "Block {height, number}",
+    "description": "The block a transaction was mined in."
+  },
+  "icu:SwarmWallet__developer--title": {
+    "messageformat": "Developer: network",
+    "description": "Heading of the developer-only network switch (never shown in a release build)."
+  },
+  "icu:SwarmWallet__developer--mainnet": {
+    "messageformat": "Mainnet",
+    "description": "Developer switch option."
+  },
+  "icu:SwarmWallet__developer--testnet": {
+    "messageformat": "Testnet",
+    "description": "Developer switch option."
   }
 }

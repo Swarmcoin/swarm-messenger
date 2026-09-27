@@ -56,6 +56,19 @@
     Consolas,
     monospace;
   --font-symbols: 'SignalSymbols';
+  /* SWARM addition (M3): JetBrains Mono first, for amounts, addresses and
+     transaction ids. --font-mono starts with MonoSpecial, whose letters are
+     all capitals: an address drawn in it reads differently from the one that
+     is copied. */
+  --font-swarm-mono:
+    'JetBrains Mono',
+    'SF Mono',
+    SFMono-Regular,
+    ui-monospace,
+    'DejaVu Sans Mono',
+    Menlo,
+    Consolas,
+    monospace;
   /* SWARM addition (M1): display face for headings. */
   --font-display:
     Sora,
