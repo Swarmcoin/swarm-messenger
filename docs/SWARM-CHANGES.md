@@ -205,7 +205,11 @@ targets Signal's self-hosted runners (`ubuntu-22.04-8-cores`,
 `windows-latest-8-cores`) which do not exist in this org.
 
 - `lint-and-test` on `ubuntu-latest`: install, generate, `check:types`, `oxlint:ci`,
-  `lint-prettier`, `test-node`.
+  `lint-prettier`, `test-node`. `test-node` runs under `xvfb-run` with
+  `kernel.apparmor_restrict_unprivileged_userns=0`: Ubuntu 24.04 blocks the user
+  namespaces Chromium's sandbox needs, and Electron then aborts on the setuid
+  helper before a single test runs. Upstream runs the same tests on 22.04 under
+  `xvfb-run`.
 - `windows-installer` on `windows-latest`: install (**without**
   `SWARM_ALLOW_MISSING_NATIVE`, so a native failure fails the build), generate,
   `test-node`, `build:release --publish=never`, `swarm-brand-check.mjs`, sha256.

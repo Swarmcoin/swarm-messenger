@@ -79,8 +79,20 @@ jobs:
       - name: Check prettier
         run: pnpm run lint-prettier
 
+      # electron-mocha starts Electron, and on ubuntu-latest (24.04) AppArmor
+      # forbids the unprivileged user namespaces Chromium's sandbox needs, so
+      # Electron falls back to the setuid helper and aborts: "The SUID sandbox
+      # helper binary was found, but is not configured correctly" (run
+      # 36288590467). Upstream's ci.yml runs these tests on ubuntu-22.04, which
+      # has no such restriction, and under xvfb-run; this does the same on 24.04.
+      - name: Let Electron start on the runner (user namespaces, virtual display)
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb
+
       - name: Run node tests (includes the SWARM endpoint scan)
-        run: pnpm run test-node
+        run: xvfb-run --auto-servernum pnpm run test-node
 
   windows-installer:
     name: Unsigned Windows installer
