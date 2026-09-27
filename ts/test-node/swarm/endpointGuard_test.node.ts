@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Net } from '@signalapp/libsignal-client';
 import libsignalPackageJson from '@signalapp/libsignal-client/package.json';
+import { GenericServerPublicParams } from '@signalapp/libsignal-client/zkgroup';
 
 import {
   SWARM_CHAT_HOST,
@@ -244,6 +245,40 @@ describe('SWARM endpointGuard', () => {
         }
       });
     }
+
+    // SWARM addition (M-H): genericServerPublicParams verifies calling
+    // credentials (the server's callingZkConfig), backupServerPublicParams
+    // backup credentials (chatZkConfig). Until 2026-09-27 both carried the chat
+    // set, and every call-link credential - which arrives with the group auth
+    // credentials - failed to verify, so no group could be created.
+    it('carries two different generic zk sets, the same in all three files', () => {
+      const staging = readConfig('swarm-staging.json');
+      const calling = staging.genericServerPublicParams as string;
+      const backup = staging.backupServerPublicParams as string;
+      for (const name of ['default.json', 'production.json']) {
+        const other = readConfig(name);
+        assert.strictEqual(
+          other.genericServerPublicParams,
+          calling,
+          `${name} genericServerPublicParams must match config/swarm-staging.json`
+        );
+        assert.strictEqual(
+          other.backupServerPublicParams,
+          backup,
+          `${name} backupServerPublicParams must match config/swarm-staging.json`
+        );
+      }
+      assert.notStrictEqual(
+        calling,
+        backup,
+        'genericServerPublicParams is the calling set and must not be the backup (chat) set'
+      );
+      for (const value of [calling, backup]) {
+        assert.doesNotThrow(
+          () => new GenericServerPublicParams(Buffer.from(value, 'base64'))
+        );
+      }
+    });
 
     it('default.json and production.json match swarm-staging.json endpoint for endpoint', () => {
       const staging = readConfig('swarm-staging.json');

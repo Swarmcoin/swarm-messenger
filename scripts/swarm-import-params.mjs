@@ -17,16 +17,19 @@
 //     "serverPublicParams": "<900 base64 chars>",
 //     "genericServerPublicParams": "<300 base64 chars>",
 //     "backupServerPublicParams": "<300 base64 chars>",
-//     "callingServerPublicParams": "...",          // not used by the desktop
+//     "callingServerPublicParams": "...",          // = genericServerPublicParams
 //     "callingServerPublicParamsPreV101": "...",   // not used by the desktop
 //     "serverTrustRoots": ["<44 base64 chars>"],   // a LIST, for rotation
 //     "registrationCaCertificatePem": "..."        // internal CA, clients skip it
 //   }
 //
-// The desktop uses four of those fields. The others are listed above so nobody
-// wonders why they were dropped: calling credentials are not in Signal Desktop's
-// renderer config, and the registration CA covers the server's own internal gRPC
-// hop, not anything the client speaks to.
+// The desktop uses four of those fields. genericServerPublicParams is the
+// server's CALLING set (callingZkConfig): Signal Desktop verifies call-link
+// credentials with it. backupServerPublicParams is the chat set (chatZkConfig),
+// used for backups only. Before 2026-09-27 the server's generator put the chat set
+// in both, and every call-link credential failed to verify. The pre-0.101 calling
+// set is for older clients, and the registration CA covers the server's own
+// internal gRPC hop, not anything the client speaks to.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
