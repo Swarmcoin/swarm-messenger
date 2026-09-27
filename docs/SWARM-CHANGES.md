@@ -297,7 +297,11 @@ over all five installers and, on a push to `swarm-main` only, publishes one
 pre-release tagged `swarm-messenger-desktop-<yyyymmdd>-<shortsha>` on that
 commit. It replaces the M1 `swarm-messenger-m1-<shortsha>` releases, whose tags
 were created on `upstream-main` because no `target_commitish` was given.
-Artifact uploads are no longer best effort: the repository is public.
+Artifact uploads are no longer best effort: the repository is public. Every
+installer job runs M3's `scripts/swarm-fetch-wallet-addon.mjs` before
+`build:release`, so each package carries its platform's hash-pinned wallet
+addon; the Linux and Mac start tests fail if the app reports the addon
+missing, and check that the packaged addon loads.
 [`RELEASES.md`](RELEASES.md) is the full account: every file, how it is built,
 where its hash is, what is signed (nothing yet) and the install steps per
 system.

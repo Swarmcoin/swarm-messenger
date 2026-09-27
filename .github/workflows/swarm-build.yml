@@ -214,6 +214,13 @@ jobs:
 
       # The whole test suite, the SWARM tests included, already runs on this
       # same OS in lint-and-test, so it is not repeated here.
+      # SWARM addition (M3): the wallet's Rust addon, from the swarm-wallet-core
+      # release named in vendor/swarm-wallet-core-native.json, refused unless
+      # its SHA-256 is the pinned one. Without it the installer would ship a
+      # Wallet pane that says the wallet component is missing.
+      - name: Fetch the SWARM wallet addon (hash-pinned)
+        run: node scripts/swarm-fetch-wallet-addon.mjs
+
       - name: Build the .deb and the AppImage
         run: pnpm run build:release --publish=never
 
@@ -297,12 +304,24 @@ jobs:
           echo "::group::stdout and stderr"
           cat smoke-output.txt
           echo "::endgroup::"
+          cp "$log" main-log-copy.txt 2>/dev/null || touch main-log-copy.txt
           rm -rf "$userdata" smoke-output.txt || true
           if [ -z "$started" ]; then
             echo "The installed app did not open its main window within 120 s" >&2
             exit 1
           fi
           echo "The installed app started and opened its main window."
+          if grep -q 'no wallet addon in this build' main-log-copy.txt; then
+            echo "The installed app says it has no wallet addon" >&2
+            exit 1
+          fi
+          addon="/opt/SWARM Messenger/resources/app.asar.unpacked/vendor/swarm-wallet-native/native-linux-x64.node"
+          pinned=$(node -p "require('./vendor/swarm-wallet-core-native.json').binaries['linux-x64'].sha256")
+          actual=$(sha256sum "$addon" | cut -d' ' -f1)
+          echo "wallet addon: $addon"
+          echo "  sha256 $actual (pinned $pinned)"
+          [ "$actual" = "$pinned" ]
+          node -e "const m = { exports: {} }; process.dlopen(m, process.argv[1]); console.log('  loads: ' + Object.keys(m.exports).length + ' exports')" "$addon"
 
           sudo apt-get remove -y swarm-messenger
           if ls /usr/share/polkit-1/actions/ | grep green.swarm; then
@@ -426,6 +445,13 @@ jobs:
       - name: Run the SWARM endpoint scan and guard tests
         run: pnpm run test-node:swarm
 
+      # SWARM addition (M3): the wallet's Rust addon, from the swarm-wallet-core
+      # release named in vendor/swarm-wallet-core-native.json, refused unless
+      # its SHA-256 is the pinned one. Without it the installer would ship a
+      # Wallet pane that says the wallet component is missing.
+      - name: Fetch the SWARM wallet addon (hash-pinned)
+        run: node scripts/swarm-fetch-wallet-addon.mjs
+
       - name: Build the .dmg and the .zip
         run: pnpm run build:release --publish=never
 
@@ -468,12 +494,23 @@ jobs:
           echo "::group::stdout and stderr"
           cat smoke-output.txt
           echo "::endgroup::"
+          cp "$log" main-log-copy.txt 2>/dev/null || touch main-log-copy.txt
           rm -rf "$userdata" smoke-output.txt || true
           if [ -z "$started" ]; then
             echo "The packaged app did not open its main window within 120 s" >&2
             exit 1
           fi
           echo "The packaged app started and opened its main window."
+          if grep -q 'no wallet addon in this build' main-log-copy.txt; then
+            echo "The packaged app says it has no wallet addon" >&2
+            exit 1
+          fi
+          # The ad-hoc signature is written into the addon, so its hash is no
+          # longer the pinned one; what matters here is that it still loads.
+          addon="$app/Contents/Resources/app.asar.unpacked/vendor/swarm-wallet-native/native-darwin-arm64.node"
+          echo "wallet addon: $addon"
+          codesign --verify --verbose=1 "$addon"
+          node -e "const m = { exports: {} }; process.dlopen(m, process.argv[1]); console.log('  loads: ' + Object.keys(m.exports).length + ' exports')" "$addon"
 
       # electron-builder writes swarm-messenger-mac-arm64-<version>.dmg and
       # .zip (plus update blockmaps, which SWARM does not use)

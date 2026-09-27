@@ -58,22 +58,35 @@ Debian 12 or later. The Mac app needs macOS 13 (Ventura) or later: its
 `LSMinimumSystemVersion` is `13.0` (read from the built app in CI run
 36346185304).
 
+**Every installer contains the SWARM wallet's Rust addon** for its platform,
+`vendor/swarm-wallet-native/native-<platform>-<arch>.node` (about 80 MB, in
+`app.asar.unpacked`), which the Wallet pane runs on. It is not in git: the
+build fetches it from the `swarm-wallet-core` release with
+`scripts/swarm-fetch-wallet-addon.mjs` and refuses it unless its size and
+SHA-256 are the ones pinned in `vendor/swarm-wallet-core-native.json`
+(swarm-wallet-core 0.2.0: `win32-x64` `ba1117d2…`, `linux-x64` `c75b9463…`,
+`darwin-arm64` `e17f6a29…`). An installer built without it still chats, and
+its Wallet pane says the wallet component is missing. On macOS the ad-hoc
+signature is written into the addon too, so the copy inside the Mac app no
+longer hashes to the pinned value; CI checks that it still loads.
+
 ## How each file is built
 
 All five come from one run of `.github/workflows/swarm-build.yml` on GitHub's
 standard runners. Each installer job installs with `pnpm install
 --frozen-lockfile` - **without** `SWARM_ALLOW_MISSING_NATIVE`, so a native
-module that fails to build fails the release - runs `pnpm run generate`, then
-`pnpm run build:release --publish=never`, which is electron-builder with the
+module that fails to build fails the release - runs `pnpm run generate`,
+fetches the pinned wallet addon, then `pnpm run build:release
+--publish=never`, which is electron-builder with the
 `build` section of `package.json`. Then `scripts/swarm-brand-check.mjs` unpacks
 the packaged app and fails on any Signal domain or Signal wording.
 
-| Job                 | Runner           | Also runs                                                                                                                                                                                                                                                                                                                                                               |
-| ------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `installer-windows` | `windows-latest` | the SWARM endpoint and guard tests (`pnpm run test-node:swarm`)                                                                                                                                                                                                                                                                                                         |
-| `installer-linux`   | `ubuntu-latest`  | a check of what the brand check cannot see (the .deb's control fields and desktop entry must not mention Signal, its maintainer scripts must use the `green.swarm.*` polkit policies); then `sudo apt install` of the .deb, a start of the installed app with its sandbox that must open the main window within 120 seconds, `apt remove`; then a start of the AppImage |
-| `installer-mac`     | `macos-latest`   | `scripts/swarm-prepare-unsigned-mac-build.mjs` first (see "Signing" below), the SWARM tests, then `codesign --verify --deep --strict` on the app, and a start of the packaged app that must open its main window within 120 seconds                                                                                                                                     |
-| `release`           | `ubuntu-latest`  | waits for the three installer jobs **and** `lint-and-test`, downloads the installers, checks there is exactly one of each kind, writes `SHA256SUMS.txt` and the release text (`scripts/swarm-release-notes.mjs`), and on a push to `swarm-main` publishes the pre-release                                                                                               |
+| Job                 | Runner           | Also runs                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `installer-windows` | `windows-latest` | the SWARM endpoint and guard tests (`pnpm run test-node:swarm`)                                                                                                                                                                                                                                                                                                                                                                     |
+| `installer-linux`   | `ubuntu-latest`  | a check of what the brand check cannot see (the .deb's control fields and desktop entry must not mention Signal, its maintainer scripts must use the `green.swarm.*` polkit policies); then `sudo apt install` of the .deb, a start of the installed app with its sandbox that must open the main window within 120 seconds, a check that its wallet addon is the pinned file and loads, `apt remove`; then a start of the AppImage |
+| `installer-mac`     | `macos-latest`   | `scripts/swarm-prepare-unsigned-mac-build.mjs` first (see "Signing" below), the SWARM tests, then `codesign --verify --deep --strict` on the app, a start of the packaged app that must open its main window within 120 seconds, a check that its wallet addon loads, and the same signature check on the app inside the mounted .dmg and the unpacked .zip                                                                         |
+| `release`           | `ubuntu-latest`  | waits for the three installer jobs **and** `lint-and-test`, downloads the installers, checks there is exactly one of each kind, writes `SHA256SUMS.txt` and the release text (`scripts/swarm-release-notes.mjs`), and on a push to `swarm-main` publishes the pre-release                                                                                                                                                           |
 
 A release build cannot be made on the Windows workstation: it has no Visual
 Studio, so the Windows Hello addon cannot be compiled there (see
