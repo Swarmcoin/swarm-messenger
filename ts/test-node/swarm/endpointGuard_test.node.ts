@@ -7,8 +7,12 @@
 import { assert } from 'chai';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { Net } from '@signalapp/libsignal-client';
+import libsignalPackageJson from '@signalapp/libsignal-client/package.json';
 
 import {
+  SWARM_CHAT_HOST,
+  SWARM_STAGING_CHAT_HOST,
   describeLibsignalNetTarget,
   describeStartupRefusal,
   findPlaceholderParams,
@@ -127,13 +131,36 @@ describe('SWARM endpointGuard', () => {
       );
     });
 
-    it('refuses to guess for a SWARM host', () => {
-      // This is the finding that matters: libsignal-net has no custom
-      // environment, and upstream fell through to Signal production here.
+    it('knows the two SWARM chat hosts libsignal compiles in', () => {
+      // M2: @signalapp/libsignal-client 0.101.2-swarm.1 adds Environment.Swarm
+      // and Environment.SwarmStaging. serverUrl must be one of these exact
+      // hostnames, because libsignal takes the host from its own tables.
       assert.strictEqual(
         describeLibsignalNetTarget('https://chat.swarm.green'),
-        'unsupported-custom-host'
+        'swarm-production'
       );
+      assert.strictEqual(
+        describeLibsignalNetTarget('https://staging.chat.swarm.green'),
+        'swarm-staging'
+      );
+    });
+
+    it('still refuses to guess for any other custom host', () => {
+      // This is the finding that mattered in M1 and still does: upstream fell
+      // through to Signal production for anything it did not recognise. Only
+      // the two compiled-in SWARM names work; a sibling SWARM name does not.
+      for (const url of [
+        'https://cdn.chat.swarm.green',
+        'https://chat.swarm.green.example.com',
+        'https://swarm.green',
+        'https://example.com',
+      ]) {
+        assert.strictEqual(
+          describeLibsignalNetTarget(url),
+          'unsupported-custom-host',
+          url
+        );
+      }
     });
   });
 
@@ -210,6 +237,50 @@ describe('SWARM endpointGuard', () => {
           other.cdn,
           staging.cdn,
           `${name} cdn must match config/swarm-staging.json`
+        );
+      }
+    });
+  });
+
+  // SWARM addition (M2): the guard above is only meaningful if the installed
+  // libsignal is the SWARM build. If someone resolves @signalapp/libsignal-client
+  // back to the npm release, Environment.Swarm disappears and the chat host in
+  // config/ can no longer be reached - so assert the build, not just the config.
+  describe('the installed libsignal build', () => {
+    it('is the SWARM build, with the hosts config/ points at', () => {
+      const { version, swarm } = libsignalPackageJson as {
+        version: string;
+        swarm?: { chatHost?: string; stagingChatHost?: string };
+      };
+      assert.match(
+        version,
+        /-swarm\.\d+$/,
+        `installed @signalapp/libsignal-client is ${version}, not a SWARM build ` +
+          '(see vendor/ and shared/libsignal-swarm.md)'
+      );
+      assert.strictEqual(swarm?.chatHost, SWARM_CHAT_HOST);
+      assert.strictEqual(swarm?.stagingChatHost, SWARM_STAGING_CHAT_HOST);
+    });
+
+    it('exposes the two SWARM network environments', () => {
+      assert.strictEqual(Net.Environment.Swarm, 2);
+      assert.strictEqual(Net.Environment.SwarmStaging, 3);
+    });
+
+    it('agrees with serverUrl in every shipped config file', () => {
+      for (const name of [
+        'swarm-staging.json',
+        'default.json',
+        'production.json',
+      ]) {
+        const serverUrl = readConfig(name).serverUrl as string;
+        // libsignal takes the chat host from its own compiled-in tables, not
+        // from this URL, so a mismatch would send the websocket to one host and
+        // the REST API to another.
+        assert.include(
+          [SWARM_CHAT_HOST, SWARM_STAGING_CHAT_HOST],
+          new URL(serverUrl).hostname,
+          `${name} serverUrl ${serverUrl} is not a host libsignal can reach`
         );
       }
     });

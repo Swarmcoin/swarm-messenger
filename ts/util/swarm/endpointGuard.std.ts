@@ -110,20 +110,28 @@ export function findPlaceholderParams(
 export type LibsignalNetTargetType =
   | 'signal-production'
   | 'signal-staging'
+  | 'swarm-production'
+  | 'swarm-staging'
   | 'local-test-server'
   | 'unsupported-custom-host';
+
+/** The chat host compiled into `Net.Environment.Swarm`. */
+export const SWARM_CHAT_HOST = 'chat.swarm.green';
+
+/** The chat host compiled into `Net.Environment.SwarmStaging`. */
+export const SWARM_STAGING_CHAT_HOST = 'staging.chat.swarm.green';
 
 /**
  * Which libsignal-net environment a serverUrl resolves to.
  *
- * libsignal-client 0.101.2 offers exactly three: `Environment.Staging` and
- * `Environment.Production` (both hard-wired to Signal's own hostnames inside
- * the Rust crate) and `localTestServer`, which only accepts a loopback host and
- * port. There is no way to point libsignal-net at a custom domain such as
- * chat.swarm.green, and changing libsignal is out of scope for SWARM. So a
- * SWARM hostname resolves to 'unsupported-custom-host': the chat and
- * registration paths that go through libsignal-net must refuse rather than
- * quietly fall back to Signal production. See docs/SWARM-CONFIG.md.
+ * SWARM change (M2): `@signalapp/libsignal-client` 0.101.2-swarm.1 — the build
+ * from Swarm-Official/swarm-libsignal, vendored in `vendor/` — adds
+ * `Environment.Swarm` (chat.swarm.green) and `Environment.SwarmStaging`
+ * (staging.chat.swarm.green) beside Signal's own `Staging` and `Production`.
+ * The hostnames are compiled into the Rust crate, so only those two SWARM names
+ * work: every other custom host still resolves to 'unsupported-custom-host'
+ * rather than quietly falling back to Signal production, which is what upstream
+ * did. See docs/SWARM-CONFIG.md and shared/libsignal-swarm.md.
  */
 export function describeLibsignalNetTarget(
   serverUrl: string
@@ -139,6 +147,12 @@ export function describeLibsignalNetTarget(
   }
   if (isSignalHost(serverUrl)) {
     return /staging/i.test(serverUrl) ? 'signal-staging' : 'signal-production';
+  }
+  if (hostname === SWARM_CHAT_HOST) {
+    return 'swarm-production';
+  }
+  if (hostname === SWARM_STAGING_CHAT_HOST) {
+    return 'swarm-staging';
   }
   return 'unsupported-custom-host';
 }

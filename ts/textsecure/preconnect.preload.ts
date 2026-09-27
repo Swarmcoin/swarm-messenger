@@ -4,7 +4,6 @@
 import { Net } from '@signalapp/libsignal-client';
 
 import { getUserAgent } from '../util/getUserAgent.node.ts';
-import { isStagingServer } from '../util/isStagingServer.dom.ts';
 import { getMockServerPort } from '../util/getMockServerPort.dom.ts';
 import { isMockServer } from '../util/isMockServer.dom.ts';
 import { describeLibsignalNetTarget } from '../util/swarm/endpointGuard.std.ts';
@@ -24,12 +23,19 @@ function resolveLibsignalNet(
 ): Net.Net {
   const userAgent = getUserAgent(version);
   log.info(`libsignal net url: ${url}`);
-  // SWARM change (M1): libsignal-client 0.101.2 can only be pointed at Signal
-  // staging, Signal production or a loopback test server - its environments are
-  // compiled into the Rust crate. Upstream fell through to
-  // Net.Environment.Production for anything it did not recognise, which for a
-  // SWARM hostname would mean talking to Signal's production servers. That must
-  // never happen, so refuse instead, in words that say what has to change.
+  // SWARM change (M1, extended in M2): libsignal-net's environments are compiled
+  // into the Rust crate, and upstream fell through to Net.Environment.Production
+  // for anything it did not recognise - which for a SWARM hostname would mean
+  // talking to Signal's production servers. That must never happen. The SWARM
+  // build of libsignal (0.101.2-swarm.1, vendored in vendor/) adds
+  // Environment.Swarm and Environment.SwarmStaging, so the two SWARM chat hosts
+  // are now real branches; everything else still refuses, in words that say what
+  // has to change.
+  //
+  // The SWARM host is decided first, and from the hostname alone. Upstream chose
+  // Net.Environment.Staging from isStagingServer(), which is true whenever
+  // NODE_ENV=staging - and that environment is *Signal's* staging network, so a
+  // SWARM staging build would have gone to Signal. That check is gone.
   const swarmTarget = describeLibsignalNetTarget(url);
   if (swarmTarget === 'signal-staging' || swarmTarget === 'signal-production') {
     throw new Error(
@@ -37,25 +43,35 @@ function resolveLibsignalNet(
         'server. Point serverUrl at a SWARM endpoint (see docs/SWARM-CONFIG.md).'
     );
   }
+  if (swarmTarget === 'swarm-production') {
+    log.info('libsignal net environment resolved to SWARM');
+    return new Net.Net({
+      env: Net.Environment.Swarm,
+      userAgent,
+    });
+  }
+  if (swarmTarget === 'swarm-staging') {
+    log.info('libsignal net environment resolved to SWARM staging');
+    return new Net.Net({
+      env: Net.Environment.SwarmStaging,
+      userAgent,
+    });
+  }
   if (swarmTarget === 'unsupported-custom-host') {
     throw new Error(
-      `SWARM Messenger cannot reach ${url} yet. libsignal-net has no custom ` +
-        'environment: it only knows Signal staging, Signal production and a ' +
-        'loopback test server. Until libsignal gains a SWARM environment, the ' +
-        'SWARM chat server has to be reachable at https://localhost:<port> ' +
+      `SWARM Messenger cannot reach ${url}. libsignal-net only knows ` +
+        'chat.swarm.green, staging.chat.swarm.green and a loopback test ' +
+        'server - its hostnames are compiled in. Point serverUrl at one of ' +
+        'those, or run the SWARM chat server at https://localhost:<port> ' +
         '(directly or through a tunnel) with its root certificate in the ' +
         'certificateAuthority config value. See docs/SWARM-CONFIG.md.'
     );
   }
 
-  if (isStagingServer(url)) {
-    log.info('libsignal net environment resolved to staging');
-    return new Net.Net({
-      env: Net.Environment.Staging,
-      userAgent,
-    });
-  }
-
+  // Only 'local-test-server' can still be here. Upstream checked
+  // isStagingServer() at this point (Net.Environment.Staging is Signal's staging
+  // network) and fell back to Net.Environment.Production; both are gone, so
+  // there is no path left from this function to a Signal host.
   if (isMockServer(url) && certificateAuthority !== undefined) {
     const DISCARD_PORT = 9; // Reserved by RFC 863.
     log.info('libsignal net environment resolved to mock');
@@ -71,11 +87,11 @@ function resolveLibsignalNet(
     });
   }
 
-  log.info('libsignal net environment resolved to prod');
-  return new Net.Net({
-    env: Net.Environment.Production,
-    userAgent,
-  });
+  throw new Error(
+    `SWARM Messenger cannot reach ${url}: a loopback serverUrl needs the test ` +
+      "server's root certificate in the certificateAuthority config value " +
+      '(see docs/SWARM-CONFIG.md).'
+  );
 }
 
 // `libsignalNet` is an instance of a class from libsignal that is responsible
