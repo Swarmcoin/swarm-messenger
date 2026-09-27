@@ -570,7 +570,7 @@
     "messageformat": "Ce journal sera publiquement disponible sur le web, où les contributeurs pourront le consulter. Vous pouvez le télécharger avant de nous l'envoyer."
   },
   "icu:debugLogError": {
-    "messageformat": "Un problème s’est produit lors de l’importation. Merci de nous envoyer le journal au format texte à l’adresse suivante : support@signal.org."
+    "messageformat": "Un problème s’est produit lors de l’importation. Merci de nous envoyer le journal au format texte à l’adresse suivante : support@swarm.green."
   },
   "icu:debugLogSuccess": {
     "messageformat": "Journal de débogage envoyé"
@@ -2316,7 +2316,7 @@
     "messageformat": "Cette version de Signal Desktop est arrivée à expiration. Pour continuer d'échanger des messages, passez à la nouvelle version."
   },
   "icu:upgrade": {
-    "messageformat": "Cliquez pour accéder à signal.org/download"
+    "messageformat": "Cliquez pour accéder à swarm.green/download"
   },
   "icu:mediaMessage": {
     "messageformat": "Message multimédia"

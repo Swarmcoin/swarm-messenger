@@ -17,6 +17,11 @@
 //         app talk to Signal, so there is no tolerance for it.
 //  FAIL - user-visible "Signal" wording in the packaged English strings, with
 //         one exception: the AGPL-3.0 attribution, which must be there.
+//  EXCUSED - the endpoint guard's own refusal list (SIGNAL_HOST_SUFFIXES in
+//         ts/util/swarm/endpointGuard.std.ts). It names Signal's domains so the
+//         app can refuse them, which makes it the one place they must be in the
+//         bundle. It is recognised by its first three entries in order, so any
+//         other appearance of a Signal domain still fails.
 //  REPORT - "Signal" inside bundled identifiers (window.SignalContext,
 //         X-Signal-Agent, SignalSymbols, the @signalapp packages, the
 //         signal.me/.group/.link/.art deep-link vocabulary). These are internal
@@ -103,8 +108,20 @@ const domainOffences = [];
 const stringOffences = [];
 const internalMentions = new Map();
 
+// The endpoint guard's refusal list, as the bundler writes it: one entry per
+// line in a development bundle, all on one minified line in a production one,
+// with whichever quotes the bundler chose. Matching the first three entries in
+// order keeps this narrow: a URL or a lone domain anywhere else still fails.
+const GUARD_LIST =
+  /(["'`])signal\.org\1\s*,\s*(["'`])signalcaptchas\.org\2\s*,\s*(["'`])whispersystems\.org\3/g;
+let excusedGuardLists = 0;
+
 function scanText(relPath, text) {
-  const lines = text.split('\n');
+  const withoutGuardList = text.replace(GUARD_LIST, () => {
+    excusedGuardLists += 1;
+    return '<endpoint guard refusal list>';
+  });
+  const lines = withoutGuardList.split('\n');
   lines.forEach((line, index) => {
     if (FORBIDDEN_DOMAINS.some(pattern => pattern.test(line))) {
       const where = `${relPath}:${index + 1}`;
@@ -185,6 +202,10 @@ async function main() {
   await rm(dir, { recursive: true, force: true });
 
   process.stdout.write(`swarm-brand-check: scanned ${scanned} text files\n`);
+  process.stdout.write(
+    `swarm-brand-check: excused ${excusedGuardLists} copy(ies) of the ` +
+      "endpoint guard's refusal list (the domains the app refuses to contact)\n"
+  );
 
   if (internalMentions.size > 0) {
     const total = [...internalMentions.values()].reduce((a, b) => a + b, 0);

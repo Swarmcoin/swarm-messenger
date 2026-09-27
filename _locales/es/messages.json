@@ -570,7 +570,7 @@
     "messageformat": "Este registro se publicará online y será de acceso público para todas las personas que colaboran con nosotros. Lo puedes descargar antes de enviarlo."
   },
   "icu:debugLogError": {
-    "messageformat": "No se ha podido completar la carga. Envía el registro de depuración en un archivo de texto a support@signal.org."
+    "messageformat": "No se ha podido completar la carga. Envía el registro de depuración en un archivo de texto a support@swarm.green."
   },
   "icu:debugLogSuccess": {
     "messageformat": "Registro de depuración enviado"
@@ -2316,7 +2316,7 @@
     "messageformat": "Esta versión de Signal Desktop ha caducado. Actualiza a la última versión para seguir chateando."
   },
   "icu:upgrade": {
-    "messageformat": "Haz clic para ir a signal.org/download"
+    "messageformat": "Haz clic para ir a swarm.green/download"
   },
   "icu:mediaMessage": {
     "messageformat": "Mensaje multimedia"

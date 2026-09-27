@@ -172,6 +172,23 @@ server half is in `Swarm-Official/swarm-messenger-server`, `docs/WALLET-SIGN-IN.
   `ACKNOWLEDGMENTS.md`, `NOTICE-SWARM.md`);
 - any packaged English string containing "Signal", except the AGPL attribution.
 
+It **excuses exactly one thing**: the endpoint guard's refusal list
+(`SIGNAL_HOST_SUFFIXES` in `ts/util/swarm/endpointGuard.std.ts`), recognised by
+its first three entries in order. That list names Signal's domains so the app can
+refuse them, so it is the one place they must be in the bundle.
+
+The first run of the check in CI (run 36288590467, 2026-09-27) found two real
+leaks, both fixed the same day:
+
+| Found                                                                 | Fix                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `build/optional-resources.json`: 129 URLs on Signal's resource host   | The app fetched the emoji search index for the user's locale from there **on every start**, plus the large emoji font and the jumbomoji sheets on demand. The URLs now use `https://static.swarm.green/` (SWARM's `resourcesUrl`), same paths, same digests; `app/OptionalResourceService.main.ts` refuses a Signal URL outright (`refuseSignalUrl`). Until the files are mirrored there, localized emoji search and large emoji do not load. |
+| 67 translated strings with Signal's support address and download page | `support@swarm.green` and `swarm.green/download`, as the English strings already said. Only those two substrings changed.                                                                                                                                                                                                                                                                                                                     |
+
+`ts/test-node/swarm/noSignalEndpoints_test.node.ts` now also checks both files in
+the source tree, so the next regeneration from upstream fails the tests before it
+reaches a package.
+
 It **reports without failing** the internal mentions — `window.SignalContext`,
 `X-Signal-Agent`, `SignalSymbols`, the `@signalapp/*` package names, the
 `signal.me`/`signal.group` deep-link vocabulary. Those are identifiers and

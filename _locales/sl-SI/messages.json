@@ -570,7 +570,7 @@
     "messageformat": "Ta sistemska zabeležba bo javno objavljena na spletu za razvijalce aplikacije. Pred objavo jo lahko prenesete."
   },
   "icu:debugLogError": {
-    "messageformat": "Prišlo je do težav pri prenosu! Prosimo pošljite e-pošto s priponko v .txt obliki na support@signal.org."
+    "messageformat": "Prišlo je do težav pri prenosu! Prosimo pošljite e-pošto s priponko v .txt obliki na support@swarm.green."
   },
   "icu:debugLogSuccess": {
     "messageformat": "Sistemska zabeležba je bila oddana"
@@ -2316,7 +2316,7 @@
     "messageformat": "Pričujoča različica programa Signal Desktop je potekla. Za ponovno delovanje morate program posodobiti na zadnjo različico."
   },
   "icu:upgrade": {
-    "messageformat": "Kliknite za premik na signal.org/download"
+    "messageformat": "Kliknite za premik na swarm.green/download"
   },
   "icu:mediaMessage": {
     "messageformat": "Večpredstavnostno sporočilo"

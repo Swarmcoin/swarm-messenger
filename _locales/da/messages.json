@@ -570,7 +570,7 @@
     "messageformat": "Denne log vil blive offentliggjort online, så bidragydere kan se den. Du kan downloade den før indsendelse."
   },
   "icu:debugLogError": {
-    "messageformat": "Noget gik galt med upload! Send venligst en e-mail til support@signal.org og vedhæft din log som en tekstfil."
+    "messageformat": "Noget gik galt med upload! Send venligst en e-mail til support@swarm.green og vedhæft din log som en tekstfil."
   },
   "icu:debugLogSuccess": {
     "messageformat": "Fejlsøgningslog indsendt"
@@ -2316,7 +2316,7 @@
     "messageformat": "Denne version af Signal Desktop er forældet. Opgrader venligst til den nyeste version for at fortsætte"
   },
   "icu:upgrade": {
-    "messageformat": "Klik for at gå til signal.org/download"
+    "messageformat": "Klik for at gå til swarm.green/download"
   },
   "icu:mediaMessage": {
     "messageformat": "Mediebesked"

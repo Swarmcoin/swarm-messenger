@@ -570,7 +570,7 @@
     "messageformat": "Loki julkaistaan verkossa, jossa se on kehittäjien nähtävissä. Voit ladata sen ennen lähettämistä."
   },
   "icu:debugLogError": {
-    "messageformat": "Jotain meni pieleen tiedostoa lähetettäessä! Lähetä sähköpostia osoitteeseen support@signal.org ja liitä loki siihen tekstitiedostona."
+    "messageformat": "Jotain meni pieleen tiedostoa lähetettäessä! Lähetä sähköpostia osoitteeseen support@swarm.green ja liitä loki siihen tekstitiedostona."
   },
   "icu:debugLogSuccess": {
     "messageformat": "Vianetsintäloki lähetetty"
@@ -2316,7 +2316,7 @@
     "messageformat": "Käyttämäsi versio Signal Desktopista on vanhentunut. Voit lähettää ja vastaanottaa viestejä päivittämällä uusimpaan versioon."
   },
   "icu:upgrade": {
-    "messageformat": "Siirry lataussivulle signal.org/download napsauttamalla"
+    "messageformat": "Siirry lataussivulle swarm.green/download napsauttamalla"
   },
   "icu:mediaMessage": {
     "messageformat": "Mediaviesti"

@@ -67,6 +67,24 @@ export function isSignalHost(value: string): boolean {
 }
 
 /**
+ * Throws instead of letting a download go to Signal.
+ *
+ * For the few places that fetch a URL which is not in config/ and so is not
+ * seen by the startup guard. `build/optional-resources.json` is one: upstream's
+ * `scripts/get-emoji-locales.mjs` and `scripts/get-jumbomoji.mjs` regenerate it
+ * with Signal's resource host, and before this check the app fetched the emoji
+ * search index for the user's locale from there on every start.
+ */
+export function refuseSignalUrl(url: string, what: string): void {
+  if (isSignalHost(url)) {
+    throw new Error(
+      `SWARM: refusing to fetch ${what} from a Signal host (${url}). ` +
+        'SWARM Messenger never contacts Signal; point it at a SWARM host.'
+    );
+  }
+}
+
+/**
  * Every configured endpoint that points at Signal, as `key: url` pairs.
  * Empty means the build is clean.
  */

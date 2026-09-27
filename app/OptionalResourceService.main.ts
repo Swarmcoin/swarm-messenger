@@ -19,6 +19,8 @@ import { getGotOptions } from '../ts/updater/got.main.ts';
 import { drop } from '../ts/util/drop.std.ts';
 import { parseUnknown } from '../ts/util/schemas.std.ts';
 import { getAppRootDir } from '../ts/util/appRootDir.main.ts';
+// SWARM addition: never download an optional resource from Signal.
+import { refuseSignalUrl } from '../ts/util/swarm/endpointGuard.std.ts';
 
 const log = createLogger('OptionalResourceService');
 
@@ -176,6 +178,10 @@ export class OptionalResourceService {
     decl: OptionalResourceType,
     destPath: string
   ): Promise<Buffer<ArrayBuffer>> {
+    // SWARM change: build/optional-resources.json is regenerated from upstream
+    // with Signal's resource host in it. Refuse rather than fetch from there.
+    refuseSignalUrl(decl.url, `optional resource ${name}`);
+
     const opts = await getGotOptions();
     // @ts-expect-error https://github.com/sindresorhus/got/issues/2418#issuecomment-4071277145
     const result: Buffer<ArrayBuffer> = await got(decl.url, opts).buffer();

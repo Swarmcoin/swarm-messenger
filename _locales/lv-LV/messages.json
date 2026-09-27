@@ -570,7 +570,7 @@
     "messageformat": "Šis žurnāls tiks publiskots tiešsaistē, lai to varētu skatīt līdzautori. Pirms iesniegšanas varat to lejupielādēt."
   },
   "icu:debugLogError": {
-    "messageformat": "Radās problēma ar augšupielādi! Lūdzu, nosūtiet e-pastu uz adresi support@signal.org un pievienojiet savu žurnālu kā teksta failu."
+    "messageformat": "Radās problēma ar augšupielādi! Lūdzu, nosūtiet e-pastu uz adresi support@swarm.green un pievienojiet savu žurnālu kā teksta failu."
   },
   "icu:debugLogSuccess": {
     "messageformat": "Atkļūdošanas žurnāls iesniegts"
@@ -2316,7 +2316,7 @@
     "messageformat": "Šī Signāla galdvirsmas (desktop) versija ir novecojusi. Lai turpinātu ziņapmaiņu, lūdzu, paaugstiniet to uz jaunāko versiju."
   },
   "icu:upgrade": {
-    "messageformat": "Noklikšķiniet, lai atvērtu signal.org/download"
+    "messageformat": "Noklikšķiniet, lai atvērtu swarm.green/download"
   },
   "icu:mediaMessage": {
     "messageformat": "Multivides ziņa"

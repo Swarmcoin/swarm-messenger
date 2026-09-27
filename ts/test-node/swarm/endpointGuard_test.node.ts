@@ -18,6 +18,7 @@ import {
   findPlaceholderParams,
   findSignalEndpoints,
   isSignalHost,
+  refuseSignalUrl,
 } from '../../util/swarm/endpointGuard.std.ts';
 
 const ROOT = join(import.meta.dirname, '..', '..', '..');
@@ -56,6 +57,28 @@ describe('SWARM endpointGuard', () => {
     it('is not fooled by a lookalike host', () => {
       assert.isFalse(isSignalHost('https://signal.org.example.com'));
       assert.isFalse(isSignalHost('https://notsignal.green'));
+    });
+  });
+
+  describe('refuseSignalUrl', () => {
+    it('throws, naming what was refused, for a Signal URL', () => {
+      assert.throws(
+        () =>
+          refuseSignalUrl(
+            'https://updates2.signal.org/static/android/emoji/search/18/en.json',
+            'optional resource emoji-index-en.json'
+          ),
+        /refusing to fetch optional resource emoji-index-en\.json from a Signal host/
+      );
+    });
+
+    it('lets a SWARM URL through', () => {
+      assert.doesNotThrow(() =>
+        refuseSignalUrl(
+          'https://static.swarm.green/static/android/emoji/search/18/en.json',
+          'optional resource emoji-index-en.json'
+        )
+      );
     });
   });
 

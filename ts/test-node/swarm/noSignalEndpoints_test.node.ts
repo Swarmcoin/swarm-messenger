@@ -141,4 +141,45 @@ describe('SWARM: no Signal endpoints', () => {
       `app/ must not reference Signal:\n${offences.join('\n')}`
     );
   });
+
+  it('build/optional-resources.json downloads nothing from Signal', () => {
+    // The emoji search index, the large emoji font and the jumbomoji sheets are
+    // fetched from these URLs at run time - the search index on every start.
+    // Upstream's generator scripts write Signal's resource host here.
+    const manifest: Record<string, { url: string }> = JSON.parse(
+      readFileSync(join(ROOT, 'build', 'optional-resources.json'), 'utf8')
+    );
+    const offences = Object.entries(manifest)
+      .filter(([, { url }]) => FORBIDDEN.some(pattern => pattern.test(url)))
+      .map(([name, { url }]) => `${name}: ${url}`);
+    assert.deepStrictEqual(
+      offences,
+      [],
+      `optional resources must not come from Signal:\n${offences.join('\n')}`
+    );
+  });
+
+  it('no packaged string, in any language, names a Signal domain', () => {
+    // Only `messageformat` is packaged (build/compact-locales); descriptions
+    // are translator notes and stay in the source tree.
+    const offences: Array<string> = [];
+    for (const locale of readdirSync(join(ROOT, '_locales'))) {
+      const messages: Record<string, { messageformat?: string }> = JSON.parse(
+        readFileSync(join(ROOT, '_locales', locale, 'messages.json'), 'utf8')
+      );
+      for (const [key, { messageformat }] of Object.entries(messages)) {
+        if (
+          typeof messageformat === 'string' &&
+          FORBIDDEN.some(pattern => pattern.test(messageformat))
+        ) {
+          offences.push(`${locale} ${key}: ${messageformat}`);
+        }
+      }
+    }
+    assert.deepStrictEqual(
+      offences,
+      [],
+      `translated strings must not name Signal's domains:\n${offences.join('\n')}`
+    );
+  });
 });

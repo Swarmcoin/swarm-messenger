@@ -570,7 +570,7 @@
     "messageformat": "บันทึกนี้จะถูกโพสต์แบบสาธารณะทางออนไลน์เพื่อให้ผู้สนับสนุนสามารถดูได้ โดยคุณสามารถดาวน์โหลดบันทึกก่อนส่งข้อมูลได้"
   },
   "icu:debugLogError": {
-    "messageformat": "เกิดความผิดพลาดบางอย่างกับการอัปโหลด! กรุณาอีเมลไปที่ support@signal.org พร้อมแนบปูมของคุณในรูปแบบไฟล์ข้อความ (text file)"
+    "messageformat": "เกิดความผิดพลาดบางอย่างกับการอัปโหลด! กรุณาอีเมลไปที่ support@swarm.green พร้อมแนบปูมของคุณในรูปแบบไฟล์ข้อความ (text file)"
   },
   "icu:debugLogSuccess": {
     "messageformat": "ส่งปูมดีบักเรียบร้อยแล้ว"
@@ -2316,7 +2316,7 @@
     "messageformat": "Signal Desktop รุ่นนี้หมดอายุแล้ว โปรดปรับรุ่นเป็นรุ่นล่าสุดเพื่อรับส่งข้อความต่อ"
   },
   "icu:upgrade": {
-    "messageformat": "คลิกเพื่อไปยัง signal.org/download"
+    "messageformat": "คลิกเพื่อไปยัง swarm.green/download"
   },
   "icu:mediaMessage": {
     "messageformat": "ข้อความสื่อ"
