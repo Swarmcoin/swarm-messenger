@@ -71,7 +71,7 @@ New:
 | File                                                                                      | What                                                                                             |
 | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | `ts/util/swarm/bip39.node.ts`                                                             | generate, check and normalize a 24-word phrase; the BIP-39 seed                                  |
-| `ts/util/swarm/bip39Wordlist.std.ts`                                                     | the 2048-word English list, verbatim from the BIP-39 specification, its digest checked by a test |
+| `ts/util/swarm/bip39Wordlist.std.ts`                                                      | the 2048-word English list, verbatim from the BIP-39 specification, its digest checked by a test |
 | `ts/util/swarm/walletIdentity.node.ts`                                                    | the ACI/PNI derivation, the account identifier, the challenge message and signature              |
 | `ts/components/standaloneRegistration/stages/WalletSignIn.dom.tsx`                        | the one new screen (choose / write down / restore)                                               |
 | `ts/test-node/swarm/bip39_test.node.ts`, `ts/test-node/swarm/walletIdentity_test.node.ts` | the tests                                                                                        |
