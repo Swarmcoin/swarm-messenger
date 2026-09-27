@@ -91,18 +91,28 @@ export function SwarmChatPaymentDialog(
           <AxoDialog.Close />
         </AxoDialog.Header>
         <AxoDialog.Body>
-          <div
-            data-testid="SwarmChatPaymentDialog"
-            data-mode={mode}
-            className={tw('flex flex-col gap-4 pb-4')}
-          >
-            {mode === 'pay' ? <PayBody {...props} /> : null}
-            {mode === 'share' ? <ShareBody {...props} /> : null}
-            {mode === 'request' ? <RequestBody {...props} /> : null}
-          </div>
+          <SwarmChatPaymentDialogBody {...props} />
         </AxoDialog.Body>
       </AxoDialog.Content>
     </AxoDialog.Root>
+  );
+}
+
+/** The dialog's content, without the dialog around it (tests render this). */
+export function SwarmChatPaymentDialogBody(
+  props: SwarmChatPaymentDialogProps
+): JSX.Element {
+  const { mode } = props;
+  return (
+    <div
+      data-testid="SwarmChatPaymentDialog"
+      data-mode={mode}
+      className={tw('flex flex-col gap-4 pb-4')}
+    >
+      {mode === 'pay' ? <PayBody {...props} /> : null}
+      {mode === 'share' ? <ShareBody {...props} /> : null}
+      {mode === 'request' ? <RequestBody {...props} /> : null}
+    </div>
   );
 }
 

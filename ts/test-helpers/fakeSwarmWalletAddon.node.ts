@@ -22,6 +22,14 @@ export type FakeAddonOptionsType = Readonly<{
   spendable?: number;
   /** Make `send` answer `{"error": …}`, as the addon does for a refusal. */
   sendError?: string;
+  /**
+   * SWARM addition (M3 wave 2): what `get_value_transfers` answers, in the
+   * SDK's own shape (zingolib `ValueTransfer` JSON: `status`, `blockheight`,
+   * `memos`). Defaults to the wave-1 list.
+   */
+  valueTransfers?: ReadonlyArray<Record<string, unknown>>;
+  /** SWARM addition (M3 wave 2): the address `create_new_unified_address` makes. */
+  newAddress?: string;
 }>;
 
 export type FakeAddonLogType = {
@@ -160,6 +168,9 @@ export function createFakeSwarmWalletAddon(
     },
     async get_value_transfers(): Promise<string> {
       requireOpen('get_value_transfers');
+      if (options.valueTransfers != null) {
+        return JSON.stringify({ value_transfers: options.valueTransfers });
+      }
       // Oldest first, as the addon answers; one entry has a malformed txid.
       return JSON.stringify({
         value_transfers: [
@@ -181,6 +192,18 @@ export function createFakeSwarmWalletAddon(
             memo: null,
           },
         ],
+      });
+    },
+    async create_new_unified_address(receivers: string): Promise<string> {
+      requireOpen('create_new_unified_address');
+      log.calls.push(`receivers:${receivers}`);
+      return JSON.stringify({
+        account: 0,
+        address_index: 1,
+        has_orchard: receivers.includes('o'),
+        has_sapling: receivers.includes('z'),
+        has_transparent: false,
+        encoded_address: options.newAddress ?? FAKE_UNIFIED_ADDRESS,
       });
     },
     async run_sync(): Promise<string> {
