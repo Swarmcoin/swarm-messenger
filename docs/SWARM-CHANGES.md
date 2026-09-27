@@ -140,6 +140,31 @@ No change to libsignal, to the protocol, or to any cryptographic primitive: the
 checksum and the seed are Node's, the HKDF and the signature are libsignal's. The
 server half is in `Swarm-Official/swarm-messenger-server`, `docs/WALLET-SIGN-IN.md`.
 
+## 3b. Usernames: the three writes go over REST
+
+Added 2026-09-27 (Opus M-G), found by the first desktop-to-desktop test on
+`chat.swarm.green`. A SWARM account has no dialable number and there is no
+contact discovery (CDSI) service, so a username is the only way one person can
+find another in the app. Taking one did not work: libsignal 0.101 sends
+`reserveUsernameHash`, `deleteUsernameHash` and `setUsernameLink` **only** as gRPC
+over an HTTP/2 connection shared with the chat websocket, the SWARM environment
+reaches `chat.swarm.green` over HTTP/1.1 because the server offers no gRPC, and
+libsignal panicked with `requires an H2 connection`.
+
+| File                              | Change                                                                                                                                                                                                                                                                                                                        |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ts/textsecure/WebAPI.preload.ts` | `reserveUsername`, `deleteUsername` and `replaceUsernameLink` call the server's REST endpoints (`PUT v1/accounts/username_hash/reserve`, `DELETE v1/accounts/username_hash`, `PUT v1/accounts/username_link`) through `_ajax`, over the same authenticated websocket as every other call. `confirmUsername` was already REST. |
+| `ts/services/username.preload.ts` | a reservation's HTTP 409 / 413 / 429 / 422 map to the screen's existing "taken", "too many attempts" and "unprocessable" results.                                                                                                                                                                                             |
+
+The lookups (`lookUpUsernameHash`, `lookUpUsernameLink`) already travel over the
+websocket and are unchanged. Proven in the app: B took `swarmtestb.19`
+(`reserve` 200, `confirm` 200), A typed it under _New chat_, _Find by username_
+answered (`GET v1/accounts/username_hash/…` 200) and the message that followed
+was delivered. Other libsignal calls that are gRPC-only and so still fail on
+SWARM: `getDevices`, `setDeviceName` (linked devices) and the phone-number
+discoverability switch. Go back to the libsignal calls once the SWARM server
+offers gRPC and the SWARM environment in libsignal is switched to HTTP/2.
+
 ## 4. Rebrand
 
 | Area             | Files                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |

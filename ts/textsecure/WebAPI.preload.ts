@@ -46,7 +46,10 @@ import type { ExplodePromiseResultType } from '../util/explodePromise.std.ts';
 import { explodePromise } from '../util/explodePromise.std.ts';
 import { getUserAgent } from '../util/getUserAgent.node.ts';
 import { getTimeoutStream } from '../util/getStreamWithTimeout.node.ts';
-import { toWebSafeBase64 } from '../util/webSafeBase64.std.ts';
+import {
+  fromWebSafeBase64,
+  toWebSafeBase64,
+} from '../util/webSafeBase64.std.ts';
 import { getBasicAuth } from '../util/getBasicAuth.std.ts';
 import { createHTTPSAgent } from '../util/createHTTPSAgent.node.ts';
 import { createProxyAgent } from '../util/createProxyAgent.node.ts';
@@ -822,6 +825,14 @@ const CHAT_CALLS = {
   confirmUsername: 'v1/accounts/username_hash/confirm',
   whoami: 'v1/accounts/whoami',
 
+  // SWARM change (M-G): the three username writes that libsignal only sends as
+  // gRPC over HTTP/2. The SWARM chat server offers the websocket over HTTP/1.1
+  // and no gRPC, so they go as the server's own REST endpoints instead. See
+  // `reserveUsername` below and docs/SWARM-CHANGES.md.
+  reserveUsername: 'v1/accounts/username_hash/reserve',
+  usernameHash: 'v1/accounts/username_hash',
+  usernameLink: 'v1/accounts/username_link',
+
   // SWARM addition (wallet sign-in): registering by proving a wallet identity
   // key instead of receiving an SMS. See docs/WALLET-SIGN-IN.md.
   swarmWalletChallenge: 'v1/swarm/registration/challenge',
@@ -1076,6 +1087,11 @@ const confirmUsernameResultZod = z.object({
 export type ConfirmUsernameResultType = z.infer<
   typeof confirmUsernameResultZod
 >;
+
+// SWARM change (M-G): the REST answer to PUT v1/accounts/username_link.
+const replaceUsernameLinkResultZod = z.object({
+  usernameLinkHandle: z.string(),
+});
 
 export type ResolveUsernameByLinkOptionsType = Readonly<{
   entropy: Uint8Array<ArrayBuffer>;
@@ -2636,15 +2652,30 @@ export async function getAvatar(
   });
 }
 
+// SWARM change (M-G). libsignal 0.101 sends `reserveUsernameHash`,
+// `deleteUsernameHash` and `setUsernameLink` only as gRPC over an HTTP/2
+// connection that it shares with the chat websocket. The SWARM environment
+// reaches chat.swarm.green over HTTP/1.1 (the server offers no gRPC), so those
+// calls panic in libsignal with "requires an H2 connection" and nobody can take
+// a username - which is how SWARM accounts find each other. The server still
+// serves the REST form of all three, which is what these send, over the same
+// authenticated websocket as every other `_ajax` call. `confirmUsername` below
+// has always been REST. Lookups (`lookUpUsernameHash`, `lookUpUsernameLink`) go
+// over the websocket already and are unchanged. Revert to the libsignal calls
+// once the SWARM server offers gRPC and the environment is switched to HTTP/2.
+
 export async function deleteUsername(abortSignal?: AbortSignal): Promise<void> {
-  await _retry(
-    async () => {
-      const chat = await socketManager.getAuthenticatedApi();
-      return chat.deleteUsernameHash({ abortSignal });
-    },
-    { abortSignal }
-  );
+  await _ajax({
+    host: 'chatService',
+    call: 'usernameHash',
+    httpType: 'DELETE',
+    abortSignal,
+  });
 }
+
+const reserveUsernameResultZod = z.object({
+  usernameHash: z.string(),
+});
 
 export async function reserveUsername({
   hashes,
@@ -2655,18 +2686,21 @@ export async function reserveUsername({
 }): Promise<{
   usernameHash: Uint8Array<ArrayBuffer>;
 }> {
-  const usernameHash = await _retry(
-    async () => {
-      const chat = await socketManager.getAuthenticatedApi();
-      return chat.reserveUsernameHash(
-        { usernameHashes: hashes },
-        { abortSignal }
-      );
+  // 409: every candidate is taken. 422: a malformed hash. 429: rate limited.
+  // The caller turns those into the screen's own messages.
+  const { usernameHash } = await _ajax({
+    host: 'chatService',
+    call: 'reserveUsername',
+    httpType: 'PUT',
+    jsonData: {
+      usernameHashes: hashes.map(hash => toWebSafeBase64(Bytes.toBase64(hash))),
     },
-    { abortSignal }
-  );
+    responseType: 'json',
+    abortSignal,
+    zodSchema: reserveUsernameResultZod,
+  });
 
-  return { usernameHash };
+  return { usernameHash: Bytes.fromBase64(fromWebSafeBase64(usernameHash)) };
 }
 export async function confirmUsername({
   hash,
@@ -2698,12 +2732,20 @@ export async function replaceUsernameLink({
 }): Promise<{
   usernameLinkHandle: string;
 }> {
-  const usernameLinkHandle = await _retry(async () => {
-    const chat = await socketManager.getAuthenticatedApi();
-    return chat.setUsernameLink({
-      usernameCiphertext: encryptedUsername,
+  // SWARM change (M-G): REST, see `reserveUsername` above. 409 means the account
+  // has no username to link to.
+  const { usernameLinkHandle } = await _ajax({
+    host: 'chatService',
+    call: 'usernameLink',
+    httpType: 'PUT',
+    jsonData: {
+      usernameLinkEncryptedValue: toWebSafeBase64(
+        Bytes.toBase64(encryptedUsername)
+      ),
       keepLinkHandle,
-    });
+    },
+    responseType: 'json',
+    zodSchema: replaceUsernameLinkResultZod,
   });
 
   return { usernameLinkHandle };

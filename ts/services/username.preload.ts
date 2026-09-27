@@ -138,6 +138,20 @@ export async function reserveUsername(
       reservation: { previousUsername, username, hash: usernameHash },
     };
   } catch (error) {
+    // SWARM change (M-G): the reservation is a REST call on SWARM (see
+    // `reserveUsername` in WebAPI.preload.ts), so the server's answer arrives as
+    // an HTTP status rather than as a libsignal error code.
+    if (error instanceof HTTPError) {
+      if (error.code === 409) {
+        return { ok: false, error: ReserveUsernameError.Conflict };
+      }
+      if (error.code === 413 || error.code === 429) {
+        return { ok: false, error: ReserveUsernameError.TooManyAttempts };
+      }
+      if (error.code === 422) {
+        return { ok: false, error: ReserveUsernameError.Unprocessable };
+      }
+    }
     if (error instanceof LibSignalErrorBase) {
       if (error.is(ErrorCode.UsernameNotAvailable)) {
         return { ok: false, error: ReserveUsernameError.Conflict };
