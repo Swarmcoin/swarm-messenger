@@ -26,6 +26,7 @@ import {
   linkDevice,
   authenticate,
   type LinkDeviceResultType,
+  type RegistrationVerificationType,
 } from './WebAPI.preload.ts';
 import type {
   CompatPreKeyType,
@@ -174,7 +175,13 @@ type CreatePrimaryDeviceOptionsType = Readonly<
 
     accessKey: Uint8Array<ArrayBuffer>;
 
-    sessionId: string;
+    /**
+     * SWARM change (wallet sign-in): either a verified SMS session or the
+     * one-shot registration password a wallet identity key earned. The linked
+     * device flow below keeps its own `sessionId: undefined` marker, so this
+     * replaces `sessionId: string` here and nowhere else.
+     */
+    verification: RegistrationVerificationType;
     registrationLockToken?: string;
     phoneNumberDiscoverability: PhoneNumberDiscoverability;
   } & (
@@ -207,7 +214,7 @@ export type CreateLinkedDeviceOptionsType = Readonly<
     accessKey?: undefined;
 
     verificationCode: string;
-    sessionId?: undefined;
+    verification?: undefined;
   } & (
     | {
         pniKeyPair: KeyPairType;
@@ -447,18 +454,33 @@ export default class AccountManager extends EventTarget {
 
   async registerAsPrimaryDevice({
     number,
-    sessionId,
+    verification,
     registrationLockToken,
     phoneNumberDiscoverability,
+    identityKeyPairs,
   }: {
     number: string;
-    sessionId: string;
+    verification: RegistrationVerificationType;
     registrationLockToken?: string;
     phoneNumberDiscoverability: PhoneNumberDiscoverability;
+    /**
+     * SWARM change (wallet sign-in): the ACI and PNI identity key pairs to
+     * register with, when they are not to be generated here.
+     *
+     * On the wallet path they are derived from the recovery phrase, so the same
+     * phrase always lands on the same account - which is the whole point - and
+     * the server can check that the key registering this account identifier is
+     * the key the identifier was derived from. Absent, they are generated at
+     * random exactly as before.
+     */
+    identityKeyPairs?: {
+      aciKeyPair: KeyPairType;
+      pniKeyPair: KeyPairType;
+    };
   }): Promise<RegisterAccountResponse> {
     return this.#queueTask(async () => {
-      const aciKeyPair = generateKeyPair();
-      const pniKeyPair = generateKeyPair();
+      const aciKeyPair = identityKeyPairs?.aciKeyPair ?? generateKeyPair();
+      const pniKeyPair = identityKeyPairs?.pniKeyPair ?? generateKeyPair();
       const profileKey = getRandomBytes(PROFILE_KEY_LENGTH);
       const accessKey = deriveAccessKeyFromProfileKey(profileKey);
       const accountEntropyPool = AccountEntropyPool.generate();
@@ -469,7 +491,7 @@ export default class AccountManager extends EventTarget {
         type: AccountType.Primary,
         hasE164: true,
         number,
-        sessionId,
+        verification,
         aciKeyPair,
         pniKeyPair,
         profileKey,
@@ -1229,7 +1251,7 @@ export default class AccountManager extends EventTarget {
           newPassword: password,
           registrationId,
           accessKey: options.accessKey,
-          sessionId: options.sessionId,
+          verification: options.verification,
           aciPublicKey: aciKeyPair.publicKey,
           registrationLockToken: options.registrationLockToken,
           phoneNumberDiscoverability: options.phoneNumberDiscoverability,

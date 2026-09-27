@@ -41,6 +41,11 @@ export const SmartStandaloneRegistration = memo(
       startRegistration,
       submitVerificationCode,
       verifyPIN,
+      // SWARM addition (wallet sign-in)
+      backToWalletChoice,
+      createWalletForSignIn,
+      enterRecoveryPhrase,
+      signInWithWallet,
       // AvatarEditor support
       deleteAvatarFromDisk: cachedDeleteAvatarFromDisk,
       replaceAvatar: cachedReplaceAvatar,
@@ -103,6 +108,11 @@ export const SmartStandaloneRegistration = memo(
         startRegistration={startRegistration}
         submitVerificationCode={submitVerificationCode}
         verifyPIN={verifyPIN}
+        // SWARM addition (wallet sign-in)
+        backToWalletChoice={backToWalletChoice}
+        createWalletForSignIn={createWalletForSignIn}
+        enterRecoveryPhrase={enterRecoveryPhrase}
+        signInWithWallet={signInWithWallet}
         workflow={workflow}
         // Updates
         currentVersion={currentVersion}

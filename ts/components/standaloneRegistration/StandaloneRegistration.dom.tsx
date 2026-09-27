@@ -15,6 +15,8 @@ import {
 } from '../../types/StandaloneRegistration.std.ts';
 import { AxoConfirmDialog } from '../../axo/AxoConfirmDialog.dom.tsx';
 import { PhoneNumberScreen } from './stages/PhoneNumber.dom.tsx';
+// SWARM addition (wallet sign-in).
+import { WalletSignInScreen } from './stages/WalletSignIn.dom.tsx';
 import { CaptchaScreen } from './stages/Captcha.dom.tsx';
 import { VerificationCodeScreen } from './stages/VerificationCode.dom.tsx';
 import { ProfileEntryScreen } from './stages/ProfileEntry.dom.tsx';
@@ -40,6 +42,10 @@ import type {
   RegistrationWorkflow,
 } from '../../types/StandaloneRegistration.std.ts';
 import type {
+  backToWalletChoice as doBackToWalletChoice,
+  createWalletForSignIn as doCreateWalletForSignIn,
+  enterRecoveryPhrase as doEnterRecoveryPhrase,
+  signInWithWallet as doSignInWithWallet,
   completeRegistration as doCompleteRegistration,
   createPIN as doCreatePIN,
   finishProfileEntryStage as doFinishProfileEntryStage,
@@ -75,6 +81,11 @@ export type PropsType = Readonly<{
   // The workflow
   cancelRegistration: () => unknown;
   completeRegistration: ActionCreator<typeof doCompleteRegistration>;
+  // SWARM addition (wallet sign-in)
+  backToWalletChoice: ActionCreator<typeof doBackToWalletChoice>;
+  createWalletForSignIn: ActionCreator<typeof doCreateWalletForSignIn>;
+  enterRecoveryPhrase: ActionCreator<typeof doEnterRecoveryPhrase>;
+  signInWithWallet: ActionCreator<typeof doSignInWithWallet>;
   createPIN: ActionCreator<typeof doCreatePIN>;
   direction: Direction;
   fatalError: FatalErrorType | undefined;
@@ -117,6 +128,11 @@ export function StandaloneRegistration({
   cancelRegistration,
   completeRegistration,
   createPIN,
+  // SWARM addition (wallet sign-in)
+  backToWalletChoice,
+  createWalletForSignIn,
+  enterRecoveryPhrase,
+  signInWithWallet,
   direction,
   fatalError,
   finishProfileEntryStage,
@@ -180,7 +196,20 @@ export function StandaloneRegistration({
   }
 
   let body: JSX.Element;
-  if (workflow.stage === RegistrationStage.PHONE_NUMBER) {
+  if (workflow.stage === RegistrationStage.WALLET_SIGN_IN) {
+    // SWARM change (wallet sign-in): where a SWARM account starts.
+    body = (
+      <WalletSignInScreen
+        i18n={i18n}
+        backToWalletChoice={backToWalletChoice}
+        cancelRegistration={cancelRegistration}
+        createWalletForSignIn={createWalletForSignIn}
+        enterRecoveryPhrase={enterRecoveryPhrase}
+        signInWithWallet={signInWithWallet}
+        workflow={workflow}
+      />
+    );
+  } else if (workflow.stage === RegistrationStage.PHONE_NUMBER) {
     body = (
       <PhoneNumberScreen
         i18n={i18n}

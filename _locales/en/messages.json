@@ -9452,6 +9452,82 @@
     "messageformat": "Back",
     "description": "Button at the top of some registration pages to go back a step"
   },
+  "icu:StandaloneRegistration--WalletSignIn--header": {
+    "messageformat": "Your SWARM wallet",
+    "description": "Header of the screen where a new SWARM account is created from a wallet"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--description--line-1": {
+    "messageformat": "Your wallet is your account. One recovery phrase holds both your SWARM and your messages.",
+    "description": "First line of the wallet sign-in screen"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--description--line-2": {
+    "messageformat": "No phone number, and nothing to verify by SMS.",
+    "description": "Second line of the wallet sign-in screen"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--create": {
+    "messageformat": "Create a new wallet",
+    "description": "Button that generates a new recovery phrase and account"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--restore": {
+    "messageformat": "I have a recovery phrase",
+    "description": "Button that opens the field for an existing recovery phrase"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--Backup--header": {
+    "messageformat": "Write these 24 words down",
+    "description": "Header of the screen showing a newly generated recovery phrase"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--Backup--description": {
+    "messageformat": "These words are the only way back to your account and your money. Write them down on paper, in this order, and keep them somewhere safe. Nobody can recover them for you.",
+    "description": "Description of the screen showing a newly generated recovery phrase"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--Backup--confirm": {
+    "messageformat": "I have written down my 24 words and stored them safely",
+    "description": "Checkbox confirming the recovery phrase has been written down"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--Backup--button": {
+    "messageformat": "Continue",
+    "description": "Button that creates the account after the recovery phrase has been written down"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--Restore--header": {
+    "messageformat": "Enter your recovery phrase",
+    "description": "Header of the screen where an existing recovery phrase is typed in"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--Restore--description": {
+    "messageformat": "Type the 24 words of your SWARM wallet recovery phrase, separated by spaces.",
+    "description": "Description of the screen where an existing recovery phrase is typed in"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--Restore--placeholder": {
+    "messageformat": "Your 24 words",
+    "description": "Placeholder for the recovery phrase field"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--Restore--button": {
+    "messageformat": "Restore my account",
+    "description": "Button that signs in with an existing recovery phrase"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--error--phrase": {
+    "messageformat": "Those 24 words are not a valid recovery phrase. Check each word and the order they are in.",
+    "description": "Error shown when a typed recovery phrase fails its checksum"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--error--identifier-taken": {
+    "messageformat": "This wallet cannot be used for an account on this server. Create a new wallet and try again.",
+    "description": "Error shown when a derived account identifier already belongs to another wallet"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--error--expired": {
+    "messageformat": "That took too long. Please try again.",
+    "description": "Error shown when the server's registration challenge expired before it was answered"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--error--rejected": {
+    "messageformat": "The server did not accept this wallet. Please try again.",
+    "description": "Error shown when the server refuses the wallet signature"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--error--network": {
+    "messageformat": "Could not reach the SWARM server. Check your connection and try again.",
+    "description": "Error shown when the server cannot be reached during wallet sign-in"
+  },
+  "icu:StandaloneRegistration--WalletSignIn--error--unexpected": {
+    "messageformat": "Something went wrong while creating your account. Please try again.",
+    "description": "Error shown when wallet sign-in fails for an unexpected reason"
+  },
   "icu:StandaloneRegistration--PhoneNumber--header": {
     "messageformat": "Phone number",
     "description": "Header of the standalone registration screen where phone number is entered"

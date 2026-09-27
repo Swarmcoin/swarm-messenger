@@ -20,6 +20,9 @@ import {
   CiphertextMessage,
 } from '@signalapp/libsignal-client';
 import { AccountAttributes } from '@signalapp/libsignal-client/dist/net.js';
+// SWARM change (wallet sign-in): registering with a wallet identity key instead
+// of a verified SMS session uses libsignal's own session-less registration call.
+import { RegistrationService } from '@signalapp/libsignal-client/dist/net/Registration.js';
 import type {
   BackupAuth,
   LinkedDevice,
@@ -818,6 +821,11 @@ const CHAT_CALLS = {
   transferArchive: 'v1/devices/transfer_archive',
   confirmUsername: 'v1/accounts/username_hash/confirm',
   whoami: 'v1/accounts/whoami',
+
+  // SWARM addition (wallet sign-in): registering by proving a wallet identity
+  // key instead of receiving an SMS. See docs/WALLET-SIGN-IN.md.
+  swarmWalletChallenge: 'v1/swarm/registration/challenge',
+  swarmWalletVerify: 'v1/swarm/registration/verify',
 };
 
 const STORAGE_CALLS = {
@@ -1078,8 +1086,21 @@ export type ResolveUsernameLinkResultType = {
   hash: Uint8Array<ArrayBuffer>;
 } | null;
 
+/**
+ * How the server is to be satisfied that this account may be registered.
+ *
+ * SWARM change (wallet sign-in): `swarm-wallet` carries the one-shot
+ * registration password from `POST /v1/swarm/registration/verify`. libsignal
+ * already sends exactly that - a top-level `recoveryPassword` instead of a
+ * `sessionId` - when it re-registers, so `POST /v1/registration` is unchanged.
+ */
+export type RegistrationVerificationType = Readonly<
+  | { type: 'session'; sessionId: string }
+  | { type: 'swarm-wallet'; registrationPassword: Uint8Array<ArrayBuffer> }
+>;
+
 export type CreateAccountOptionsType = Readonly<{
-  sessionId: string;
+  verification: RegistrationVerificationType;
   newPassword: string;
   registrationId: number;
   accessKey: Uint8Array<ArrayBuffer>;
@@ -2746,6 +2767,81 @@ export async function createVerificationSession(
   return { sessionId: session.sessionId, captchaRequired };
 }
 
+// SWARM addition (wallet sign-in) ------------------------------------------
+//
+// Two unauthenticated calls that replace the whole phone number, captcha and
+// SMS-code dance: ask for a challenge for our wallet-derived identity key, then
+// answer it. What comes back is this account's own identifier and a one-shot
+// password to register it with. docs/WALLET-SIGN-IN.md has the protocol.
+
+const swarmWalletChallengeResultZod = z.object({
+  challenge: z.string(),
+  ttlSeconds: z.number(),
+});
+
+const swarmWalletVerificationResultZod = z.object({
+  number: z.string(),
+  registrationPassword: z.string(),
+});
+
+export type SwarmWalletChallengeResultType = Readonly<{
+  challenge: Uint8Array<ArrayBuffer>;
+  ttlSeconds: number;
+}>;
+
+export type SwarmWalletVerificationResultType = Readonly<{
+  /** The synthetic account identifier the server derived from our identity key. */
+  number: string;
+  registrationPassword: Uint8Array<ArrayBuffer>;
+}>;
+
+export async function requestSwarmWalletChallenge(
+  identityPublicKey: PublicKey
+): Promise<SwarmWalletChallengeResultType> {
+  const result = await _ajax({
+    host: 'chatService',
+    call: 'swarmWalletChallenge',
+    httpType: 'POST',
+    unauthenticated: true,
+    jsonData: { identityKey: Bytes.toBase64(identityPublicKey.serialize()) },
+    responseType: 'json',
+    zodSchema: swarmWalletChallengeResultZod,
+  });
+
+  return {
+    challenge: Bytes.fromBase64(result.challenge),
+    ttlSeconds: result.ttlSeconds,
+  };
+}
+
+export async function submitSwarmWalletChallenge({
+  identityPublicKey,
+  signature,
+}: {
+  identityPublicKey: PublicKey;
+  signature: Uint8Array<ArrayBuffer>;
+}): Promise<SwarmWalletVerificationResultType> {
+  const result = await _ajax({
+    host: 'chatService',
+    call: 'swarmWalletVerify',
+    httpType: 'POST',
+    unauthenticated: true,
+    jsonData: {
+      identityKey: Bytes.toBase64(identityPublicKey.serialize()),
+      signature: Bytes.toBase64(signature),
+    },
+    responseType: 'json',
+    zodSchema: swarmWalletVerificationResultZod,
+  });
+
+  return {
+    number: result.number,
+    registrationPassword: Bytes.fromBase64(result.registrationPassword),
+  };
+}
+
+// --------------------------------------------------------------------------
+
 export async function submitCaptchaForVerificationSession(options: {
   phoneNumber: string;
   verificationSessionId: string;
@@ -2889,7 +2985,7 @@ async function _withNewCredentials<
 }
 
 export async function createAccount({
-  sessionId,
+  verification,
   registrationId,
   accessKey,
   aciPublicKey,
@@ -2905,15 +3001,19 @@ export async function createAccount({
   pniSignedPreKey,
   pniPqLastResortPreKey,
 }: CreateAccountOptionsType): Promise<RegisterAccountResponse> {
-  const session = await libsignalNet.resumeRegistrationSession({
-    sessionId,
-    e164: number,
-  });
+  let session: RegistrationService | undefined;
 
-  if (!session.sessionState.verified) {
-    throw new SessionNotVerifiedError(
-      'createAccount: Session is not verified - was code previously provided?'
-    );
+  if (verification.type === 'session') {
+    session = await libsignalNet.resumeRegistrationSession({
+      sessionId: verification.sessionId,
+      e164: number,
+    });
+
+    if (!session.sessionState.verified) {
+      throw new SessionNotVerifiedError(
+        'createAccount: Session is not verified - was code previously provided?'
+      );
+    }
   }
 
   const capabilities: CapabilitiesUploadType = {
@@ -2925,7 +3025,16 @@ export async function createAccount({
 
   // Desktop doesn't support recovery but we need to provide a recovery password.
   // Since the value isn't used, just use a random one and then throw it away.
-  const recoveryPassword = getRandomBytes(32);
+  //
+  // SWARM change (wallet sign-in): on the wallet path the value IS used. It is
+  // what libsignal sends as the registration's top-level `recoveryPassword`
+  // when there is no session (see `SessionValidation::RecoveryPassword` in
+  // libsignal's `ws/registration/request.rs`), and the server has it stored
+  // against this account's identifier from the `/verify` step.
+  const recoveryPassword =
+    verification.type === 'swarm-wallet'
+      ? verification.registrationPassword
+      : getRandomBytes(32);
   const accountAttributes = new AccountAttributes({
     aciRegistrationId: registrationId,
     pniRegistrationId,
@@ -2957,7 +3066,7 @@ export async function createAccount({
     };
   }
 
-  const response: RegisterAccountResponse = await session.registerAccount({
+  const keys = {
     accountPassword: newPassword,
     accountAttributes,
     skipDeviceTransfer: true,
@@ -2967,9 +3076,59 @@ export async function createAccount({
     aciPqLastResortPreKey: asSignedKey(aciPqLastResortPreKey),
     pniSignedPreKey: asSignedKey(pniSignedPreKey),
     pniPqLastResortPreKey: asSignedKey(pniPqLastResortPreKey),
-  });
+  };
+
+  const response: RegisterAccountResponse =
+    session != null
+      ? await session.registerAccount(keys)
+      : // SWARM change (wallet sign-in): no session, so the registration carries
+        // the password instead. This is libsignal's own re-registration call and
+        // it posts to the same unmodified `/v1/registration`.
+        await RegistrationService.reregisterAccount(
+          libsignalRegistrationOptions(),
+          { e164: number, ...keys }
+        );
 
   return response;
+}
+
+/**
+ * SWARM change (wallet sign-in): the two handles libsignal's static
+ * `reregisterAccount` needs, taken from the `Net` we already hold.
+ *
+ * `Net` builds this same pair for its own `createRegistrationSession` and
+ * `resumeRegistrationSession` but does not expose it, and `reregisterAccount` is
+ * a static that takes it. Rather than keep a second `Net` alive - two connection
+ * managers, two tokio runtimes, two sets of proxy and censorship settings that
+ * could drift apart - read the pair off this one and check it is there, so a
+ * libsignal upgrade that renames either field fails here, loudly, at sign-in,
+ * instead of somewhere unrecognizable.
+ */
+function libsignalRegistrationOptions(): Parameters<
+  typeof RegistrationService.reregisterAccount
+>[0] {
+  const internals = libsignalNet as unknown as {
+    asyncContext?: Parameters<
+      typeof RegistrationService.reregisterAccount
+    >[0]['tokioAsyncContext'];
+    _connectionManager?: Parameters<
+      typeof RegistrationService.reregisterAccount
+    >[0]['connectionManager'];
+  };
+
+  const tokioAsyncContext = internals.asyncContext;
+  const connectionManager = internals._connectionManager;
+
+  if (tokioAsyncContext == null || connectionManager == null) {
+    throw new Error(
+      'libsignalRegistrationOptions: libsignal-client no longer exposes ' +
+        "Net's async context and connection manager. SWARM wallet sign-in " +
+        'needs them for RegistrationService.reregisterAccount; see ' +
+        'docs/WALLET-SIGN-IN.md.'
+    );
+  }
+
+  return { tokioAsyncContext, connectionManager };
 }
 
 export async function linkDevice(

@@ -21,9 +21,11 @@ import { accountManager } from '../../textsecure/AccountManager.preload.ts';
 import {
   createVerificationSession,
   requestCodeForVerificationSession,
+  requestSwarmWalletChallenge,
   restoreFromSVR2,
   submitCaptchaForVerificationSession,
   submitCodeForVerificationSession,
+  submitSwarmWalletChallenge,
 } from '../../textsecure/WebAPI.preload.ts';
 import { VerificationTransport } from '../../types/VerificationTransport.std.ts';
 import {
@@ -60,6 +62,8 @@ import { DataWriter } from '../../sql/Client.preload.ts';
 import type {
   AccountLockedStage,
   CaptchaStage,
+  WalletSignInError,
+  WalletSignInStage,
   CreatePINConfirmStage,
   CreatePINStage,
   LateStageAccountState,
@@ -80,6 +84,17 @@ import type { RestoreResponseType } from '../../textsecure/WebAPI.preload.ts';
 import type { NoopActionType } from './noop.std.ts';
 import type { AvatarDataType } from '../../types/Avatar.std.ts';
 import { normalizePin } from '../../util/normalizePin.std.ts';
+// SWARM addition (wallet sign-in).
+import {
+  checkRecoveryPhrase,
+  generateRecoveryPhrase,
+} from '../../util/swarm/bip39.node.ts';
+import {
+  deriveWalletIdentity,
+  isSwarmAccountIdentifier,
+  signWalletChallenge,
+} from '../../util/swarm/walletIdentity.node.ts';
+import { HTTPError } from '../../types/HTTPError.std.ts';
 
 const log = createLogger('ducks/standaloneInstaller');
 
@@ -170,21 +185,222 @@ export function startRegistration({
       PhoneNumberDiscoverability.Discoverable;
     const profileData = await getProfileData(phoneNumberDiscoverability);
 
-    const me = window.ConversationController.getOurConversation();
-
-    const workflow: PhoneNumberStage = {
-      stage: RegistrationStage.PHONE_NUMBER,
-      phoneNumber:
-        startingPhoneNumber || (blankPhoneNumber ? undefined : me?.get('e164')),
+    // SWARM change (wallet sign-in): a SWARM account is not a telephone number,
+    // so registration starts by creating or restoring a wallet. The
+    // PHONE_NUMBER / CAPTCHA / VERIFICATION_CODE stages are untouched and
+    // unreachable here; `startingPhoneNumber`, `blankPhoneNumber` and
+    // `waitUntil` are what the SMS flow needed and have nothing to say to a
+    // wallet, so they are accepted and ignored rather than removed from every
+    // call site.
+    const workflow: WalletSignInStage = {
+      stage: RegistrationStage.WALLET_SIGN_IN,
       profileData,
-      status: waitUntil
-        ? { type: 'waiting', readyAt: waitUntil }
-        : { type: 'ready' },
+      status: { type: 'choosing' },
     };
 
     dispatch(updateWorkflow(workflow));
   };
 }
+
+// SWARM addition (wallet sign-in) --------------------------------------------
+
+/** "Create a new wallet": make the 24 words and put them on screen, once. */
+export function createWalletForSignIn({
+  workflow,
+}: {
+  workflow: WalletSignInStage;
+}): ThunkAction<void, StateType, unknown, UpdateWorkflowActionType> {
+  return dispatch => {
+    log.info('createWalletForSignIn: generating a recovery phrase');
+
+    dispatch(
+      updateWorkflow({
+        ...workflow,
+        // The words themselves are deliberately not logged, here or anywhere.
+        status: {
+          type: 'showing-new-phrase',
+          phrase: generateRecoveryPhrase(),
+        },
+      })
+    );
+  };
+}
+
+/** "I have a recovery phrase": show the field for it. */
+export function enterRecoveryPhrase({
+  workflow,
+}: {
+  workflow: WalletSignInStage;
+}): UpdateWorkflowActionType {
+  log.info('enterRecoveryPhrase');
+
+  return updateWorkflow({ ...workflow, status: { type: 'entering-phrase' } });
+}
+
+/** Back to "create or restore". */
+export function backToWalletChoice({
+  workflow,
+}: {
+  workflow: WalletSignInStage;
+}): UpdateWorkflowActionType {
+  log.info('backToWalletChoice');
+
+  return updateWorkflow({ ...workflow, status: { type: 'choosing' } });
+}
+
+/**
+ * The whole of signing in with a wallet: derive this account's identity from the
+ * recovery phrase, prove to the server that we hold it, and register.
+ *
+ * The phrase is used and dropped. Nothing writes it to disk, to a log or to the
+ * network - what crosses the network is an identity public key and a signature.
+ */
+export function signInWithWallet({
+  phrase,
+  workflow: previousWorkflow,
+}: {
+  phrase: string;
+  workflow: WalletSignInStage;
+}): ThunkAction<Promise<void>, StateType, unknown, UpdateWorkflowActionType> {
+  return async dispatch => {
+    const logId = 'signInWithWallet';
+    const returnTo =
+      previousWorkflow.status.type === 'showing-new-phrase'
+        ? 'choosing'
+        : 'entering-phrase';
+
+    const fail = (error: WalletSignInError, cause?: unknown) => {
+      if (cause != null) {
+        log.error(`${logId}: ${error}`, toLogFormat(cause));
+      } else {
+        log.error(`${logId}: ${error}`);
+      }
+      dispatch(
+        updateWorkflow({
+          ...previousWorkflow,
+          status: { type: 'failed', error, returnTo },
+        })
+      );
+    };
+
+    const check = checkRecoveryPhrase(phrase);
+    if (!check.valid) {
+      fail('invalid-phrase');
+      return;
+    }
+
+    dispatch(
+      updateWorkflow({ ...previousWorkflow, status: { type: 'in-progress' } })
+    );
+
+    const { aciKeyPair, pniKeyPair, accountIdentifier } = deriveWalletIdentity(
+      check.phrase
+    );
+
+    log.info(`${logId}: derived an identity; asking for a challenge`);
+
+    let registrationPassword: Uint8Array<ArrayBuffer>;
+    let number: string;
+    try {
+      const { challenge } = await requestSwarmWalletChallenge(
+        aciKeyPair.publicKey
+      );
+
+      const verified = await submitSwarmWalletChallenge({
+        identityPublicKey: aciKeyPair.publicKey,
+        signature: signWalletChallenge(aciKeyPair, challenge),
+      });
+
+      registrationPassword = verified.registrationPassword;
+      number = verified.number;
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        if (error.code === 409) {
+          fail('identifier-taken', error);
+          return;
+        }
+        if (error.code === 404) {
+          fail('challenge-expired', error);
+          return;
+        }
+        if (error.code === 403 || error.code === 422 || error.code === 400) {
+          fail('rejected', error);
+          return;
+        }
+        fail('network', error);
+        return;
+      }
+      fail('network', error);
+      return;
+    }
+
+    if (number !== accountIdentifier) {
+      // The server derives the identifier from the same public key we do. If the
+      // two disagree, one of the two implementations has changed and nothing
+      // good can come of registering: stop.
+      fail('unexpected');
+      return;
+    }
+
+    log.info(`${logId}: challenge answered; creating the account`);
+
+    let hasPin: boolean;
+    try {
+      disableStorageService(`${logId}: about to create account`);
+
+      const result = await accountManager.registerAsPrimaryDevice({
+        number,
+        verification: { type: 'swarm-wallet', registrationPassword },
+        identityKeyPairs: { aciKeyPair, pniKeyPair },
+        phoneNumberDiscoverability: PhoneNumberDiscoverability.NotDiscoverable,
+      });
+
+      hasPin = result.storageCapable;
+
+      if (!hasPin) {
+        enableStorageService();
+      }
+
+      await itemStorage.put(
+        'standaloneRegistrationPartialState',
+        hasPin
+          ? PartialRegistrationType.EXISTING__PROFILE
+          : PartialRegistrationType.NEW_ACCOUNT__PROFILE
+      );
+    } catch (error) {
+      enableStorageService();
+
+      if (error instanceof HTTPError && error.code === 409) {
+        fail('identifier-taken', error);
+        return;
+      }
+
+      log.error(`${logId}: error creating account`, toLogFormat(error));
+      dispatch(
+        updateWorkflow(
+          {
+            ...previousWorkflow,
+            status: { type: 'failed', error: 'unexpected', returnTo },
+          },
+          analyzeError(error)
+        )
+      );
+      return;
+    }
+
+    log.info(`${logId}: account created`);
+
+    const nextWorkflow: ProfileEntryStage = {
+      stage: RegistrationStage.PROFILE_ENTRY,
+      profileData: previousWorkflow.profileData,
+      accountState: { created: true, hasPin },
+      status: { type: 'ready' },
+    };
+    dispatch(updateWorkflow(nextWorkflow));
+  };
+}
+
+// ----------------------------------------------------------------------------
 
 export function cancelRegistration(): CancelWorkflowActionType {
   const logId = `cancelRegistration`;
@@ -696,7 +912,7 @@ export function submitVerificationCode({
       );
       const result = await accountManager.registerAsPrimaryDevice({
         number: phoneNumber,
-        sessionId: verificationSessionId,
+        verification: { type: 'session', sessionId: verificationSessionId },
         phoneNumberDiscoverability:
           profileData?.phoneNumberDiscoverability ??
           PhoneNumberDiscoverability.NotDiscoverable,
@@ -799,8 +1015,13 @@ export function finishProfileEntryStage({
 }: {
   profileData: ProfileData;
   workflow: ProfileEntryStage;
-}): ThunkAction<Promise<void>, StateType, unknown, UpdateWorkflowActionType> {
-  return async dispatch => {
+}): ThunkAction<
+  Promise<void>,
+  StateType,
+  unknown,
+  OpenInboxActionType | UpdateWorkflowActionType
+> {
+  return async (dispatch, getState) => {
     const logId = `finishProfileEntry(accountCreated=${previousWorkflow.accountState.created})`;
     log.info(logId);
 
@@ -858,6 +1079,20 @@ export function finishProfileEntryStage({
         },
       };
       dispatch(updateWorkflow(workflow, analyzeError(error)));
+      return;
+    }
+
+    // SWARM change (wallet sign-in): a SWARM account's recovery is its 24-word
+    // recovery phrase, which the person already has. There is no PIN to create
+    // and no SVR to store it in, so PROFILE_ENTRY is the last stage. Decided by
+    // the account's own identifier rather than by a flag carried through the
+    // workflow, so that resuming a half-finished registration after a restart
+    // reaches the same conclusion.
+    const ourNumber = itemStorage.user.getOptionalNumber();
+    if (ourNumber != null && isSwarmAccountIdentifier(ourNumber)) {
+      log.info(`${logId}: SWARM wallet account, skipping the PIN stages`);
+      await itemStorage.remove('standaloneRegistrationPartialState');
+      await completeRegistration({ workflow })(dispatch, getState, undefined);
       return;
     }
 
@@ -1062,7 +1297,7 @@ export function verifyPIN({
       );
       await accountManager.registerAsPrimaryDevice({
         number: phoneNumber,
-        sessionId: verificationSessionId,
+        verification: { type: 'session', sessionId: verificationSessionId },
         registrationLockToken,
         phoneNumberDiscoverability: profileData.phoneNumberDiscoverability,
       });
@@ -1260,7 +1495,14 @@ function goToUpdateRequiredStage(): UpdateWorkflowActionType {
 export function completeRegistration({
   workflow: previousWorkflow,
 }: {
-  workflow: VerifyPINStage | CreatePINStage | CreatePINConfirmStage;
+  // SWARM change (wallet sign-in): PROFILE_ENTRY is the last stage of a wallet
+  // sign-in, because a SWARM account's recovery is its recovery phrase and there
+  // is no PIN to create. ValidStepsBeforeComplete agrees.
+  workflow:
+    | VerifyPINStage
+    | CreatePINStage
+    | CreatePINConfirmStage
+    | ProfileEntryStage;
 }): ThunkAction<
   Promise<void>,
   StateType,
@@ -1467,6 +1709,11 @@ export const actions = {
   startRegistration,
   submitVerificationCode,
   verifyPIN,
+  // SWARM addition (wallet sign-in)
+  backToWalletChoice,
+  createWalletForSignIn,
+  enterRecoveryPhrase,
+  signInWithWallet,
   // For AvatarEditor support
   deleteAvatarFromDisk,
   replaceAvatar,
@@ -1562,6 +1809,10 @@ export function reducer(
     }
 
     if (
+      // SWARM change (wallet sign-in): WALLET_SIGN_IN is this build's first
+      // stage, so it gets what PHONE_NUMBER has - you can always go back to the
+      // beginning, and you can always start there.
+      newWorkflow.stage === RegistrationStage.WALLET_SIGN_IN ||
       newWorkflow.stage === RegistrationStage.PHONE_NUMBER ||
       newWorkflow.stage === RegistrationStage.UPDATE_REQUIRED
     ) {

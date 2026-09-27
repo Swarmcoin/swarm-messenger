@@ -69,6 +69,11 @@ export const StartingScreen: Story = {
     cancelRegistration: action('cancelRegistration'),
     completeRegistration: action('completeRegistration'),
     createPIN: action('createPIN'),
+    // SWARM addition (wallet sign-in)
+    backToWalletChoice: action('backToWalletChoice'),
+    createWalletForSignIn: action('createWalletForSignIn'),
+    enterRecoveryPhrase: action('enterRecoveryPhrase'),
+    signInWithWallet: action('signInWithWallet'),
     direction: Direction.FORWARD,
     fatalError: undefined,
     finishProfileEntryStage: action('finishProfileEntryStage'),

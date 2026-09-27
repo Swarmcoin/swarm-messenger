@@ -18,6 +18,11 @@ import type { VerificationTransport } from './VerificationTransport.std.ts';
 //   PHONE_NUMBER -> CAPTCHA -> VERIFICATION_CODE -> PROFILE_ENTRY -> VERIFY_PIN -> ACCOUNT_LOCKED -> PHONE_NUMBER
 
 export enum RegistrationStage {
+  // SWARM change (wallet sign-in): the stage a SWARM account actually starts at.
+  // It replaces PHONE_NUMBER -> CAPTCHA -> VERIFICATION_CODE, which stay in this
+  // file, and in the code, because they are the upstream flow and are how any
+  // SMS-registering build still works - they are simply never reached here.
+  WALLET_SIGN_IN = 'WALLET_SIGN_IN',
   PHONE_NUMBER = 'PHONE_NUMBER',
   CAPTCHA = 'CAPTCHA',
   VERIFICATION_CODE = 'VERIFICATION_CODE',
@@ -30,6 +35,7 @@ export enum RegistrationStage {
 }
 
 export const StageOrder: Record<RegistrationStage, number> = {
+  [RegistrationStage.WALLET_SIGN_IN]: 0,
   [RegistrationStage.PHONE_NUMBER]: 0,
   [RegistrationStage.CAPTCHA]: 1,
   [RegistrationStage.VERIFICATION_CODE]: 2,
@@ -51,6 +57,9 @@ export const ValidNextStages: Record<
   RegistrationStage,
   Set<RegistrationStage>
 > = {
+  [RegistrationStage.WALLET_SIGN_IN]: new Set([
+    RegistrationStage.PROFILE_ENTRY,
+  ]),
   [RegistrationStage.PHONE_NUMBER]: new Set([RegistrationStage.CAPTCHA]),
   [RegistrationStage.CAPTCHA]: new Set([RegistrationStage.VERIFICATION_CODE]),
   [RegistrationStage.VERIFICATION_CODE]: new Set([
@@ -80,6 +89,9 @@ export const ValidStepsBeforeComplete = new Set([
   RegistrationStage.VERIFY_PIN, // successfully verified PIN
   RegistrationStage.CREATE_PIN, // opted out of creating a PIN
   RegistrationStage.CREATE_PIN_CONFIRM, // new PIN successfully created
+  // SWARM change (wallet sign-in): a SWARM account's recovery is its recovery
+  // phrase, so there is no PIN to create and PROFILE_ENTRY is the last stage.
+  RegistrationStage.PROFILE_ENTRY,
 ]);
 
 export enum FatalErrorType {
@@ -110,6 +122,68 @@ export type ProfileData = {
   avatarData?: Uint8Array<ArrayBuffer>;
   phoneNumberDiscoverability: PhoneNumberDiscoverability;
 };
+
+// SWARM addition (wallet sign-in) --------------------------------------------
+
+/** Why a wallet sign-in did not go through. The UI turns these into sentences. */
+export type WalletSignInError =
+  | 'invalid-phrase' // the 24 words are not a BIP-39 phrase
+  | 'identifier-taken' // two wallets derived one account identifier (409)
+  | 'challenge-expired' // the challenge was gone by the time we answered it
+  | 'rejected' // the server would not accept the signature
+  | 'network' // we could not reach the server at all
+  | 'unexpected';
+
+export type WalletSignInStage = {
+  // Where a SWARM account starts: a wallet, not a telephone number.
+  // Prerequisites: <none>
+  // Behaviors:
+  //   - 'choosing': create a new wallet, or restore one from its recovery phrase
+  //   - 'showing-new-phrase': the 24 words, shown once, to be written down
+  //   - 'entering-phrase': the field for restoring
+  //   - on failure, say what went wrong and let the person try again
+  // Completion requirements:
+  //   - a recovery phrase, and a server that accepted the identity key derived
+  //     from it
+  stage: RegistrationStage.WALLET_SIGN_IN;
+
+  status:
+    | {
+        type: 'choosing';
+      }
+    | {
+        // The phrase lives here only while it is on screen for the person to
+        // write down, because nothing else can put it in front of them. It is
+        // never persisted, never logged and never sent anywhere: the duck drops
+        // it as soon as registration is under way. Nothing in this app writes
+        // redux state to a log.
+        type: 'showing-new-phrase';
+        phrase: string;
+      }
+    | {
+        type: 'entering-phrase';
+      }
+    | {
+        type: 'in-progress';
+      }
+    | {
+        type: 'failed';
+        error: WalletSignInError;
+        // Which screen to return to when the person tries again.
+        returnTo: 'choosing' | 'entering-phrase';
+      };
+
+  profileData?: ProfileData;
+
+  // After WALLET_SIGN_IN:
+  //   1. derive the ACI and PNI identity key pairs from the phrase
+  //   2. ask the server for a challenge, sign it, receive the account identifier
+  //      and a one-shot registration password
+  //   3. create the account with the derived identity keys and that password
+  //   4. go to PROFILE_ENTRY
+};
+
+// ----------------------------------------------------------------------------
 
 export type PhoneNumberStage = {
   // Where the process starts - first, the user needs to enter a phone number.
@@ -410,6 +484,7 @@ export type UpdateRequiredStage = {
 };
 
 export type RegistrationWorkflow =
+  | WalletSignInStage
   | PhoneNumberStage
   | CaptchaStage
   | VerificationCodeStage
