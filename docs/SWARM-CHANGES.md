@@ -248,17 +248,39 @@ exactly a rebrand that looked finished in the source tree.
 | `scripts/swarm-import-params.mjs` | Reads `shared/staging-public-params.json` in the format the server fork documents (`docs/STAGING.md` section 5a), validates it - `serverTrustRoots` must be a non-empty **list**, because a rotation publishes the new root beside the old one - and writes the four values into all three config files in one command, so the wiring cannot be half-done.                                                                                                                                                                                                               |
 | `scripts/swarm-dev-params.mjs`    | Writes throwaway but structurally valid parameters into the git-ignored `config/local-development.json`, so the user interface can be opened before the server exists. The `SWARM-PLACEHOLDER-*` strings are not decodable, and libsignal throws on them while the app is still on its loading screen - which means no screen after it can be seen or worked on. What it writes is a freshly generated zkgroup server identity and a fresh trust root: real cryptographic material that belongs to nobody, authenticates nothing, and never reaches a commit or a build. |
 
-## 5. Wallet mount point
+## 5. The Wallet pane
 
-Deliberately tiny, so Opus M-C's `swarm-wallet-core` replaces it in a small diff.
+M1 added the mount point; M3 wave 1 (2026-09-27) put the SWARM wallet behind it.
+The design, the IPC surface, the threat notes and the wave-2 plan are in
+[`WALLET-PANE.md`](WALLET-PANE.md).
 
-- `ts/types/Nav.std.ts`: `NavTab.Wallet`.
-- `ts/components/SwarmWalletPane.dom.tsx` (new): "Wallet arrives in the next build".
-- `ts/state/smart/SwarmWalletTab.preload.tsx` (new): the container.
-- `ts/components/NavTabs.dom.tsx`, `ts/state/smart/NavTabs.preload.tsx`,
-  `ts/components/Inbox.dom.tsx`, `ts/state/smart/Inbox.preload.tsx`: the
-  `renderWalletTab` prop.
-- `stylesheets/components/NavTabs.scss`: `.NavTabs__ItemIcon--Wallet`.
+- Mount point (M1): `ts/types/Nav.std.ts` (`NavTab.Wallet`),
+  `ts/components/NavTabs.dom.tsx`, `ts/state/smart/NavTabs.preload.tsx`,
+  `ts/components/Inbox.dom.tsx`, `ts/state/smart/Inbox.preload.tsx` (the
+  `renderWalletTab` prop), `stylesheets/components/NavTabs.scss`
+  (`.NavTabs__ItemIcon--Wallet`).
+- The pane (M3): `ts/components/SwarmWalletPane.dom.tsx`, its container
+  `ts/state/smart/SwarmWalletTab.preload.tsx` (renamed from `.dom.tsx`), the
+  renderer client `ts/services/swarmWallet.preload.ts`, the shared schemas
+  `ts/types/SwarmWallet.std.ts`, amounts `ts/util/swarm/swmAmount.std.ts`.
+- The wallet (M3): `app/SwarmWalletService.main.ts`, created from
+  `app/main.main.ts` and sealed on the way out; its validators
+  `ts/util/swarm/walletIpc.node.ts`; the worker thread
+  `ts/workers/swarmWalletWorker.node.ts`, `swarmWalletHandler.node.ts`,
+  `swarmWalletProtocol.std.ts`, bundled by `rolldown.config.ts` as
+  `bundles/workers/swarmWallet.js`.
+- Sign-in hands the recovery phrase to the wallet once
+  (`ts/state/ducks/standaloneInstaller.preload.ts`, `adoptWalletPhrase`).
+- `swarm-wallet-core` 0.2.0 vendored as `vendor/swarm-wallet-core-0.2.0.tgz`
+  (a devDependency, bundled); its Rust addon pinned by
+  `vendor/swarm-wallet-core-native.json` and fetched by
+  `scripts/swarm-fetch-wallet-addon.mjs` into the git-ignored
+  `vendor/swarm-wallet-native/`; `build.files` packages it.
+- `.oxlint/rules/enforceFileSuffix.mjs`: `swarm-wallet-core` is a Node package.
+- `ts/axo/_tailwind-theme/fonts.css`: `--font-swarm-mono`, JetBrains Mono first,
+  because `--font-mono` starts with MonoSpecial, whose letters are all capitals.
+- `_locales/en/messages.json`: the `icu:SwarmWallet__*` strings; the two
+  placeholder strings are gone.
 
 ## 6. CI
 

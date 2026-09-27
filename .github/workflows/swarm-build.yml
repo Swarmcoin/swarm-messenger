@@ -129,9 +129,18 @@ jobs:
       # job; running it again on a GitHub Windows runner adds nothing but
       # flakes - uploadDebugLogs, logging and localBackup time out or hit
       # ENOTEMPTY on that runner's temp directory, and all three pass on a real
-      # Windows machine. The SWARM tests touch no network and no temp files.
+      # Windows machine. The SWARM tests touch no network; the wallet worker's
+      # tests write one small sealed wallet file to a temp directory each and
+      # remove it.
       - name: Run the SWARM endpoint scan and guard tests
         run: pnpm run test-node:swarm
+
+      # SWARM addition (M3): the wallet's Rust addon, from the swarm-wallet-core
+      # release named in vendor/swarm-wallet-core-native.json, refused unless
+      # its SHA-256 is the pinned one. Without it the installer would ship a
+      # Wallet pane that says the wallet component is missing.
+      - name: Fetch the SWARM wallet addon (hash-pinned)
+        run: node scripts/swarm-fetch-wallet-addon.mjs
 
       - name: Build unsigned NSIS installer
         run: pnpm run build:release --publish=never
