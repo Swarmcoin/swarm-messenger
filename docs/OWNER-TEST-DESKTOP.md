@@ -2,7 +2,8 @@
 
 Written 2026-09-27 by Opus M-G, after doing exactly this on the owner's PC against the staging
 server `chat.swarm.green`. Every step below was carried out and every screen below was seen on
-that day, at `swarm-main` commit `a6af1d166` or later, unless a step says otherwise.
+that day, at `swarm-main` commit `a6af1d166` or later, unless a step says otherwise. Sending
+photos was added to the server at 19:26 UTC the same day and was tested at 19:52 UTC.
 
 You will run the desktop app twice on the same PC, as two separate people, **A** and **B**. Each
 one creates its own wallet, becomes its own account, and then A and B message each other.
@@ -14,11 +15,11 @@ one creates its own wallet, becomes its own account, and then A and B message ea
 | Works (tested 2026-09-27)                                          | Does not work yet                                                                        |
 | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
 | Creating an account from a new wallet: no phone number, no SMS     | Finding someone by the account number shown in Settings ("Failed to fetch phone number") |
-| Setting a username, and finding the other person by that username  | Photos, files, voice notes, GIFs and stickers (see the warning in section 7)             |
+| Setting a username, and finding the other person by that username  | Stickers and GIF search (no sticker packs or GIF service on this server)                 |
 | Text messages both ways, end-to-end encrypted, delivered in < 1 s  | Voice and video calls (no calling server yet)                                            |
 | Message request, Accept, read and delivery ticks                   | Groups (no groups server yet) and call links (their credentials fail to verify)          |
 | Closing both apps and opening them again: same accounts, same chat | Linking a second device, and the Linked devices screen                                   |
-|                                                                    | "Restore a wallet" landing on the same account (built, not yet tested live)              |
+| Photos, both ways (sent, stored on `cdn.chat.swarm.green`, shown)  | "Restore a wallet" landing on the same account (built, not yet tested live)              |
 
 This is the **staging** server. Everything on it is test data and may be wiped at any time. Treat
 both wallets as throwaway: never send SWARM to them.
@@ -43,9 +44,10 @@ git log -1 --oneline
 What you should see:
 
 - `git pull` ends with a list of changed files, or `Already up to date.`
-- `pnpm install` prints a boxed `SWARM: electron-builder install-app-deps FAILED` note about
-  optional Windows Hello support. **That is expected on this PC** and the install continues; it
-  ends with `Done in …s`.
+- `pnpm install` prints many red `gyp ERR! find VS` lines and a note
+  `SWARM: electron-builder install-app-deps FAILED`, both about optional Windows Hello support
+  that needs Visual Studio. **That is expected on this PC** and the install continues; it ends
+  with `Done in …s`.
 - `pnpm run generate` ends without the word `ERR` (it takes 10-30 seconds).
 - The last line is the commit you are testing. Note it for your report.
 
@@ -90,8 +92,8 @@ Do this in window A, then the same in window B.
    "I have written down my 24 words and stored them safely", then **Continue**. The words go away
    and the **Create a wallet** button spins for a few seconds while the account is created.
 4. **"Set up your profile".** Type a first name (for example `Test A` in window A and `Test B` in
-   window B) and click **Continue**. Leave the photo alone: profile photos go through the part of
-   the server that does not work yet.
+   window B) and click **Continue**. Skip the photo for this test: profile photos have not been
+   tried in the app yet.
 5. **The chat list.** "Chats", "No chats", and on the right "Welcome to SWARM Messenger".
 
 If step 3 ends with "Could not reach the SWARM server", wait a minute and click **Create a wallet**
@@ -142,17 +144,20 @@ Then the restart test:
    themselves.
 6. Double-click both `.cmd` files again, open the chat on each side and send one more message each
    way. No new sign-in should be needed, and the old messages should still be there.
+7. Optional, a photo: click **+** at the right of the message box, choose **Photos & videos**, pick
+   a picture that is not private, and press **Enter**. The other window shows it within a few
+   seconds.
 
 ---
 
 ## 7. Known limits
 
-- **Do not send attachments** (photos, files, voice notes, GIFs, stickers). The server does not
-  accept uploads yet, and a stuck attachment **blocks every later message in that chat** for a
-  long time, because the app sends a chat's messages strictly in order. If it happens anyway:
-  hover over the stuck message (it shows a spinning circle), click **⋯**, **Delete**, then
-  **Delete for me**. Later messages then go out within a few minutes.
-- No calls, no groups, no call links, no second devices, no stories (see section 1).
+- **Photos and files** go through `cdn.chat.swarm.green`. Files other than photos, voice notes
+  and profile photos should work the same way but were not part of this test. If an attachment
+  ever stays on its spinning circle, it holds up every later message in that chat, because the
+  app sends a chat's messages strictly in order. Hover over it, click **⋯**, **Delete**, then
+  **Delete for me**; the messages behind it go out within a few minutes.
+- No calls, no groups, no call links, no stickers, no second devices (see section 1).
 - Settings and contacts do not sync to a server (there is no storage service yet). The app keeps
   working; it only logs `404` for it.
 - The app window may say "Name not verified" next to the other person's name. That is normal for
