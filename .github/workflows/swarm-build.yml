@@ -253,6 +253,97 @@ jobs:
           fi
           dpkg-deb --contents "$deb" | grep -E 'opt/SWARM Messenger/(swarm-messenger|resources/green\.swarm\..*\.policy)$'
 
+      # The .deb is installed the way docs/RELEASES.md tells the owner to, on
+      # the runner's Ubuntu 24.04: its postinst must go through (AppArmor
+      # profile, polkit policies - polkitd is installed first so that branch
+      # runs), and the installed app must open its main window WITH its
+      # sandbox, which on 24.04 only works because of that AppArmor profile.
+      # Then apt removes it, and the postrm must take the policies away again.
+      - name: Install the .deb with apt, start the installed app once, remove it
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb polkitd
+          deb=$(ls release/*.deb)
+          sudo apt-get install -y "./$deb"
+          dpkg -s swarm-messenger | sed -n '1,4p'
+          ls -l /usr/share/polkit-1/actions/ | grep green.swarm
+          ls -l /etc/apparmor.d/swarm-messenger
+
+          userdata="$HOME/.config/SWARM Messenger"
+          log="$userdata/logs/main.log"
+          rm -rf "$userdata"
+          xvfb-run -a swarm-messenger > smoke-output.txt 2>&1 &
+          runner=$!
+          started=
+          for _ in $(seq 1 120); do
+            if grep -q 'main window is ready-to-show' "$log" 2>/dev/null; then
+              started=1
+              break
+            fi
+            kill -0 "$runner" 2>/dev/null || break
+            sleep 1
+          done
+          pkill -f '/opt/SWARM Messenger/swarm-messenger' || true
+          wait "$runner" 2>/dev/null || true
+          echo "::group::main.log"
+          cat "$log" 2>/dev/null || echo "(no main.log)"
+          echo "::endgroup::"
+          echo "::group::stdout and stderr"
+          cat smoke-output.txt
+          echo "::endgroup::"
+          rm -rf "$userdata" smoke-output.txt
+          if [ -z "$started" ]; then
+            echo "The installed app did not open its main window within 120 s" >&2
+            exit 1
+          fi
+          echo "The installed app started and opened its main window."
+
+          sudo apt-get remove -y swarm-messenger
+          if ls /usr/share/polkit-1/actions/ | grep green.swarm; then
+            echo "apt remove left SWARM's polkit policies behind" >&2
+            exit 1
+          fi
+
+      # The AppImage is for distributions without Ubuntu 24.04's user-namespace
+      # restriction, so that restriction is lifted for this test (as
+      # lint-and-test does), and the AppImage runs with its sandbox, extracted
+      # rather than FUSE-mounted.
+      - name: Start the AppImage once
+        run: |
+          set -euo pipefail
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          appimage=$(ls release/*.AppImage)
+          chmod +x "$appimage"
+          userdata="$HOME/.config/SWARM Messenger"
+          log="$userdata/logs/main.log"
+          rm -rf "$userdata"
+          APPIMAGE_EXTRACT_AND_RUN=1 xvfb-run -a "./$appimage" > smoke-output.txt 2>&1 &
+          runner=$!
+          started=
+          for _ in $(seq 1 120); do
+            if grep -q 'main window is ready-to-show' "$log" 2>/dev/null; then
+              started=1
+              break
+            fi
+            kill -0 "$runner" 2>/dev/null || break
+            sleep 1
+          done
+          pkill -f 'swarm-messenger' || true
+          wait "$runner" 2>/dev/null || true
+          echo "::group::main.log"
+          cat "$log" 2>/dev/null || echo "(no main.log)"
+          echo "::endgroup::"
+          echo "::group::stdout and stderr"
+          cat smoke-output.txt
+          echo "::endgroup::"
+          rm -rf "$userdata" smoke-output.txt
+          if [ -z "$started" ]; then
+            echo "The AppImage did not open its main window within 120 s" >&2
+            exit 1
+          fi
+          echo "The AppImage started and opened its main window."
+
       # electron-builder writes swarm-messenger_<version>_amd64.deb and
       # swarm-messenger_<version>_x86_64.AppImage (plus an update blockmap,
       # which SWARM does not use)
