@@ -165,6 +165,18 @@ SWARM: `getDevices`, `setDeviceName` (linked devices) and the phone-number
 discoverability switch. Go back to the libsignal calls once the SWARM server
 offers gRPC and the SWARM environment in libsignal is switched to HTTP/2.
 
+## 3c. libsignal 0.101.2-swarm.2: the HTTP/2 chat connection
+
+Added 2026-09-27 (Opus M-H). `vendor/signalapp-libsignal-client-0.101.2-swarm.2.tgz`
+(sha256 `3711e83fe42b991380bbb769e5afa7970708a8e9db9fde97634a54ce62ef1565`, release
+`swarm-libsignal-0.101.2-swarm.2`, run 36342119193 at swarm-libsignal `dd6456489`)
+replaces `swarm.1`; `package.json`, `pnpm-workspace.yaml` (`allowBuilds`),
+`pnpm-lock.yaml` and `vendor/SHA256SUMS.txt` follow. The only change in the library:
+`Environment.Swarm` dials `chat.swarm.green` over HTTP/2 (ALPN `h2`, TLS 1.3, the
+`x-signal-timestamp` confirmation header), so libsignal's gRPC-only calls - username
+writes, username links, device name, linked devices, discoverability - have the
+connection they need. The protocol crates are unchanged. See `docs/SWARM-CONFIG.md`.
+
 ## 4. Rebrand
 
 | Area             | Files                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |

@@ -133,9 +133,10 @@ root — put the PEM in `config/local-development.json`, which is git-ignored.
 ## The libsignal network environment
 
 **Resolved in M2.** The desktop runs the SWARM build of libsignal,
-`@signalapp/libsignal-client` **0.101.2-swarm.1**, from
+`@signalapp/libsignal-client` **0.101.2-swarm.2** (since 2026-09-27; M2 wired in
+`0.101.2-swarm.1`), from
 [Swarm-Official/swarm-libsignal](https://github.com/Swarm-Official/swarm-libsignal)
-release `swarm-libsignal-0.101.2-swarm.1`. It adds two network environments beside
+release `swarm-libsignal-0.101.2-swarm.2`. It adds two network environments beside
 Signal's own:
 
 | `Net.Environment` | Value | Chat host                      |
@@ -151,8 +152,8 @@ changed. Consumption guide: `D:\swarm-messenger\shared\libsignal-swarm.md`.
 ### How it is installed
 
 The npm tarball from the release is vendored, git-tracked, at
-`vendor/signalapp-libsignal-client-0.101.2-swarm.1.tgz` (29,900,318 bytes,
-sha256 `34719bf6eaec78b50a0b70ed1d36465de2b1dbcf712d9288971571efffcebfe4`, which is
+`vendor/signalapp-libsignal-client-0.101.2-swarm.2.tgz` (29,900,330 bytes,
+sha256 `3711e83fe42b991380bbb769e5afa7970708a8e9db9fde97634a54ce62ef1565`, which is
 the value in the release's `SHA256SUMS.txt`). `package.json` points the dependency
 at it with a `file:` specifier, so the import specifier
 `@signalapp/libsignal-client` is unchanged and not one import line in the app
@@ -167,8 +168,17 @@ is an `echo`; the native library is a prebuild under
 `prebuilds/<platform>-<arch>/`, so nothing is compiled here.
 
 The three prebuilt libraries in the tarball hash to the per-platform sums in the
-same release (`win32-x64` `f5f07db0…`, `linux-x64` `541d839d…`,
-`darwin-arm64` `c5657e5f…`).
+same release (`win32-x64` `3b233bbe…`, `linux-x64` `e872d670…`,
+`darwin-arm64` `caa8d729…`); `vendor/SHA256SUMS.txt` lists all four.
+
+**`0.101.2-swarm.2` vs `swarm.1`:** `Environment.Swarm` reaches `chat.swarm.green`
+over **HTTP/2**, as upstream reaches its own chat host: the websocket opens as an
+RFC 8441 extended CONNECT, and gRPC shares that connection. libsignal 0.101 sends
+username reserve/delete, username links, device name, the linked-devices list and
+the discoverability switch only over that gRPC connection, so with `swarm.1`
+(HTTP/1.1) they panicked with `requires an H2 connection`. The server edge carries
+it since swarm-messenger-server `885ec3aa6` (`docs/STAGING.md` section 5b). A
+server that offers only HTTP/1.1 cannot be reached with `swarm.2`.
 
 ### Where the environment is chosen
 

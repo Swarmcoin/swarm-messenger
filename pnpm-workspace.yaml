@@ -97,7 +97,7 @@ allowBuilds:
   # SWARM change (M2): the SWARM build of libsignal, vendored as a tarball
   # (see vendor/, docs/SWARM-CONFIG.md). Its only lifecycle script is an echo
   # telling you to run `npm run build`; the native library is a prebuild.
-  '@signalapp/libsignal-client@file:vendor/signalapp-libsignal-client-0.101.2-swarm.1.tgz': true
+  '@signalapp/libsignal-client@file:vendor/signalapp-libsignal-client-0.101.2-swarm.2.tgz': true
   '@signalapp/ringrtc@2.72.0': true
   '@signalapp/sqlcipher@4.1.0': true
   '@signalapp/windows-ucv@1.0.1': true
