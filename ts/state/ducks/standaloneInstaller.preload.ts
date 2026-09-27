@@ -95,6 +95,8 @@ import {
   signWalletChallenge,
 } from '../../util/swarm/walletIdentity.node.ts';
 import { HTTPError } from '../../types/HTTPError.std.ts';
+// SWARM addition (M3): the wallet opens from the same words.
+import { openSwarmWalletWithPhrase } from '../../services/swarmWallet.preload.ts';
 
 const log = createLogger('ducks/standaloneInstaller');
 
@@ -297,6 +299,18 @@ export function signInWithWallet({
       check.phrase
     );
 
+    // SWARM addition (M3): the SWARM wallet opens from the same 24 words, now.
+    // It needs the SWARM network and not the chat server, so it does not wait
+    // for the account to exist. The words go to the main process this once,
+    // where the wallet keeps them sealed with the OS keychain; nothing here
+    // keeps them.
+    drop(
+      adoptWalletPhrase(
+        check.phrase,
+        previousWorkflow.status.type === 'showing-new-phrase'
+      )
+    );
+
     log.info(`${logId}: derived an identity; asking for a challenge`);
 
     let registrationPassword: Uint8Array<ArrayBuffer>;
@@ -398,6 +412,25 @@ export function signInWithWallet({
     };
     dispatch(updateWorkflow(nextWorkflow));
   };
+}
+
+/** Hands the sign-in phrase to the wallet service. Never throws. */
+async function adoptWalletPhrase(
+  phrase: string,
+  isNewPhrase: boolean
+): Promise<void> {
+  try {
+    const result = await openSwarmWalletWithPhrase({
+      phrase,
+      isNewPhrase,
+      forSignedInAccount: false,
+    });
+    log.info(
+      `adoptWalletPhrase: ${result.ok ? 'the wallet is opening' : result.problem}`
+    );
+  } catch (error) {
+    log.warn('adoptWalletPhrase: failed', toLogFormat(error));
+  }
 }
 
 // ----------------------------------------------------------------------------
