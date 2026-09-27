@@ -185,6 +185,22 @@ replaces `swarm.1`; `package.json`, `pnpm-workspace.yaml` (`allowBuilds`),
 writes, username links, device name, linked devices, discoverability - have the
 connection they need. The protocol crates are unchanged. See `docs/SWARM-CONFIG.md`.
 
+## 3d. `genericServerPublicParams` is the calling set
+
+Added 2026-09-27 (Opus M-H). The desktop verifies call-link credentials with
+`genericServerPublicParams`; the server signs them with `callingZkConfig`. The
+config carried the chat set (`chatZkConfig`, which pairs with
+`backupServerPublicParams`), so `groupCredentialFetcher` looped on
+`Verification failure in zkgroup` in `CallLinkAuthCredentialResponse.receive`, and
+since call-link and group auth credentials come in one response, groups could not
+be created. `config/default.json`, `config/production.json` and
+`config/swarm-staging.json` now carry the calling set (`AMzkIq08…`), from the
+corrected `shared/staging-public-params.json` (server fix `23a524ce1`). No server
+secret changed and no account is affected. The comment in
+`scripts/swarm-import-params.mjs` and `docs/SWARM-CONFIG.md` say which field pairs
+with which server set; `endpointGuard_test.node.ts` checks the two generic sets are
+distinct, decode, and agree across the three files.
+
 ## 4. Rebrand
 
 | Area             | Files                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
