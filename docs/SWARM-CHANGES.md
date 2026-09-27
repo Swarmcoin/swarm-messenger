@@ -264,9 +264,13 @@ The design, the IPC surface, the threat notes and the wave-2 plan are in
 
 ## 6. CI
 
-`.github/workflows/swarm-build.yml` (new). Upstream `ci.yml` is untouched: it
-targets Signal's self-hosted runners (`ubuntu-22.04-8-cores`,
-`windows-latest-8-cores`) which do not exist in this org.
+`.github/workflows/swarm-build.yml` (new). Upstream `ci.yml` targets Signal's
+self-hosted runners (`ubuntu-22.04-8-cores`, `windows-latest-8-cores`) which do
+not exist in this org. Its jobs were left alone; since M4 only its `on:`
+triggers are changed, to `upstream-main` pushes and pull requests, because
+every pull request to `swarm-main` queued jobs that could never start. The
+same for `icu-book.yml` (`ubuntu-latest-8-cores`). Upstream's original
+triggers are quoted in a comment in each file.
 
 - `lint-and-test` on `ubuntu-latest`: install, generate, `check:types`, `oxlint:ci`,
   `lint-prettier`, `test-node`. `test-node` runs under `xvfb-run` with
