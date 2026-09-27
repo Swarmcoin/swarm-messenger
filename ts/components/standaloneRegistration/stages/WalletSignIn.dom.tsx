@@ -57,6 +57,9 @@ export function WalletSignInScreen({
   const [writtenDown, setWrittenDown] = useState(false);
 
   const onRestore = useCallback(() => {
+    if (countWords(typedPhrase) !== RECOVERY_PHRASE_WORDS) {
+      return;
+    }
     signInWithWallet({ phrase: typedPhrase, workflow });
   }, [signInWithWallet, typedPhrase, workflow]);
 
@@ -87,7 +90,10 @@ export function WalletSignInScreen({
   })();
 
   return (
-    <Container>
+    // The 24 words make this the tallest screen in the flow; the shared
+    // container's fixed height would put the button below the fold, where a
+    // person who has just been told to write something down will not look.
+    <Container className={tw('h-auto')}>
       <TopMatter
         i18n={i18n}
         onBackClick={
@@ -119,12 +125,20 @@ export function WalletSignInScreen({
           {failure != null ? (
             <FailureText error={failure.error} i18n={i18n} />
           ) : undefined}
-          <Buttons>
+          {/* Stacked, not the usual row: two buttons side by side truncate both
+              labels in this narrow pane, and "I have a recovery phrase" is not a
+              sentence anyone should have to guess at. */}
+          <div className={tw('flex w-full flex-col gap-2')}>
             <AxoButton.Root
               variant="strong-primary"
               size="md"
               pending={inProgress}
-              onClick={() => createWalletForSignIn({ workflow })}
+              onClick={() => {
+                if (inProgress) {
+                  return;
+                }
+                createWalletForSignIn({ workflow });
+              }}
             >
               {i18n('icu:StandaloneRegistration--WalletSignIn--create')}
             </AxoButton.Root>
@@ -136,7 +150,7 @@ export function WalletSignInScreen({
             >
               {i18n('icu:StandaloneRegistration--WalletSignIn--restore')}
             </AxoButton.Root>
-          </Buttons>
+          </div>
         </>
       ) : undefined}
 
@@ -157,17 +171,20 @@ export function WalletSignInScreen({
           <Spacer className={tw('h-6')} />
           <ol
             className={tw(
-              'grid w-81 grid-cols-3 gap-x-4 gap-y-1 rounded-lg bg-surface-secondary p-4',
+              'grid w-81 grid-cols-4 gap-x-3 gap-y-0.5 rounded-lg bg-surface-secondary p-3',
               'type-body-medium text-primary'
             )}
           >
             {newPhrase.split(' ').map((word, index) => (
               // oxlint-disable-next-line react/no-array-index-key
               <li key={`${index}-${word}`} className={tw('flex gap-2')}>
-                <span className={tw('w-5 shrink-0 text-end text-secondary')}>
+                <span className={tw('w-4 shrink-0 text-end text-secondary')}>
                   {index + 1}
                 </span>
-                <span className={tw('font-mono select-text')}>{word}</span>
+                {/* Lower case on purpose: these are the letters to copy down,
+                    and a heading style that upper-cases them would have people
+                    writing down something that is not what we generated. */}
+                <span className={tw('lowercase select-text')}>{word}</span>
               </li>
             ))}
           </ol>
@@ -185,7 +202,7 @@ export function WalletSignInScreen({
               )}
             </span>
           </label>
-          <Spacer className={tw('grow')} />
+          <Spacer className={tw('h-4')} />
           {failure != null ? (
             <FailureText error={failure.error} i18n={i18n} />
           ) : undefined}
@@ -195,7 +212,18 @@ export function WalletSignInScreen({
               size="md"
               disabled={!writtenDown}
               pending={inProgress}
-              onClick={() => signInWithWallet({ phrase: newPhrase, workflow })}
+              // The check is repeated here, and not left to `disabled` alone,
+              // because this is the click that creates the account: if it ever
+              // arrived while the box was unticked - a stray click inherited by
+              // the re-used button element, a disabled state that is only
+              // styling - somebody would own an account whose recovery phrase
+              // they had not written down, and nothing could give it back.
+              onClick={() => {
+                if (!writtenDown || inProgress) {
+                  return;
+                }
+                signInWithWallet({ phrase: newPhrase, workflow });
+              }}
             >
               {i18n('icu:StandaloneRegistration--WalletSignIn--Backup--button')}
             </AxoButton.Root>

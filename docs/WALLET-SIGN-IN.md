@@ -14,10 +14,10 @@ wallet."_
 "Create account on this computer" no longer asks for a phone number, a captcha or a code. It asks one
 question: **create a new wallet, or restore one from its recovery phrase?**
 
-- **Create a new wallet** → 24 words appear, numbered, once. A checkbox confirms they have been
-  written down. Continue, and the account exists.
-- **I have a recovery phrase** → type the 24 words. The same words give the same account, on this
-  machine or any other.
+- **Create a wallet** → 24 words appear, numbered, once. A checkbox confirms they have been written
+  down. Continue, and the account exists.
+- **Restore a wallet** → type the 24 words. The same words give the same account, on this machine or
+  any other.
 
 Then the existing profile screen (name, avatar), and that is the end of registration. **There is no
 PIN step**: a SWARM account's recovery is its recovery phrase, and there is no SVR to put a PIN in.
@@ -71,7 +71,7 @@ New:
 | File                                                                                      | What                                                                                             |
 | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | `ts/util/swarm/bip39.node.ts`                                                             | generate, check and normalize a 24-word phrase; the BIP-39 seed                                  |
-| `ts/util/swarm/bip39Wordlist.node.ts`                                                     | the 2048-word English list, verbatim from the BIP-39 specification, its digest checked by a test |
+| `ts/util/swarm/bip39Wordlist.std.ts`                                                     | the 2048-word English list, verbatim from the BIP-39 specification, its digest checked by a test |
 | `ts/util/swarm/walletIdentity.node.ts`                                                    | the ACI/PNI derivation, the account identifier, the challenge message and signature              |
 | `ts/components/standaloneRegistration/stages/WalletSignIn.dom.tsx`                        | the one new screen (choose / write down / restore)                                               |
 | `ts/test-node/swarm/bip39_test.node.ts`, `ts/test-node/swarm/walletIdentity_test.node.ts` | the tests                                                                                        |
@@ -136,19 +136,39 @@ pnpm run test-node:swarm     # 52 tests, including the pre-existing endpoint gua
 - `tsc --noEmit` is clean apart from one pre-existing, unrelated error (`fs-xattr`, a macOS-only
   optional dependency).
 
-**Not yet proven live.** `chat.swarm.green:443` was closed while this was written - the TLS edge waits
-on the owner's Let's Encrypt contact address - so no desktop has registered against the real server
-with this code yet. What is proven: the derivation matches the server's, byte for byte, by the shared
-vectors; the request and response shapes match the server's DTOs and its controller tests; the whole
-client compiles and its unit tests pass.
+### Proven in the running app
+
+The flow was driven end to end in the real desktop app on 2026-09-27 (instance A,
+`D:\swarm-messenger\.tools\Start SWARM Messenger A.cmd`), through Electron's own DevTools protocol.
+The app's log, `D:\swarm-messenger\.profiles\a\logs\app.log`:
+
+```
+[ducks/standaloneInstaller] createWalletForSignIn: generating a recovery phrase
+[ducks/standaloneInstaller] signInWithWallet: derived an identity; asking for a challenge
+[WebAPI] POST (WS) https://chat.swarm.green/v1/swarm/registration/challenge (unauth)
+[WebAPI] POST (WS) https://chat.swarm.green/v1/swarm/registration/challenge (unauth) 0 Error
+[ducks/standaloneInstaller] signInWithWallet: network HTTPError -1
+```
+
+So, in the packaged renderer and not only in a test: the wallet screen replaces the phone number
+screen, a real BIP-39 phrase is generated and shown as 24 numbered words, ticking the box and
+continuing derives the identity key pair and sends the challenge request to the SWARM server, and
+when the server cannot be reached the person is told so and can try again. Screenshots in
+`D:\swarm-messenger\evidence\m-f\`: the wallet choice, the failure, and the restore screen.
+
+**The screen showing the 24 words was deliberately not kept**, here or anywhere: it is a real
+recovery phrase, and a recovery phrase does not belong in evidence, a log or a commit.
+
+**What is still not proven** is everything past that request, because `chat.swarm.green:443` was
+closed while this was written - the TLS edge waits on the owner's Let's Encrypt contact address.
 
 ### What remains to prove, in order, the moment 443 answers
 
-1. Instance A (`D:\swarm-messenger\.tools\Start SWARM Messenger A.cmd`) → "Create a new wallet" →
-   write the words down → account created, profile screen, inbox.
-2. Instance B → "I have a recovery phrase" with a **different** new wallet → second account.
+1. Instance A → "Create a wallet" → write the words down → account created, profile screen, inbox.
+2. Instance B → "Create a wallet" again (a different wallet) → second account.
 3. A message from A to B and back.
-4. Then: restore A's phrase into a third profile directory and confirm it lands on the same account.
+4. Then: "Restore a wallet" with A's phrase in a third profile directory, and confirm it lands on the
+   same account rather than a new one.
 
 ---
 

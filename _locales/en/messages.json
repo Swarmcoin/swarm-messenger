@@ -9465,11 +9465,11 @@
     "description": "Second line of the wallet sign-in screen"
   },
   "icu:StandaloneRegistration--WalletSignIn--create": {
-    "messageformat": "Create a new wallet",
+    "messageformat": "Create a wallet",
     "description": "Button that generates a new recovery phrase and account"
   },
   "icu:StandaloneRegistration--WalletSignIn--restore": {
-    "messageformat": "I have a recovery phrase",
+    "messageformat": "Restore a wallet",
     "description": "Button that opens the field for an existing recovery phrase"
   },
   "icu:StandaloneRegistration--WalletSignIn--Backup--header": {
