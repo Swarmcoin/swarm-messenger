@@ -256,8 +256,8 @@ importers:
         specifier: 2.0.21
         version: 2.0.21
       '@signalapp/libsignal-client':
-        specifier: file:./vendor/signalapp-libsignal-client-0.101.2-swarm.1.tgz
-        version: file:vendor/signalapp-libsignal-client-0.101.2-swarm.1.tgz
+        specifier: file:./vendor/signalapp-libsignal-client-0.101.2-swarm.2.tgz
+        version: file:vendor/signalapp-libsignal-client-0.101.2-swarm.2.tgz
       '@signalapp/mute-state-change':
         specifier: workspace:*
         version: link:packages/mute-state-change
@@ -4741,9 +4741,9 @@ packages:
   '@signalapp/libsignal-client@0.100.0':
     resolution: {integrity: sha512-pS67moiIxs3h0kcO81Y9FrGbquh5xo2jyG9RG/+YyDEL6Bcz33IR5fCTdfpnYJR4pd3CoutJNbyUnieMGCpI4Q==, tarball: https://registry.npmjs.org/@signalapp/libsignal-client/-/libsignal-client-0.100.0.tgz}
 
-  '@signalapp/libsignal-client@file:vendor/signalapp-libsignal-client-0.101.2-swarm.1.tgz':
-    resolution: {integrity: sha512-6nNcd/jN4nxMDGaZgjaf4GQ1rB6bx5KT1d/QTnPBJtPftTvWbpdOxhE8FSwHiMRMpKBORmWvEorFEE2q36Kyow==, tarball: file:vendor/signalapp-libsignal-client-0.101.2-swarm.1.tgz}
-    version: 0.101.2-swarm.1
+  '@signalapp/libsignal-client@file:vendor/signalapp-libsignal-client-0.101.2-swarm.2.tgz':
+    resolution: {integrity: sha512-K0xL7Zo5+kYsXCyMgLFMwtWmT5whMFX8Dg6xx4Gnd90zhELZAeTjKLhGQp2o25RrsN/Yw+PYXNZD/bpe+cYWwA==, tarball: file:vendor/signalapp-libsignal-client-0.101.2-swarm.2.tgz}
+    version: 0.101.2-swarm.2
 
   '@signalapp/minimask@1.0.1':
     resolution: {integrity: sha512-QAwo0joA60urTNbW9RIz6vLKQjy+jdVtH7cvY0wD9PVooD46MAjE40MLssp4xUJrph91n2XvtJ3pbEUDrmT2AA==, tarball: https://registry.npmjs.org/@signalapp/minimask/-/minimask-1.0.1.tgz}
@@ -15735,7 +15735,7 @@ snapshots:
       node-gyp-build: 4.8.4
       type-fest: 4.26.1
 
-  '@signalapp/libsignal-client@file:vendor/signalapp-libsignal-client-0.101.2-swarm.1.tgz':
+  '@signalapp/libsignal-client@file:vendor/signalapp-libsignal-client-0.101.2-swarm.2.tgz':
     dependencies:
       node-gyp-build: 4.8.4
       type-fest: 4.26.1
