@@ -181,6 +181,65 @@ And, if everything worked: say so, with the commit, so the result can be recorde
 
 ---
 
+## 9. Usernames on the HTTP/2 build: set one, find the other account
+
+Added 2026-09-27 by Opus M-H. These are the exact steps and screens from a run at 20:59-21:32 UTC
+against `chat.swarm.green`, with the build from pull request `codex/mh-usernames` (libsignal
+`0.101.2-swarm.2`, which talks to the server over HTTP/2) plus `codex/mh-zk-params`. Until those
+are merged, `swarm-main` takes a username through a stop-gap (section 5 was tested on that); the
+steps on screen are the same.
+
+**Set a username (window A):**
+
+1. Click the **gear** at the bottom of the left edge. The **Profile** panel opens on the right, with
+   a row **@ Username** under your name.
+2. Click **Username**. A panel titled **Username** opens with one text box (grey word
+   `Username` inside it) and **Cancel** / **Save** at the bottom.
+3. Type a name of at least three letters, for example `mhalice`. Within a second two digits appear
+   at the right end of the box, for example `35`, and the full name above the box, for example
+   `mhalice.35`. The digits are chosen by the app and cannot be picked.
+4. Click **Save**. The panel closes; the Profile panel and the top of Settings now show
+   `mhalice.35`, with a **QR code or link** row under it.
+5. Tell the other person the **whole** username, digits included: `mhalice.35`, not `mhalice`.
+
+**Find that account (window B):**
+
+6. Click the **speech bubble** at the top of the left edge (Chats), then the **pencil** next to
+   "Chats" (**New chat**).
+7. In the box **Name, username, or number**, type the whole username: `mhalice.35`.
+8. A heading **Find by username** appears with `mhalice.35` under it. Click that line. The
+   conversation opens on the right with `mhalice.35` in the header.
+9. Type a message at the bottom and press **Enter**. A sees it as a **Message Request** from B's
+   profile name; after **Accept** (twice) A can reply, and B's header then shows A's profile name
+   instead of the username.
+
+**If it does not work:**
+
+- **"Your username couldn't be saved. Check your connection and try again."**, or Save does
+  nothing: check the app's log. In it
+  (`D:\swarm-messenger\.profiles\<a or b>\logs\app.log`) the line
+  `requires an H2 connection` means the libsignal in use is still `0.101.2-swarm.1`: pull, run
+  `pnpm install --frozen-lockfile` and `pnpm run generate` again (section 2), then restart.
+- **"This username is not available"**: type a different name. **"Too many attempts made,
+  please try again later"**: wait a few minutes.
+- **"… is not a SWARM Messenger user. Make sure you've entered the complete username."**: the
+  username was typed without its digits, or with a typo. Ask for it again, digits included.
+- **Typing the account number from Settings** (for example `188 745 44084`) still fails with
+  "Failed to fetch phone number". That is expected: there is no number directory on SWARM, and
+  usernames are the way to find people.
+
+**What this build adds, and what it still does not:**
+
+- The app now uses the server's HTTP/2 connection, which also carries the linked-devices list, the
+  device name and the "Who can find me by phone number" switch (not tested by hand yet).
+- Call-link credentials now verify: the app's log no longer repeats
+  `Verification failure in zkgroup`, and it logs `saving 7 new call link auth credentials`.
+- **Groups still do not work.** Clicking **New group** turns the window blank (the server does not
+  yet send the group size limits the app reads; quit and restart the app to recover), and even with
+  those the server has no groups service to store a group in. Do not try groups in this test.
+
+---
+
 ## Appendix: the same test from a fresh clone
 
 For anyone not on the owner's PC. Needs Windows, Git, Node `24.19.0` and pnpm 11. This was checked
