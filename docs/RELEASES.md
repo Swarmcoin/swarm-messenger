@@ -200,3 +200,20 @@ Uninstall: move the app to the Bin. The app's data stays in
 That folder holds the encrypted message database, the account's keys and the
 logs (`logs/main.log`). Deleting it while the app is closed starts the app from
 scratch.
+
+## What has been tried so far
+
+As of 2026-09-27 (M4). "CI" means every run of the workflow does it again.
+
+| What                                                                                                                           | Where                                                         | Result                                                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Windows installer: SHA-256 against `SHA256SUMS.txt`, silent per-user install, first start                                      | the SWARM workstation, Windows 11, build from run 36346185304 | Installed to `%LOCALAPPDATA%\Programs\swarm-messenger`; connected to the chat server; showed the link screen, then **Your SWARM wallet**. No account made. |
+| .deb: `sudo apt install ./<file>.deb`, start of the installed app with its sandbox, `apt remove`                               | CI, `ubuntu-latest` (Ubuntu 24.04)                            | Policies and AppArmor profile installed, main window opened, policies removed again                                                                        |
+| AppImage: start, extracted, with its sandbox                                                                                   | CI, `ubuntu-latest`                                           | see the run                                                                                                                                                |
+| Mac app: `codesign --verify --deep --strict`, start of the packaged app; the app inside the mounted .dmg and the unpacked .zip | CI, `macos-latest` (Apple Silicon)                            | Ad-hoc signature valid, arm64, main window opened                                                                                                          |
+
+Not tried yet: the .dmg or .zip on a real Mac with Gatekeeper and the
+quarantine flag (the `xattr` step is untested), the .deb on a desktop Ubuntu
+or Debian with a real session, the AppImage with FUSE instead of extracted, and
+Windows SmartScreen on a downloaded copy (the tested copy came from the
+artifact through `curl`, which sets no download mark).

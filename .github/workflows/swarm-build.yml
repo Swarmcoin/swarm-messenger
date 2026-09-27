@@ -284,9 +284,11 @@ jobs:
             kill -0 "$runner" 2>/dev/null || break
             sleep 1
           done
+          # Main process first, then whatever is left under /opt/SWARM
+          # Messenger (renderers, GPU, crashpad handler), then xvfb-run.
           pkill -o -f '/opt/SWARM Messenger/swarm-messenger' || true
           sleep 3
-          pkill -f '/opt/SWARM Messenger/swarm-messenger' || true
+          pkill -f '/opt/SWARM Messenger/' || true
           kill "$runner" 2>/dev/null || true
           wait "$runner" 2>/dev/null || true
           echo "::group::main.log"
@@ -295,7 +297,7 @@ jobs:
           echo "::group::stdout and stderr"
           cat smoke-output.txt
           echo "::endgroup::"
-          rm -rf "$userdata" smoke-output.txt
+          rm -rf "$userdata" smoke-output.txt || true
           if [ -z "$started" ]; then
             echo "The installed app did not open its main window within 120 s" >&2
             exit 1
@@ -335,7 +337,7 @@ jobs:
           done
           pkill -o -f 'appimage_extracted_[^ ]*/swarm-messenger' || true
           sleep 3
-          pkill -f 'appimage_extracted_[^ ]*/swarm-messenger' || true
+          pkill -f 'appimage_extracted_' || true
           kill "$runner" 2>/dev/null || true
           wait "$runner" 2>/dev/null || true
           echo "::group::main.log"
@@ -344,7 +346,7 @@ jobs:
           echo "::group::stdout and stderr"
           cat smoke-output.txt
           echo "::endgroup::"
-          rm -rf "$userdata" smoke-output.txt
+          rm -rf "$userdata" smoke-output.txt || true
           if [ -z "$started" ]; then
             echo "The AppImage did not open its main window within 120 s" >&2
             exit 1
@@ -466,7 +468,7 @@ jobs:
           echo "::group::stdout and stderr"
           cat smoke-output.txt
           echo "::endgroup::"
-          rm -rf "$userdata" smoke-output.txt
+          rm -rf "$userdata" smoke-output.txt || true
           if [ -z "$started" ]; then
             echo "The packaged app did not open its main window within 120 s" >&2
             exit 1
