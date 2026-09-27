@@ -76,8 +76,8 @@ index f9e467e45fe7f214725f49f2bed3f137ddc06e20..c38567519697f8165586754657aaeda0
  	);
  };
  
-+function isSignalVoipUrl(hostname) {
-+	return hostname.endsWith('.voip.signal.org');
++function isSwarmChatUrl(hostname) {
++	return hostname.endsWith('.chat.swarm.green');
 +}
 +
  /**
@@ -90,8 +90,8 @@ index f9e467e45fe7f214725f49f2bed3f137ddc06e20..c38567519697f8165586754657aaeda0
 -	return orig === dest || orig.endsWith(`.${dest}`);
 +	return (
 +		orig === dest || orig.endsWith(`.${dest}`) ||
-+		// An additional check to keep Authorization for Signal's voip URLs.
-+		(isSignalVoipUrl(orig) && isSignalVoipUrl(dest))
++		// SWARM (M1): keep Authorization across our own chat subdomains.
++		(isSwarmChatUrl(orig) && isSwarmChatUrl(dest))
 +	);
  };
  

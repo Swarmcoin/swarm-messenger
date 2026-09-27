@@ -39,7 +39,11 @@ chat server. When a separate production server exists, change
 | `updatesUrl`               | `https://static.swarm.green/desktop`                            | see "updates" below            |
 | `resourcesUrl`             | `https://static.swarm.green`                                    | optional resources             |
 
-The hostnames are the owner's decision of 2026-09-26 and are final.
+The hostnames are the owner's decision of 2026-09-26 and are final. They resolve:
+`chat.swarm.green`, `cdn.chat.swarm.green`, `reg.chat.swarm.green` and
+`sfu.chat.swarm.green` all point at the staging host `64.95.11.180`. DNS
+resolving is not the same as the client being able to talk to it - see the
+libsignal-net section below, which is the actual blocker.
 `reg.chat.swarm.green` is **reserved but not published**: the server's
 `endpoints.registration` is `null` on purpose, and the desktop does not have a
 separate registration endpoint anyway (registration goes through `serverUrl`).

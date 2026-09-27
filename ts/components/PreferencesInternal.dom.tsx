@@ -842,7 +842,7 @@ export function PreferencesInternal({
               i18n={i18n}
               value={sfuUrl}
               onChange={handleSfuUrlUpdate}
-              placeholder="https://sfu.voip.swarm.green"
+              placeholder="https://sfu.chat.swarm.green"
               moduleClassName="Preferences__ReadonlySqlPlayground__Textarea"
             />
           </div>

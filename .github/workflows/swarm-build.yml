@@ -110,8 +110,13 @@ jobs:
       - name: Run generate
         run: pnpm run generate
 
-      - name: Run node tests (includes the SWARM endpoint scan)
-        run: pnpm run test-node
+      # Only the SWARM tests here. The whole suite runs on Linux in the other
+      # job; running it again on a GitHub Windows runner adds nothing but
+      # flakes - uploadDebugLogs, logging and localBackup time out or hit
+      # ENOTEMPTY on that runner's temp directory, and all three pass on a real
+      # Windows machine. The SWARM tests touch no network and no temp files.
+      - name: Run the SWARM endpoint scan and guard tests
+        run: pnpm run test-node:swarm
 
       - name: Build unsigned NSIS installer
         run: pnpm run build:release --publish=never
