@@ -115,6 +115,31 @@ Changed:
 The challenge URLs point at `https://chat.swarm.green/challenge/...`, so the
 captcha step works if the SWARM server does serve one.
 
+## 3a. Wallet sign-in: registration without a telephone number
+
+Added 2026-09-27 on the owner's decision, _"instead of a phone number make the
+users sign in with our wallet."_ Registration now starts at a wallet - create one,
+or restore one from its 24 words - and the phone number, captcha and
+verification-code stages of section 3 are left in place but never reached.
+
+`docs/WALLET-SIGN-IN.md` is the full account: the derivation, the protocol, what
+the phrase is allowed to touch, what is proven and what is not. In short:
+
+| File                                                                | Change                                                                                                                                                                                                              |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ts/util/swarm/bip39.node.ts`, `ts/util/swarm/bip39Wordlist.std.ts` | new. BIP-39 as specified, over the specification's own wordlist (its SHA-256 is checked by a test).                                                                                                                 |
+| `ts/util/swarm/walletIdentity.node.ts`                              | new. The ACI and PNI identity key pairs from the BIP-39 seed (libsignal's own HKDF), the synthetic `+888` account identifier, and the challenge signature.                                                          |
+| `ts/components/standaloneRegistration/stages/WalletSignIn.dom.tsx`  | new. The one screen: choose, write the words down, or restore.                                                                                                                                                      |
+| `ts/types/StandaloneRegistration.std.ts`                            | the `WALLET_SIGN_IN` stage; `PROFILE_ENTRY` may now complete registration, because there is no PIN.                                                                                                                 |
+| `ts/state/ducks/standaloneInstaller.preload.ts`                     | `startRegistration` starts at the wallet stage; `createWalletForSignIn`, `enterRecoveryPhrase`, `backToWalletChoice`, `signInWithWallet`; the PIN stages are skipped for a SWARM account.                           |
+| `ts/textsecure/WebAPI.preload.ts`                                   | `POST /v1/swarm/registration/challenge` and `/verify`; `createAccount` takes a verified session **or** a registration password, and without a session uses libsignal's own `RegistrationService.reregisterAccount`. |
+| `ts/textsecure/AccountManager.preload.ts`                           | `registerAsPrimaryDevice` accepts the derived identity key pairs instead of always generating random ones.                                                                                                          |
+| `_locales/en/messages.json`                                         | 19 strings under `icu:StandaloneRegistration--WalletSignIn--`.                                                                                                                                                      |
+
+No change to libsignal, to the protocol, or to any cryptographic primitive: the
+checksum and the seed are Node's, the HKDF and the signature are libsignal's. The
+server half is in `Swarm-Official/swarm-messenger-server`, `docs/WALLET-SIGN-IN.md`.
+
 ## 4. Rebrand
 
 | Area             | Files                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
