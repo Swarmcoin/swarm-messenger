@@ -363,6 +363,9 @@
   },
   "build": {
     "appId": "green.swarm.messenger",
+    "extraMetadata": {
+      "homepage": "https://swarm.green"
+    },
     "nativeRebuilder": "parallel",
     "mac": {
       "artifactName": "${name}-mac-${arch}-${version}.${ext}",
@@ -371,7 +374,7 @@
       "hardenedRuntime": true,
       "entitlements": "./build/entitlements.mac.plist",
       "entitlementsInherit": "./build/entitlements.mac.inherit.plist",
-      "icon": "build/icons/mac/AppIcon.icon",
+      "icon": "build/icons/mac/icon.icns",
       "publish": [
         {
           "provider": "generic",
@@ -391,14 +394,13 @@
         {
           "target": "zip",
           "arch": [
-            "x64",
             "arm64"
           ]
         },
         {
           "target": "dmg",
           "arch": [
-            "universal"
+            "arm64"
           ]
         }
       ],
@@ -500,6 +502,10 @@
         {
           "target": "deb",
           "arch": "x64"
+        },
+        {
+          "target": "AppImage",
+          "arch": "x64"
         }
       ],
       "icon": "build/icons/png",
@@ -539,7 +545,9 @@
         "libgtk-3-0",
         "libgbm1",
         "libx11-xcb1"
-      ]
+      ],
+      "afterInstall": "build/linux/after-install.tpl",
+      "afterRemove": "build/linux/after-remove.tpl"
     },
     "protocols": {
       "name": "swarm-messenger-url-scheme",

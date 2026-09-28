@@ -1,11 +1,14 @@
 # Copyright 2025 Signal Messenger, LLC
 # SPDX-License-Identifier: AGPL-3.0-only
 name: ICU Book
+# SWARM change (M4): asks for Signal's ubuntu-latest-8-cores runner, which the
+# Swarm-Official organisation does not have, so it triggers for upstream-main
+# only (its job is also limited to Signal's private repository). Upstream's
+# triggers were: workflow_dispatch, and pushes of 'v[0-9]+.[0-9]+.*' tags.
 on:
-  workflow_dispatch:
   push:
-    tags:
-      - 'v[0-9]+.[0-9]+.*'
+    branches:
+      - upstream-main
 jobs:
   build-icu-book:
     name: Build ICU Book
