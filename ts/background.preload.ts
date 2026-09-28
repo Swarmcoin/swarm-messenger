@@ -1703,7 +1703,13 @@ async function startApp(): Promise<void> {
           try {
             await window.IPC.whenWindowVisible();
           } finally {
-            window.reduxActions.installer.startInstaller();
+            // SWARM change (2026-09-28, owner decision): SWARM Messenger rolls
+            // out on the desktop first and there is no phone app yet, so a
+            // fresh install opens the wallet sign-in (create or restore the
+            // 24 words) instead of upstream's "scan this code with your
+            // phone" linking screen. Linking to a phone stays reachable from
+            // File > Set up as new device for the day a phone app exists.
+            window.reduxActions.app.openStandalone();
           }
         })()
       );

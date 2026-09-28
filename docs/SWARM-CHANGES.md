@@ -407,3 +407,21 @@ system.
   scan test in §2c can be strict.
 - New: `ts/test-node/swarm/endpointGuard_test.node.ts`,
   `ts/test-node/swarm/noSignalEndpoints_test.node.ts`.
+
+## 3e. First screen: the wallet sign-in, not the phone-linking code
+
+Added 2026-09-28 (Messenger planner, owner decision: desktop first, no phone app
+yet). `ts/background.preload.ts` opens the standalone registration
+(`app.openStandalone()`, which starts at the wallet stage) on a fresh install
+instead of `installer.startInstaller()` (upstream's "scan this code with your
+phone" screen). The linking screen and its code are unchanged and reachable from
+File > Set up as new device, for the day a SWARM phone app can link a desktop.
+Everything after the first screen (create or restore the 24 words, profile,
+inbox) is as in section 3a.
+
+## 3f. Version 0.1.0: the first public desktop release
+
+2026-09-28, owner decision ("deploy it"): `package.json` `version` becomes `0.1.0`
+(upstream's `8.31.0-alpha.1` was the fork base's number). Installer names and the
+release name follow it (`swarm-messenger-win-x64-0.1.0.exe`, …). Upstream merges
+keep this line; the upstream version is recorded in `docs/SWARM-CHANGES.md` section 1.

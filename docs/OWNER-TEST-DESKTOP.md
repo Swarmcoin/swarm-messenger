@@ -81,10 +81,10 @@ and double-click the two files again.
 
 Do this in window A, then the same in window B.
 
-1. **First screen.** The SWARM mark, a QR code with "Scan this code in the SWARM Messenger app on
-   your phone", and underneath **Create account on this computer**. Click that line. (The QR code
-   is for linking to a phone and is not used in this test.) If you see "Something went wrong!
-   Failed to connect to server" instead, the server is down: stop and report it.
+1. **First screen.** Since 2026-09-28 the app opens straight on **"Your SWARM wallet"** (no
+   phone-linking code: SWARM Messenger rolls out on the desktop first). If you see "Something went
+   wrong! Failed to connect to server", the server is down: stop and report it. (File > Set up as
+   new device still shows the phone-linking code, for later.)
 2. **"Your SWARM wallet".** Two buttons: **Create a wallet** and **Restore a wallet**. Click
    **Create a wallet**.
 3. **"Write these 24 words down".** 24 numbered words. For this test the wallet is throwaway, so
