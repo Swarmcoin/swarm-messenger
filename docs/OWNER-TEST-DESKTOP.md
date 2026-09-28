@@ -240,6 +240,103 @@ steps on screen are the same.
 
 ---
 
+## 10. Paying inside a chat (mainnet: real SWM)
+
+Added 2026-09-28 by Opus M3-W2, with the build from pull request `codex/m3-w2-payments`. Steps 1
+to 7 below were carried out on the SWARM **testnet** by two instances on this PC, both ways round,
+and every screen named in them was seen then (with 0 SWM in the paying wallet, so Review payment
+was refused for lack of funds). The payment itself and its notice (steps 8 to 13) have been tested
+only by the app's automatic tests so far: no testnet coins were reachable that night. Where a step
+describes a screen not yet seen live, it says so. This section is your mainnet test, the M3
+milestone: one small real payment from A to B, with its transaction id on the mainnet explorer.
+
+**The amount is real.** On mainnet, SWM has value. A payment cannot be undone, and SWM sent to a
+wrong address is gone. Use the smallest amount that makes the point: **0.001 SWM** is enough. The
+network fee is shown before anything is sent (about 0.0001 SWM).
+
+### Before you start
+
+1. Both windows run the build that contains this section (section 2), and A and B already chat
+   with each other (sections 4 to 6).
+2. In each window click **Wallet** (the card icon in the left edge). The top of the pane must say
+   **SWARM mainnet** and, under the light server, **Up to date**. If it says **SWARM testnet**,
+   click **Mainnet** under **Developer: network** at the bottom of the pane.
+3. If the Wallet pane asks for 24 words instead, that account's wallet was never created on this
+   PC. Start again from nothing (section 3) and this time **write down the 24 words of both A and
+   B on paper**: these wallets are about to hold real SWM, and the words are the only way back to
+   it.
+4. Put a little SWM into A: in A's Wallet pane, under **Receive**, click **Copy address**. From your
+   own SWARM wallet send **0.002 SWM** to that address. Wait until A's pane shows it under
+   **Confirmed** (the wallet waits for three blocks, a few minutes).
+
+### Ask for B's address, and share it
+
+1. **A:** in the chat with B, click the **+** at the right of the message box. Under Photos &
+   videos, File and Poll there are three more lines: **Pay with SWARM**, **Request SWARM address**
+   and **Share SWARM address**. Click **Request SWARM address**.
+2. A box **Ask for a SWARM address** says B will see the request and that nothing is shared
+   automatically. Click **Ask**. A's chat shows "You asked Test B for their SWARM address".
+3. **B:** the chat shows "Test A wants your SWARM address" with two buttons, **Share** and
+   **Ignore**. Click **Share**.
+4. A box **Share your SWARM address** opens, with **Use an address just for this chat
+   (recommended)** ticked. Leave it ticked: B's wallet makes an address used only in this chat, so
+   A's payments cannot be linked to anyone else's. Click **Share**. B's request bubble now says
+   "You shared your address."
+5. **A:** the chat shows "Test B shared their SWARM address", the address, **Saved for paying Test B
+   in this chat.** and an orange button **Pay Test B**. A's wallet checked the address before saving
+   it: an address for the wrong network is refused here with a sentence saying which network it
+   belongs to.
+
+### Pay
+
+6. **A:** click **Pay Test B** (or **+** → **Pay with SWARM**). The box **Pay with SWARM** shows
+   A's confirmed balance, **To** with B's address, and under it "From Test B's message (…)" with
+   the time of B's share. Check that time: it tells you which message the address came from.
+7. **Amount in SWM:** `0.001`. **Memo** (optional, only B can read it): for example
+   `first chat payment`. Leave **Include my address so Test B can pay me back** unticked unless
+   you want B to be able to pay you back without asking; it gives B an address of yours (this
+   chat's own).
+8. Click **Review payment**. Nothing moves yet. The screen **Confirm payment** shows **To**,
+   **Amount**, **Network fee**, **Total**, the memo, and "A payment cannot be undone. Check the
+   address: coins sent to the wrong one are gone." _(This screen is the Wallet pane's own
+   confirmation, seen on mainnet in wave 1; seen from a chat only in the automatic tests.)_
+9. _(Not yet seen live.)_ Click **Send … SWM** (the total). "Sending. Building the private
+   transaction can take a minute." Then **Sent**, "Transaction" followed by the transaction id,
+   **View on the explorer**, and "Test B is told in this chat." Write down the transaction id.
+   Click **Done**. Only now, after the wallet has sent the payment, does the app send B the message
+   about it; if that message cannot be sent, the box says so, and the payment is not affected.
+10. **A's chat** _(not yet seen live)_: a bubble **SWARM payment**, "You sent 0.00100000 SWM to
+    Test B", then "Your wallet does not list this payment yet." or "Not yet in a block", later
+    "In block …".
+
+### Receive
+
+11. **B's chat** _(not yet seen live)_: a bubble **SWARM payment** that says "0.00100000 SWM sent
+    to you — waiting for your wallet to see it". That line is the message's claim, not money: the
+    app never shows a payment as received on a message's word. Within a few minutes B's wallet
+    finds the payment by itself: first "Your wallet sees 0.00100000 SWM — not yet in a block",
+    then **Received 0.00100000 SWM** and "In block …". The amount on that line is what B's wallet
+    sees. If it differs from what the message said, the bubble says so in red; so does a memo that
+    is not the one the message describes. B does not need to open the Wallet pane for this.
+12. _(Not yet seen live.)_ Open
+    `https://mainnet.explore.swarm.green/transactions/<transaction id>`, or click the id on either
+    bubble. The explorer shows the transaction. It is a shielded payment: expect no address and no
+    amount on that page.
+13. **B** _(not yet seen live)_: **Wallet** → **Transactions**: the newest line says
+    **Received · from Test A**, with the amount and the block.
+
+### What to report
+
+The transaction id, the time of step 9, the time B's bubble said **Received**, and screenshots of
+both chats after step 11 (never of the 24 words). If a step does not match: which window, which
+step, the exact words on the screen, and the commit (`git log -1 --oneline`). The app's logs name
+what happened without any address, amount or transaction id in them.
+
+To take the SWM back, use A's and B's Wallet panes: **Send** to your own address (the same two
+steps, review and send).
+
+---
+
 ## Appendix: the same test from a fresh clone
 
 For anyone not on the owner's PC. Needs Windows, Git, Node `24.19.0` and pnpm 11. This was checked
