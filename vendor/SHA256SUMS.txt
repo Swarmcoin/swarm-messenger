@@ -1,5 +1,5 @@
-34719bf6eaec78b50a0b70ed1d36465de2b1dbcf712d9288971571efffcebfe4 *signalapp-libsignal-client-0.101.2-swarm.1.tgz
-c5657e5fd393e91a724dd5306d3d7fb561c11e5ca8eba779204e1a11c7201eb2 *prebuilds/darwin-arm64/@signalapp+libsignal-client.node
-541d839dc8ce43adab21460d0e9b54e84f45ae513967e69de09ea14ef0cd85ef *prebuilds/linux-x64/@signalapp+libsignal-client.node
-f5f07db01c0867f67c00bd276ba7215e29ee0a6bfa57274a7b677ac1f94f2a6a *prebuilds/win32-x64/@signalapp+libsignal-client.node
+3711e83fe42b991380bbb769e5afa7970708a8e9db9fde97634a54ce62ef1565 *signalapp-libsignal-client-0.101.2-swarm.2.tgz
+caa8d7296e86db387cbc96e275e0d57b77b99c603bae068858a94997e2e78f29 *prebuilds/darwin-arm64/@signalapp+libsignal-client.node
+e872d670a9ffe44dca8f28ca286789279014150a717b8438681681b5c6369e80 *prebuilds/linux-x64/@signalapp+libsignal-client.node
+3b233bbee840f10278fdebb8f15c82e05b48b576a4c3bced798f52b7c5d96eb6 *prebuilds/win32-x64/@signalapp+libsignal-client.node
 c465d7306cf8450a48482c3f0abfc4578961552ad35353bbb020a4dda0e308d6 *swarm-wallet-core-0.2.0.tgz

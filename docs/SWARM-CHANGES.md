@@ -140,7 +140,15 @@ No change to libsignal, to the protocol, or to any cryptographic primitive: the
 checksum and the seed are Node's, the HKDF and the signature are libsignal's. The
 server half is in `Swarm-Official/swarm-messenger-server`, `docs/WALLET-SIGN-IN.md`.
 
-## 3b. Usernames: the three writes go over REST
+## 3b. Usernames: the three writes went over REST (superseded)
+
+**Superseded the same day by 3c** (Opus M-H): with libsignal `0.101.2-swarm.2` the
+SWARM environment has the HTTP/2 connection these calls need, so
+`reserveUsername`, `deleteUsername` and `replaceUsernameLink` in
+`ts/textsecure/WebAPI.preload.ts` and the error mapping in
+`ts/services/username.preload.ts` are upstream's code again (libsignal's gRPC
+`reserveUsernameHash` / `deleteUsernameHash` / `setUsernameLink`), as the
+workaround's own comment asked. The record of the workaround follows.
 
 Added 2026-09-27 (Opus M-G), found by the first desktop-to-desktop test on
 `chat.swarm.green`. A SWARM account has no dialable number and there is no
@@ -164,6 +172,34 @@ was delivered. Other libsignal calls that are gRPC-only and so still fail on
 SWARM: `getDevices`, `setDeviceName` (linked devices) and the phone-number
 discoverability switch. Go back to the libsignal calls once the SWARM server
 offers gRPC and the SWARM environment in libsignal is switched to HTTP/2.
+
+## 3c. libsignal 0.101.2-swarm.2: the HTTP/2 chat connection
+
+Added 2026-09-27 (Opus M-H). `vendor/signalapp-libsignal-client-0.101.2-swarm.2.tgz`
+(sha256 `3711e83fe42b991380bbb769e5afa7970708a8e9db9fde97634a54ce62ef1565`, release
+`swarm-libsignal-0.101.2-swarm.2`, run 36342119193 at swarm-libsignal `dd6456489`)
+replaces `swarm.1`; `package.json`, `pnpm-workspace.yaml` (`allowBuilds`),
+`pnpm-lock.yaml` and `vendor/SHA256SUMS.txt` follow. The only change in the library:
+`Environment.Swarm` dials `chat.swarm.green` over HTTP/2 (ALPN `h2`, TLS 1.3, the
+`x-signal-timestamp` confirmation header), so libsignal's gRPC-only calls - username
+writes, username links, device name, linked devices, discoverability - have the
+connection they need. The protocol crates are unchanged. See `docs/SWARM-CONFIG.md`.
+
+## 3d. `genericServerPublicParams` is the calling set
+
+Added 2026-09-27 (Opus M-H). The desktop verifies call-link credentials with
+`genericServerPublicParams`; the server signs them with `callingZkConfig`. The
+config carried the chat set (`chatZkConfig`, which pairs with
+`backupServerPublicParams`), so `groupCredentialFetcher` looped on
+`Verification failure in zkgroup` in `CallLinkAuthCredentialResponse.receive`, and
+since call-link and group auth credentials come in one response, groups could not
+be created. `config/default.json`, `config/production.json` and
+`config/swarm-staging.json` now carry the calling set (`AMzkIq08…`), from the
+corrected `shared/staging-public-params.json` (server fix `23a524ce1`). No server
+secret changed and no account is affected. The comment in
+`scripts/swarm-import-params.mjs` and `docs/SWARM-CONFIG.md` say which field pairs
+with which server set; `endpointGuard_test.node.ts` checks the two generic sets are
+distinct, decode, and agree across the three files.
 
 ## 4. Rebrand
 
@@ -264,9 +300,13 @@ The design, the IPC surface, the threat notes and the wave-2 plan are in
 
 ## 6. CI
 
-`.github/workflows/swarm-build.yml` (new). Upstream `ci.yml` is untouched: it
-targets Signal's self-hosted runners (`ubuntu-22.04-8-cores`,
-`windows-latest-8-cores`) which do not exist in this org.
+`.github/workflows/swarm-build.yml` (new). Upstream `ci.yml` targets Signal's
+self-hosted runners (`ubuntu-22.04-8-cores`, `windows-latest-8-cores`) which do
+not exist in this org. Its jobs were left alone; since M4 only its `on:`
+triggers are changed, to `upstream-main` pushes and pull requests, because
+every pull request to `swarm-main` queued jobs that could never start. The
+same for `icu-book.yml` (`ubuntu-latest-8-cores`). Upstream's original
+triggers are quoted in a comment in each file.
 
 - `lint-and-test` on `ubuntu-latest`: install, generate, `check:types`, `oxlint:ci`,
   `lint-prettier`, `test-node`. `test-node` runs under `xvfb-run` with
@@ -286,6 +326,37 @@ targets Signal's self-hosted runners (`ubuntu-22.04-8-cores`,
 non-Windows dependency and `ts/windows/main/attachments.preload.ts` imports its
 types, so `tsc` reports one unresolved module on a Windows machine. That error is
 pre-existing and unrelated to any SWARM change.
+
+### 6a. Installers for Windows, Linux and macOS, released by version (M4)
+
+Added 2026-09-27 by Opus M4. The workflow now has five jobs: `lint-and-test`
+(unchanged), `installer-windows` (the M1 job, renamed), `installer-linux` (.deb
+and AppImage, x64), `installer-mac` (.dmg and .zip, Apple Silicon, ad-hoc
+signed and not notarized) and `release`, which writes one `SHA256SUMS.txt`
+over all five installers and, on a push to `swarm-main` only, publishes one
+pre-release tagged `swarm-messenger-desktop-<yyyymmdd>-<shortsha>` on that
+commit. It replaces the M1 `swarm-messenger-m1-<shortsha>` releases, whose tags
+were created on `upstream-main` because no `target_commitish` was given.
+Artifact uploads are no longer best effort: the repository is public. Every
+installer job runs M3's `scripts/swarm-fetch-wallet-addon.mjs` before
+`build:release`, so each package carries its platform's hash-pinned wallet
+addon; the Linux and Mac start tests fail if the app reports the addon
+missing, and check that the packaged addon loads.
+[`RELEASES.md`](RELEASES.md) is the full account: every file, how it is built,
+where its hash is, what is signed (nothing yet) and the install steps per
+system.
+
+| File                                                                  | Change                                                                                                                                                                                                                                                               |
+| --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `package.json` (`build`)                                              | Linux targets deb **and** AppImage; Mac targets zip and dmg for **arm64 only** (the SWARM libsignal build has no darwin-x64 library, so x64 or universal would not start); `mac.icon` is the SWARM icns; `deb.afterInstall`/`afterRemove`; `extraMetadata.homepage`. |
+| `build/icons/mac/icon.icns` (new), `build/dmg/icon.icns`              | The SWARM mark. The Mac app icon was Signal's (`AppIcon.icon`, left in the tree unused) and the .dmg volume icon said "Signal is a nonprofit".                                                                                                                       |
+| `build/installerIcon.ico`, `build/installerHeaderIcon.ico`            | The SWARM mark. The Windows installer .exe and its progress banner showed Signal's logo.                                                                                                                                                                             |
+| `build/SignalStrings.nsh`                                             | Regenerated by `scripts/gen-nsis-script.mjs`: the two English installer messages say SWARM Messenger. Other languages still say Signal, like every translated string (§7).                                                                                           |
+| `build/linux/after-install.tpl`, `build/linux/after-remove.tpl` (new) | The .deb's postinst and postrm. Upstream's patched templates install `org.signalapp.*` polkit policies that a SWARM build does not ship; these install and remove the `green.swarm.*` ones the app asks `pkcheck` about.                                             |
+| `package.json` `build.extraMetadata.homepage`                         | `https://swarm.green`. The .deb's `Homepage` was derived from `repository`, which is still Signal's GitHub URL.                                                                                                                                                      |
+| `scripts/swarm-brand-check.mjs`                                       | Finds the arm64 Mac app (`release/mac-arm64/`) and every other platform directory, and checks every packaged app it finds.                                                                                                                                           |
+| `scripts/swarm-prepare-unsigned-mac-build.mjs` (new)                  | CI only: removes `build.mac.sign`, sets `identity` to `-` (ad hoc) and `hardenedRuntime` to `false` in the job's copy of `package.json`. The committed file keeps the signed-build configuration.                                                                    |
+| `scripts/swarm-release-notes.mjs` (new)                               | Checks the release has exactly one .exe, .deb, .AppImage, .dmg and .zip, writes `SHA256SUMS.txt`, the tag, the name and the release text.                                                                                                                            |
 
 ## 7. Deliberately _not_ changed
 

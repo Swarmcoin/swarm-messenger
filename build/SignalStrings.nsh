@@ -4,8 +4,8 @@
 # DO NOT EDIT. This is a generated file.
 
 # en_US
-LangString signalMinWinVersionErr 1033 "Signal Desktop no longer works on this computer. To use Signal Desktop again, update your computer’s version of Windows."
-LangString signalMinAppVersionErr 1033 "A newer version of Signal is already installed. Are you sure you want to continue?"
+LangString signalMinWinVersionErr 1033 "SWARM Messenger no longer works on this computer. To use SWARM Messenger again, update your computer’s version of Windows."
+LangString signalMinAppVersionErr 1033 "A newer version of SWARM Messenger is already installed. Are you sure you want to continue?"
 # de_DE
 LangString signalMinWinVersionErr 1031 "Signal Desktop funktioniert auf diesem Computer nicht mehr. Um Signal Desktop wieder verwenden zu können, aktualisiere die Windows-Version deines Computers."
 LangString signalMinAppVersionErr 1031 "Eine neuere Version von Signal ist bereits installiert. Möchtest du wirklich fortfahren?"
