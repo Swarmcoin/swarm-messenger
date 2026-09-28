@@ -103,7 +103,7 @@ function swm(zatoshi: string): string {
 export function SwarmPaymentBubble(
   props: SwarmPaymentBubbleProps
 ): JSX.Element {
-  const { i18n, payment } = props;
+  const { payment } = props;
   return (
     <div
       data-testid="SwarmPaymentBubble"
@@ -119,9 +119,6 @@ export function SwarmPaymentBubble(
       {payment.kind === PaymentEventKind.SwarmAddressShare ? (
         <Share {...props} payment={payment} />
       ) : null}
-      <span className={tw('sr-only')}>
-        {i18n('icu:SwarmChat__notice--label')}
-      </span>
     </div>
   );
 }
