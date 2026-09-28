@@ -37,7 +37,7 @@ itself (`updatesEnabled` is `false`), so a new version is installed by hand.
 
 ## The files
 
-`<version>` is `8.31.0-alpha.1` today.
+`<version>` is `0.1.0` since 2026-09-28 (the fork base's `8.31.0-alpha.1` before that).
 
 | File                                        | System                         | What it is                                                                                                                                                        |
 | ------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
