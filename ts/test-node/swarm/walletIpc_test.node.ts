@@ -395,7 +395,7 @@ describe('SWARM wallet: IPC checks in the main process', () => {
       );
       assert.strictEqual(
         explorerTransactionUrl(SWARM_WALLET_NETWORKS.testnet.explorer, txid),
-        `https://explore.swarm.green/transactions/${txid}`
+        `https://testnet.explore.swarm.green/transactions/${txid}`
       );
     });
 

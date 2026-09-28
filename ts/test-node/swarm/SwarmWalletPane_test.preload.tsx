@@ -247,7 +247,7 @@ describe('SWARM wallet: the Wallet pane', () => {
           id: 'testnet',
           chain: 'swarm-testnet',
           server: 'lwd.swarm.green:443',
-          explorer: 'https://explore.swarm.green/',
+          explorer: 'https://testnet.explore.swarm.green/',
         },
       })
     );

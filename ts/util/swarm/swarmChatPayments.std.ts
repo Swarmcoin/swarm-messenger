@@ -57,7 +57,7 @@ export function isSwarmChainLabel(value: unknown): value is SwarmChainLabel {
 export function swarmExplorerFor(chain: SwarmChainLabel): string {
   return chain === 'swarm-mainnet'
     ? 'https://mainnet.explore.swarm.green/'
-    : 'https://explore.swarm.green/';
+    : 'https://testnet.explore.swarm.green/';
 }
 
 /**

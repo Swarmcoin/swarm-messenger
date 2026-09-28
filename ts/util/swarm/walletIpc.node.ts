@@ -66,7 +66,7 @@ export const SWARM_WALLET_NETWORKS: Readonly<
   },
   testnet: {
     profile: SWARM_TESTNET_PROFILE,
-    explorer: 'https://explore.swarm.green/',
+    explorer: 'https://testnet.explore.swarm.green/',
   },
 };
 
