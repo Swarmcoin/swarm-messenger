@@ -22,6 +22,10 @@ export const SWARM_WALLET_CHANNEL = {
   confirmSend: 'swarm-wallet:confirm-send',
   cancelSend: 'swarm-wallet:cancel-send',
   setNetwork: 'swarm-wallet:set-network',
+  // SWARM addition (M3 wave 2): payments inside a chat.
+  newAddress: 'swarm-wallet:new-address',
+  checkAddress: 'swarm-wallet:check-address',
+  findTransaction: 'swarm-wallet:find-transaction',
 } as const;
 
 /** A count of zatoshi (1 SWM = 100 000 000), as a decimal string. */
@@ -157,6 +161,26 @@ export const SetNetworkRequestSchema = z.object({
   network: SwarmWalletNetworkIdSchema,
 });
 
+// SWARM addition (M3 wave 2) ----------------------------------------------------
+
+/** `swarm-wallet:new-address` takes nothing: the wallet decides everything. */
+export const NewAddressRequestSchema = z.object({}).strict();
+
+export const CheckAddressRequestSchema = z.object({
+  address: z.string().max(1024),
+});
+
+/** SHA-256 as 64 lowercase hex digits. */
+export const Sha256HexSchema = z.string().regex(/^[0-9a-f]{64}$/);
+
+export const FindTransactionRequestSchema = z.object({
+  txid: TxidSchema,
+  /** The memo hash the payment notice carried, when it carried one. */
+  memoHash: Sha256HexSchema.optional(),
+  /** As for get-state: the signed-in account, whose wallet is opened. */
+  accountKey: AccountKeySchema.optional(),
+});
+
 // Answers, main -> renderer ----------------------------------------------------
 
 export const SendRefusalKindSchema = z.enum([
@@ -208,10 +232,94 @@ export const ConfirmSendResultSchema = z.discriminatedUnion('ok', [
     txids: z.array(TxidSchema).min(1),
     /** False when the wallet file could not be saved after the transmit. */
     saved: z.boolean(),
+    // SWARM addition (M3 wave 2): what a payment notice in a chat needs, from
+    // the main process that sent the payment rather than from the window.
+    /** The chain the payment was made on. */
+    chain: z.enum(['swarm-mainnet', 'swarm-testnet']),
+    /**
+     * SHA-256 of the memo as the wallet put it in the shielded output, or null
+     * when the payment carried no memo.
+     */
+    memoHash: Sha256HexSchema.nullable(),
   }),
   z.object({ ok: z.literal(false), refusal: SendRefusalSchema }),
 ]);
 export type ConfirmSendResultType = z.infer<typeof ConfirmSendResultSchema>;
+
+// SWARM addition (M3 wave 2) ----------------------------------------------------
+
+export const SwarmChainSchema = z.enum(['swarm-mainnet', 'swarm-testnet']);
+
+export const NewAddressResultSchema = z.discriminatedUnion('ok', [
+  z.object({
+    ok: z.literal(true),
+    /** A new unified address of this wallet, for one conversation. */
+    address: z.string(),
+    chain: SwarmChainSchema,
+  }),
+  z.object({
+    ok: z.literal(false),
+    refusal: z.enum(['not-ready', 'offline', 'rejected']),
+  }),
+]);
+export type NewAddressResultType = z.infer<typeof NewAddressResultSchema>;
+
+export const CheckAddressResultSchema = z.object({
+  /** Whether the wallet would pay this address on the network it is on. */
+  accepted: z.boolean(),
+  chain: SwarmChainSchema,
+  /** The wallet's own sentence when it is refused; it names the network. */
+  detail: z.string().nullable(),
+});
+export type CheckAddressResultType = z.infer<typeof CheckAddressResultSchema>;
+
+/** Whether a memo in the wallet is the one a payment notice describes. */
+export const MemoVerdictSchema = z.enum([
+  /** The wallet has the memo, and its hash is the notice's. */
+  'match',
+  /** The wallet has a memo, and it is not the one the notice describes. */
+  'mismatch',
+  /** The notice names a memo, and the wallet has none it can read as text. */
+  'unreadable',
+  /** Neither has a memo. */
+  'none',
+]);
+export type MemoVerdictType = z.infer<typeof MemoVerdictSchema>;
+
+export const FindTransactionResultSchema = z.discriminatedUnion('status', [
+  z.object({
+    /** The wallet is not open or not answering yet; nothing can be said. */
+    status: z.literal('wallet-not-ready'),
+    chain: SwarmChainSchema,
+    wallet: SwarmWalletStatusSchema,
+  }),
+  z.object({
+    /** The wallet has not seen this transaction, as far as it has synced. */
+    status: z.literal('not-found'),
+    chain: SwarmChainSchema,
+    syncedHeight: z.number().int().nonnegative().nullable(),
+    serverHeight: z.number().int().nonnegative().nullable(),
+  }),
+  z.object({
+    status: z.literal('found'),
+    chain: SwarmChainSchema,
+    /** What this wallet received in it, zatoshi. */
+    receivedZat: ZatoshiStringSchema,
+    /** What this wallet sent in it to others, zatoshi. */
+    sentZat: ZatoshiStringSchema,
+    /** In a block, as the wallet reports it. */
+    confirmed: z.boolean(),
+    /** The network did not take it (a payment this wallet made). */
+    failed: z.boolean(),
+    blockHeight: z.number().int().nonnegative().nullable(),
+    memo: MemoVerdictSchema,
+    /** The memo as the wallet reads it, for the person to see. */
+    memoText: z.string().nullable(),
+  }),
+]);
+export type FindTransactionResultType = z.infer<
+  typeof FindTransactionResultSchema
+>;
 
 /** Where a transaction can be looked up. Both explorers use /transactions/. */
 export function explorerTransactionUrl(explorer: string, txid: string): string {

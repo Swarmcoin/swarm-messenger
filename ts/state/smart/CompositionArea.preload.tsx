@@ -62,6 +62,8 @@ import { isDirectConversation } from '../../util/whatTypeOfConversation.dom.ts';
 import { itemStorage } from '../../textsecure/Storage.preload.ts';
 import { useNavActions } from '../ducks/nav.std.ts';
 import { isFeaturedEnabledSelector } from '../../util/isFeatureEnabled.dom.ts';
+import { canUseSwarmPayments } from '../../services/swarmChatPayments.preload.ts';
+import { renderSwarmChatPaymentDialog } from './SwarmChatPayment.preload.tsx';
 
 function renderSmartCompositionRecording() {
   return <SmartCompositionRecording />;
@@ -394,6 +396,11 @@ export const SmartCompositionArea = memo(function SmartCompositionArea({
       sendEditedMessage={sendEditedMessage}
       sendMultiMediaMessage={sendMultiMediaMessage}
       sendPoll={sendPoll}
+      renderSwarmChatPaymentDialog={
+        canUseSwarmPayments(window.ConversationController.get(id))
+          ? renderSwarmChatPaymentDialog
+          : undefined
+      }
       scrollToMessage={scrollToMessage}
       setComposerFocus={setComposerFocus}
       setMessageToEdit={setMessageToEdit}

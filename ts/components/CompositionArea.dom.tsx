@@ -86,6 +86,7 @@ import { AxoIconButton } from '../axo/AxoIconButton.dom.tsx';
 import { tw } from '../axo/tw.dom.tsx';
 import type { PollCreateType } from '../types/Polls.dom.ts';
 import { PollCreateModal } from './PollCreateModal.dom.tsx';
+import type { SwarmChatDialogModeType } from './SwarmChatPaymentDialog.dom.tsx';
 import { useDocumentKeyDown } from '../hooks/useDocumentKeyDown.dom.ts';
 import { hasDraft } from '../util/hasDraft.std.ts';
 import type { ContactNameColorType } from '../types/Colors.std.ts';
@@ -181,6 +182,13 @@ export type OwnProps = Readonly<{
     }
   ) => unknown;
   sendPoll: (conversationId: string, poll: PollCreateType) => unknown;
+  // SWARM addition (M3 wave 2): SWARM payments in a one-to-one chat. Absent
+  // where they are not offered (groups, Note to Self).
+  renderSwarmChatPaymentDialog?: (props: {
+    conversationId: string;
+    mode: SwarmChatDialogModeType;
+    onClose: () => void;
+  }) => JSX.Element;
   quotedMessageId: string | null;
   quotedMessageProps: null | ReadonlyDeep<
     Omit<
@@ -274,6 +282,7 @@ export const CompositionArea = memo(function CompositionArea({
   sendEditedMessage,
   sendMultiMediaMessage,
   sendPoll,
+  renderSwarmChatPaymentDialog,
   setComposerFocus,
   setMessageToEdit,
   setQuoteByMessageId,
@@ -368,6 +377,9 @@ export const CompositionArea = memo(function CompositionArea({
     AttachmentDraftType | undefined
   >();
   const [isPollModalOpen, setIsPollModalOpen] = useState(false);
+  // SWARM addition (M3 wave 2).
+  const [swarmDialogMode, setSwarmDialogMode] =
+    useState<SwarmChatDialogModeType | null>(null);
   const inputApiRef = useRef<InputApi | null>(null);
   const fileInputRef = useRef<null | HTMLInputElement>(null);
   const photoVideoInputRef = useRef<null | HTMLInputElement>(null);
@@ -884,6 +896,29 @@ export const CompositionArea = memo(function CompositionArea({
                 {i18n('icu:CompositionArea__AttachMenu__Poll')}
               </AxoDropdownMenu.Item>
             )}
+            {renderSwarmChatPaymentDialog != null ? (
+              <>
+                <AxoDropdownMenu.Separator />
+                <AxoDropdownMenu.Item
+                  symbol="creditcard"
+                  onSelect={() => setSwarmDialogMode('pay')}
+                >
+                  {i18n('icu:SwarmChat__menu--pay')}
+                </AxoDropdownMenu.Item>
+                <AxoDropdownMenu.Item
+                  symbol="receipt"
+                  onSelect={() => setSwarmDialogMode('request')}
+                >
+                  {i18n('icu:SwarmChat__menu--request')}
+                </AxoDropdownMenu.Item>
+                <AxoDropdownMenu.Item
+                  symbol="share"
+                  onSelect={() => setSwarmDialogMode('share')}
+                >
+                  {i18n('icu:SwarmChat__menu--share')}
+                </AxoDropdownMenu.Item>
+              </>
+            ) : null}
           </AxoDropdownMenu.Content>
         </AxoDropdownMenu.Root>
       </div>
@@ -1368,6 +1403,13 @@ export const CompositionArea = memo(function CompositionArea({
         acceptMediaOnly
         testId="attachfile-input-media"
       />
+      {swarmDialogMode != null && renderSwarmChatPaymentDialog != null
+        ? renderSwarmChatPaymentDialog({
+            conversationId,
+            mode: swarmDialogMode,
+            onClose: () => setSwarmDialogMode(null),
+          })
+        : null}
       {isPollModalOpen && (
         <PollCreateModal
           i18n={i18n}

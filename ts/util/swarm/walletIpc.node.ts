@@ -22,19 +22,26 @@ import { checkRecoveryPhrase } from './bip39.node.ts';
 import { deriveWalletIdentity } from './walletIdentity.node.ts';
 import { parseSwmAmount } from './swmAmount.std.ts';
 import {
+  CheckAddressRequestSchema,
   ConfirmSendRequestSchema,
+  FindTransactionRequestSchema,
   GetStateRequestSchema,
+  NewAddressRequestSchema,
   OpenWithPhraseRequestSchema,
   QuoteSendRequestSchema,
   SetNetworkRequestSchema,
 } from '../../types/SwarmWallet.std.ts';
 import type {
+  CheckAddressResultType,
+  FindTransactionResultType,
+  MemoVerdictType,
   SendRefusalKindType,
   SendRefusalType,
   SwarmWalletNetworkIdType,
   SwarmWalletNetworkType,
   SwarmWalletProblemType,
 } from '../../types/SwarmWallet.std.ts';
+import type { FoundTransferType } from '../../workers/swarmWalletProtocol.std.ts';
 
 // Networks ---------------------------------------------------------------------
 
@@ -311,6 +318,184 @@ export function parseSetNetworkRequest(
 ): SwarmWalletNetworkIdType | undefined {
   const parsed = SetNetworkRequestSchema.safeParse(input);
   return parsed.success ? parsed.data.network : undefined;
+}
+
+// Payments inside a chat (M3 wave 2) ---------------------------------------------
+
+/** `swarm-wallet:new-address` carries nothing; anything else is refused. */
+export function parseNewAddressRequest(input: unknown): boolean {
+  return NewAddressRequestSchema.safeParse(input ?? {}).success;
+}
+
+/** The address to check, trimmed, or undefined for a malformed request. */
+export function parseCheckAddressRequest(input: unknown): string | undefined {
+  const parsed = CheckAddressRequestSchema.safeParse(input);
+  return parsed.success ? parsed.data.address.trim() : undefined;
+}
+
+/**
+ * The wallet's own check of an address for the network it is on - bech32m
+ * checksum, human-readable part, the other SWARM network and Zcash refused -
+ * as the chat needs it before it keeps an address somebody shared.
+ */
+export function checkAddressFor(
+  address: string,
+  network: SwarmWalletNetworkIdType
+): CheckAddressResultType {
+  const { profile } = SWARM_WALLET_NETWORKS[network];
+  const verdict = checkAddressForProfile(address, profile);
+  return {
+    accepted: verdict.accepted,
+    chain: chainLabelOf(network),
+    detail: verdict.accepted ? null : verdict.message,
+  };
+}
+
+export function chainLabelOf(
+  network: SwarmWalletNetworkIdType
+): 'swarm-mainnet' | 'swarm-testnet' {
+  return network === 'mainnet' ? 'swarm-mainnet' : 'swarm-testnet';
+}
+
+export type FindTransactionInputType = Readonly<{
+  txid: string;
+  memoHash: string | null;
+  accountKey: Uint8Array<ArrayBuffer> | undefined;
+}>;
+
+export function parseFindTransactionRequest(
+  input: unknown
+): FindTransactionInputType | undefined {
+  const parsed = FindTransactionRequestSchema.safeParse(input);
+  if (!parsed.success) {
+    return undefined;
+  }
+  return {
+    txid: parsed.data.txid,
+    memoHash: parsed.data.memoHash ?? null,
+    accountKey:
+      parsed.data.accountKey == null
+        ? undefined
+        : accountKeyFromBase64(parsed.data.accountKey),
+  };
+}
+
+/**
+ * The memo's bytes as the wallet puts them in the shielded output, before the
+ * zero padding - the addon's own rule (native/src/lib.rs
+ * `interpret_memo_string`, zingolib's): text that starts with "0x" and is
+ * entirely hex is those bytes; anything else is its UTF-8. Trailing zero bytes
+ * are the padding, so they are not part of the memo either way.
+ */
+export function memoBytesAsSent(memo: string): Buffer<ArrayBuffer> {
+  let bytes: Buffer<ArrayBuffer>;
+  const hex = memo.slice(2);
+  if (
+    memo.toLowerCase().startsWith('0x') &&
+    hex.length % 2 === 0 &&
+    /^[0-9a-fA-F]*$/.test(hex)
+  ) {
+    bytes = Buffer.from(hex, 'hex');
+  } else {
+    bytes = Buffer.from(memo, 'utf8');
+  }
+  let end = bytes.length;
+  while (end > 0 && bytes[end - 1] === 0) {
+    end -= 1;
+  }
+  return bytes.subarray(0, end);
+}
+
+/**
+ * What a payment notice carries as `memoHash`: SHA-256 of the memo put in the
+ * shielded output, or null when the payment carried none.
+ */
+export function memoHashFor(memo: string | null): string | null {
+  if (memo == null || memo === '') {
+    return null;
+  }
+  const bytes = memoBytesAsSent(memo);
+  if (bytes.length === 0) {
+    return null;
+  }
+  return createHash('sha256').update(bytes).digest('hex');
+}
+
+/**
+ * Whether the memos a wallet read from a transaction include the one a notice
+ * describes. The wallet reads a text memo as its UTF-8 without the padding,
+ * which is exactly what the sender hashed.
+ */
+export function memoVerdictFor(
+  claimed: string | null,
+  memos: ReadonlyArray<string>
+): MemoVerdictType {
+  const readable = memos.filter(memo => memo !== '');
+  if (claimed == null) {
+    return readable.length === 0 ? 'none' : 'mismatch';
+  }
+  if (readable.length === 0) {
+    return 'unreadable';
+  }
+  return readable.some(
+    memo =>
+      createHash('sha256').update(Buffer.from(memo, 'utf8')).digest('hex') ===
+      claimed
+  )
+    ? 'match'
+    : 'mismatch';
+}
+
+/**
+ * One transaction as the wallet sees it, from all its value transfers (the
+ * wallet lists one per pool received into, and one per recipient sent to).
+ * Amounts come from the wallet; nothing here is taken from a notice.
+ */
+export function summarizeFoundTransfers(
+  transfers: ReadonlyArray<FoundTransferType>,
+  claimedMemoHash: string | null,
+  network: SwarmWalletNetworkIdType
+): FindTransactionResultType {
+  let receivedZat = 0n;
+  let sentZat = 0n;
+  let confirmed = transfers.length > 0;
+  let failed = false;
+  let blockHeight: number | null = null;
+  const incomingMemos: Array<string> = [];
+  for (const transfer of transfers) {
+    const amount = BigInt(transfer.amountZat);
+    if (transfer.direction === 'in') {
+      receivedZat += amount;
+      incomingMemos.push(...transfer.memos);
+    } else if (transfer.direction === 'out' && !transfer.toSelf) {
+      sentZat += amount;
+    }
+    if (transfer.status !== 'confirmed') {
+      confirmed = false;
+    }
+    if (transfer.status === 'failed') {
+      failed = true;
+    }
+    if (transfer.status === 'confirmed' && transfer.blockHeight != null) {
+      blockHeight = transfer.blockHeight;
+    }
+  }
+  const memos =
+    incomingMemos.length > 0
+      ? incomingMemos
+      : transfers.flatMap(transfer => transfer.memos);
+  const memoText = memos.find(memo => memo !== '') ?? null;
+  return {
+    status: 'found',
+    chain: chainLabelOf(network),
+    receivedZat: receivedZat.toString(),
+    sentZat: sentZat.toString(),
+    confirmed,
+    failed,
+    blockHeight: confirmed ? blockHeight : null,
+    memo: memoVerdictFor(claimedMemoHash, memos),
+    memoText,
+  };
 }
 
 // Failures ------------------------------------------------------------------------

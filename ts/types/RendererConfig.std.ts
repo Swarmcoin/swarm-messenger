@@ -67,6 +67,10 @@ export const rendererConfigSchema = z.object({
   storageUrl: configRequiredStringSchema,
   // SWARM change (M1): SWARM Messenger has no donations, so no Stripe key.
   stripePublishableKey: configOptionalStringSchema,
+  // SWARM addition (M3 wave 2): the network the wallet is on when the window
+  // opens, so a payment notice for the other network is refused from the
+  // first message on. Always swarm-mainnet in a packaged build.
+  swarmWalletChain: z.enum(['swarm-mainnet', 'swarm-testnet']).optional(),
   theme: themeSettingSchema,
   updatesUrl: configRequiredStringSchema,
   resourcesUrl: configRequiredStringSchema,

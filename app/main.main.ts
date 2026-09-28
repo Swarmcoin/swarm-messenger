@@ -3004,6 +3004,9 @@ ipc.on('get-config', async event => {
       : undefined,
     genericServerPublicParams: config.get<string>('genericServerPublicParams'),
     backupServerPublicParams: config.get<string>('backupServerPublicParams'),
+    // SWARM addition (M3 wave 2): the wallet's network, so the window refuses a
+    // payment notice for the other one from the first message on.
+    swarmWalletChain: swarmWalletService?.chainLabel(),
     theme,
     appStartInitialSpellcheckSetting,
 

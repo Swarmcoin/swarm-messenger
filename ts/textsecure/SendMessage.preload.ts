@@ -97,6 +97,8 @@ import { MAX_MESSAGE_COUNT } from '../util/deleteForMe.types.std.ts';
 import { isProtoBinaryEncodingEnabled } from '../util/isProtoBinaryEncodingEnabled.dom.ts';
 import type { GroupSendToken } from '../types/GroupSendEndorsements.std.ts';
 import type { OutgoingPollVote, PollCreateType } from '../types/Polls.dom.ts';
+import type { SwarmPaymentEvent } from '../types/Payment.std.ts';
+import { toSwarmDataMessageFields } from '../util/swarm/swarmChatPayments.std.ts';
 import { itemStorage } from './Storage.preload.ts';
 import { accountManager } from './AccountManager.preload.ts';
 import type {
@@ -227,6 +229,9 @@ export type SharedMessageOptionsType = Readonly<{
   reaction?: ReactionType;
   sticker?: OutgoingStickerType;
   storyContext?: StoryContextType;
+  // SWARM addition (M3 wave 2): a SWARM payment notice, address request or
+  // address share. One-to-one chats only; never on a group send.
+  swarmPayment?: SwarmPaymentEvent;
   targetTimestampForEdit?: number;
   unpinMessage?: SendUnpinMessageType;
 }>;
@@ -317,6 +322,9 @@ class Message {
 
   pollVote?: OutgoingPollVote;
 
+  // SWARM addition (M3 wave 2).
+  swarmPayment?: SwarmPaymentEvent;
+
   constructor(options: MessageOptionsType) {
     this.attachments = options.attachments || [];
     this.body = options.body;
@@ -340,6 +348,7 @@ class Message {
     this.storyContext = options.storyContext;
     this.pinMessage = options.pinMessage;
     this.unpinMessage = options.unpinMessage;
+    this.swarmPayment = options.swarmPayment;
 
     if (!(this.recipients instanceof Array)) {
       throw new Error('Invalid recipient list');
@@ -620,6 +629,12 @@ class Message {
       };
     }
 
+    // SWARM addition (M3 wave 2): a notice rides in `payment`, an address
+    // request or share in `swarmAddress`, both inside this encrypted message.
+    const swarmFields = this.swarmPayment
+      ? toSwarmDataMessageFields(this.swarmPayment)
+      : { payment: null, swarmAddress: null };
+
     let incrementalMacsIncluded = 0;
     const dataMessage: Proto.DataMessage.Params = {
       timestamp: BigInt(this.timestamp),
@@ -709,7 +724,8 @@ class Message {
       isViewOnce: Boolean(this.isViewOnce),
       requiredProtocolVersion,
 
-      payment: null,
+      payment: swarmFields.payment,
+      swarmAddress: swarmFields.swarmAddress,
       giftBadge: null,
     };
     this.dataMessage = dataMessage;
@@ -899,6 +915,7 @@ export class MessageSender {
       pinMessage: null,
       unpinMessage: null,
       adminDelete: null,
+      swarmAddress: null,
     };
   }
 
@@ -991,6 +1008,7 @@ export class MessageSender {
       pinMessage: null,
       unpinMessage: null,
       adminDelete: null,
+      swarmAddress: null,
     };
   }
 

@@ -45,6 +45,8 @@ import type { RawBodyRange } from '../../types/BodyRange.std.ts';
 import type { EmbeddedContactWithUploadedAvatar } from '../../types/EmbeddedContact.std.ts';
 import type { StoryContextType } from '../../types/Util.std.ts';
 import type { PollCreateType } from '../../types/Polls.dom.ts';
+import { isSwarmPaymentEvent } from '../../types/Payment.std.ts';
+import type { SwarmPaymentEvent } from '../../types/Payment.std.ts';
 import type { LoggerType } from '../../types/Logging.std.ts';
 import { GROUP } from '../../types/Message2.preload.ts';
 import type {
@@ -233,6 +235,7 @@ export async function sendNormalMessage(
       storyMessage,
       storyContext,
       poll,
+      swarmPayment,
     } = await getMessageSendData({
       log,
       message,
@@ -322,6 +325,7 @@ export async function sendNormalMessage(
         timestamp: targetTimestamp,
         reaction,
         pollCreate: poll,
+        swarmPayment,
       });
       messageSendPromise = sendSyncMessageOnly(message, {
         dataMessage,
@@ -337,6 +341,13 @@ export async function sendNormalMessage(
         if (isGroupV2(conversation.attributes) && !isNumber(revision)) {
           log.error('No revision provided, but conversation is GroupV2');
         }
+
+        // SWARM addition (M3 wave 2): SWARM payments and addresses are for
+        // one-to-one chats; a receiving client refuses them in a group.
+        strictAssert(
+          swarmPayment == null,
+          'SWARM payment messages are not sent to groups'
+        );
 
         const groupV2Info = conversation.getGroupV2Info({
           members: recipientServiceIdsWithoutMe,
@@ -422,6 +433,7 @@ export async function sendNormalMessage(
                   ? targetOfThisEditTimestamp
                   : undefined,
                 pollCreate: poll,
+                swarmPayment,
                 timestamp: targetTimestamp,
               },
               contentHint: ContentHint.Resendable,
@@ -618,6 +630,7 @@ async function getMessageSendData({
   storyMessage?: MessageModel;
   storyContext?: StoryContextType;
   poll?: PollCreateType;
+  swarmPayment?: SwarmPaymentEvent;
 }> {
   const storyId = message.get('storyId');
 
@@ -710,6 +723,7 @@ async function getMessageSendData({
 
   const storyReaction = message.get('storyReaction');
   const storySourceServiceId = storyMessage?.get('sourceServiceId');
+  const payment = message.get('payment');
 
   let reactionForSend: ReactionType | undefined;
   if (storyReaction) {
@@ -754,6 +768,9 @@ async function getMessageSendData({
         }
       : undefined,
     poll: message.get('poll'),
+    // SWARM addition (M3 wave 2): a SWARM notice or address message this
+    // device made (a MobileCoin payment event is never sent from here).
+    swarmPayment: isSwarmPaymentEvent(payment) ? payment : undefined,
   };
 }
 

@@ -12520,5 +12520,249 @@
   "icu:SwarmWallet__developer--testnet": {
     "messageformat": "Testnet",
     "description": "Developer switch option."
+  },
+  "icu:SwarmChat__notice--label": {
+    "messageformat": "SWARM payment",
+    "description": "SWARM (M3 wave 2): a chat-list preview, a notification or a quote of a SWARM payment notice. No amount on purpose."
+  },
+  "icu:SwarmChat__notice": {
+    "messageformat": "{sender} sent you {amount} SWM",
+    "description": "SWARM (M3 wave 2): what a received payment notice says. amount is what the notice claims, eight decimals; whether it arrived is said separately, from the wallet."
+  },
+  "icu:SwarmChat__notice--you": {
+    "messageformat": "You sent {amount} SWM to {receiver}",
+    "description": "SWARM (M3 wave 2): a payment notice this device sent. amount has eight decimals."
+  },
+  "icu:SwarmChat__notice--you-without-receiver": {
+    "messageformat": "You sent {amount} SWM",
+    "description": "SWARM (M3 wave 2): a payment notice this device sent, when the conversation has no title."
+  },
+  "icu:SwarmChat__request": {
+    "messageformat": "{sender} wants your SWARM address",
+    "description": "SWARM (M3 wave 2): someone asked for a SWARM address in this chat. Nothing is shared until Share is pressed."
+  },
+  "icu:SwarmChat__request--you": {
+    "messageformat": "You asked {receiver} for their SWARM address",
+    "description": "SWARM (M3 wave 2): this device asked for an address."
+  },
+  "icu:SwarmChat__request--you-without-receiver": {
+    "messageformat": "You asked for a SWARM address",
+    "description": "SWARM (M3 wave 2): this device asked for an address, when the conversation has no title."
+  },
+  "icu:SwarmChat__share": {
+    "messageformat": "{sender} shared their SWARM address",
+    "description": "SWARM (M3 wave 2): someone shared a SWARM address in this chat."
+  },
+  "icu:SwarmChat__share--you": {
+    "messageformat": "You shared your SWARM address with {receiver}",
+    "description": "SWARM (M3 wave 2): this device shared an address."
+  },
+  "icu:SwarmChat__share--you-without-receiver": {
+    "messageformat": "You shared your SWARM address",
+    "description": "SWARM (M3 wave 2): this device shared an address, when the conversation has no title."
+  },
+  "icu:SwarmChat__menu--pay": {
+    "messageformat": "Pay with SWARM",
+    "description": "SWARM (M3 wave 2): composer + menu item. Opens the same quote, confirmation and send steps as the Wallet pane, to this chat's SWARM address."
+  },
+  "icu:SwarmChat__menu--request": {
+    "messageformat": "Request SWARM address",
+    "description": "SWARM (M3 wave 2): composer + menu item. Asks the other person for a SWARM address."
+  },
+  "icu:SwarmChat__menu--share": {
+    "messageformat": "Share SWARM address",
+    "description": "SWARM (M3 wave 2): composer + menu item. Shares a SWARM address with the other person."
+  },
+  "icu:SwarmChat__dialog--loading": {
+    "messageformat": "Opening your wallet…",
+    "description": "SWARM (M3 wave 2): a SWARM dialog in a chat, before the wallet has answered."
+  },
+  "icu:SwarmChat__request-dialog--title": {
+    "messageformat": "Ask for a SWARM address",
+    "description": "SWARM (M3 wave 2): title of the dialog that sends an address request."
+  },
+  "icu:SwarmChat__request-dialog--body": {
+    "messageformat": "{name} will see that you want their SWARM address. They can share one or ignore the request; nothing is shared automatically.",
+    "description": "SWARM (M3 wave 2): what an address request does."
+  },
+  "icu:SwarmChat__request-dialog--button": {
+    "messageformat": "Ask",
+    "description": "SWARM (M3 wave 2): sends the address request."
+  },
+  "icu:SwarmChat__share-dialog--title": {
+    "messageformat": "Share your SWARM address",
+    "description": "SWARM (M3 wave 2): title of the dialog that shares an address in a chat."
+  },
+  "icu:SwarmChat__share-dialog--body": {
+    "messageformat": "{name} will be able to send you SWM. An address is not secret, but every payment made to it can be linked to it.",
+    "description": "SWARM (M3 wave 2): what sharing an address means."
+  },
+  "icu:SwarmChat__share-dialog--fresh": {
+    "messageformat": "Use an address just for this chat (recommended)",
+    "description": "SWARM (M3 wave 2): checkbox, on by default. A new unified address made for this conversation and reused only here."
+  },
+  "icu:SwarmChat__share-dialog--fresh-help": {
+    "messageformat": "Payments from {name} then cannot be linked to payments from anyone else. Off shares your wallet's main address.",
+    "description": "SWARM (M3 wave 2): explains the per-chat address checkbox."
+  },
+  "icu:SwarmChat__share-dialog--button": {
+    "messageformat": "Share",
+    "description": "SWARM (M3 wave 2): shares the address."
+  },
+  "icu:SwarmChat__wallet--not-ready": {
+    "messageformat": "Your wallet is not open yet. Open Wallet in the left navigation to see why.",
+    "description": "SWARM (M3 wave 2): a SWARM dialog in a chat, when the wallet is not open."
+  },
+  "icu:SwarmChat__wallet--offline": {
+    "messageformat": "Can't reach the SWARM network right now. Try again in a moment.",
+    "description": "SWARM (M3 wave 2): a SWARM dialog in a chat, when the light server does not answer."
+  },
+  "icu:SwarmChat__share-dialog--failed": {
+    "messageformat": "The wallet could not make an address. Nothing was shared.",
+    "description": "SWARM (M3 wave 2): sharing failed before anything was sent."
+  },
+  "icu:SwarmChat__address-label": {
+    "messageformat": "SWARM address",
+    "description": "SWARM (M3 wave 2): label before an address shown in a chat."
+  },
+  "icu:SwarmChat__request--answer-share": {
+    "messageformat": "Share",
+    "description": "SWARM (M3 wave 2): button on a received address request. Opens the share dialog; nothing is shared by this press alone."
+  },
+  "icu:SwarmChat__request--answer-ignore": {
+    "messageformat": "Ignore",
+    "description": "SWARM (M3 wave 2): button on a received address request."
+  },
+  "icu:SwarmChat__request--answered-shared": {
+    "messageformat": "You shared your address.",
+    "description": "SWARM (M3 wave 2): a received address request that was answered with Share."
+  },
+  "icu:SwarmChat__request--answered-ignored": {
+    "messageformat": "You ignored this request.",
+    "description": "SWARM (M3 wave 2): a received address request that was answered with Ignore."
+  },
+  "icu:SwarmChat__share--kept": {
+    "messageformat": "Saved for paying {name} in this chat.",
+    "description": "SWARM (M3 wave 2): a received address, checked by the wallet and kept against this conversation."
+  },
+  "icu:SwarmChat__share--replaced": {
+    "messageformat": "A newer address from {name} is used instead.",
+    "description": "SWARM (M3 wave 2): a received address that a later one replaced."
+  },
+  "icu:SwarmChat__share--checking": {
+    "messageformat": "Checking the address…",
+    "description": "SWARM (M3 wave 2): a received address while the wallet checks it."
+  },
+  "icu:SwarmChat__share--refused": {
+    "messageformat": "Not saved: {reason}",
+    "description": "SWARM (M3 wave 2): a received address the wallet refused; reason is the wallet's own sentence, which names the network."
+  },
+  "icu:SwarmChat__share--pay": {
+    "messageformat": "Pay {name}",
+    "description": "SWARM (M3 wave 2): button on a received, saved address. Opens Pay with SWARM."
+  },
+  "icu:SwarmChat__history--from": {
+    "messageformat": "from {contact}",
+    "description": "SWARM (M3 wave 2): Wallet pane, beside a received transaction a chat's payment notice named."
+  },
+  "icu:SwarmChat__history--to": {
+    "messageformat": "to {contact}",
+    "description": "SWARM (M3 wave 2): Wallet pane, beside a sent transaction a chat's payment notice named."
+  },
+  "icu:SwarmChat__pay--title": {
+    "messageformat": "Pay with SWARM",
+    "description": "SWARM (M3 wave 2): title of the payment dialog in a chat."
+  },
+  "icu:SwarmChat__pay--origin": {
+    "messageformat": "From {name}'s message ({date})",
+    "description": "SWARM (M3 wave 2): under the address being paid: which message it came from, so a swapped address is visible."
+  },
+  "icu:SwarmChat__pay--origin-label": {
+    "messageformat": "Where this address came from",
+    "description": "SWARM (M3 wave 2): screen-reader label for the address origin line."
+  },
+  "icu:SwarmChat__pay--no-address": {
+    "messageformat": "{name} hasn't shared a SWARM address in this chat yet.",
+    "description": "SWARM (M3 wave 2): Pay with SWARM when the conversation holds no address."
+  },
+  "icu:SwarmChat__pay--request": {
+    "messageformat": "Ask for an address",
+    "description": "SWARM (M3 wave 2): sends an address request from the payment dialog."
+  },
+  "icu:SwarmChat__pay--include-address": {
+    "messageformat": "Include my address so {name} can pay me back",
+    "description": "SWARM (M3 wave 2): checkbox in the payment dialog, off by default."
+  },
+  "icu:SwarmChat__pay--include-address-help": {
+    "messageformat": "Off by default: it gives {name} an address of yours, this chat's own.",
+    "description": "SWARM (M3 wave 2): explains the include-my-address checkbox."
+  },
+  "icu:SwarmChat__pay--notice-sent": {
+    "messageformat": "{name} is told in this chat.",
+    "description": "SWARM (M3 wave 2): after a payment from a chat, the notice was queued."
+  },
+  "icu:SwarmChat__pay--notice-failed": {
+    "messageformat": "The payment was sent, but the message telling {name} could not be. The money is not affected.",
+    "description": "SWARM (M3 wave 2): the payment went out and the chat notice did not."
+  },
+  "icu:SwarmChat__notice--title": {
+    "messageformat": "SWARM payment",
+    "description": "SWARM (M3 wave 2): heading of a payment notice in a chat."
+  },
+  "icu:SwarmChat__notice--waiting": {
+    "messageformat": "{amount} SWM sent to you — waiting for your wallet to see it",
+    "description": "SWARM (M3 wave 2): a received notice before this wallet has found the transaction. amount is the notice's claim, eight decimals. Never says received."
+  },
+  "icu:SwarmChat__notice--wallet-closed": {
+    "messageformat": "Your wallet is not open yet, so it cannot look for this payment.",
+    "description": "SWARM (M3 wave 2): under the waiting line when the wallet is not open."
+  },
+  "icu:SwarmChat__notice--seen": {
+    "messageformat": "Your wallet sees {amount} SWM — not yet in a block",
+    "description": "SWARM (M3 wave 2): the wallet found the transaction in the mempool. amount is from the wallet."
+  },
+  "icu:SwarmChat__notice--received": {
+    "messageformat": "Received {amount} SWM",
+    "description": "SWARM (M3 wave 2): the wallet found the transaction in a block. amount is from the wallet, not from the message."
+  },
+  "icu:SwarmChat__notice--block": {
+    "messageformat": "In block {height, number}",
+    "description": "SWARM (M3 wave 2): the block the payment is in."
+  },
+  "icu:SwarmChat__notice--amount-differs": {
+    "messageformat": "The message said {claimed} SWM; the amount above is what your wallet shows.",
+    "description": "SWARM (M3 wave 2): the notice's amount and the wallet's differ."
+  },
+  "icu:SwarmChat__notice--memo-mismatch": {
+    "messageformat": "The memo in your wallet is not the one this message describes.",
+    "description": "SWARM (M3 wave 2): the notice's memo hash does not match the memo the wallet read."
+  },
+  "icu:SwarmChat__notice--not-to-you": {
+    "messageformat": "Your wallet has this transaction, but nothing in it was paid to you.",
+    "description": "SWARM (M3 wave 2): the wallet knows the txid and received nothing in it."
+  },
+  "icu:SwarmChat__notice--memo": {
+    "messageformat": "Memo: {memo}",
+    "description": "SWARM (M3 wave 2): the memo as the wallet read it."
+  },
+  "icu:SwarmChat__notice--explorer": {
+    "messageformat": "View on the explorer",
+    "description": "SWARM (M3 wave 2): link to the transaction on the block explorer."
+  },
+  "icu:SwarmChat__notice--sent-waiting": {
+    "messageformat": "Not yet in a block",
+    "description": "SWARM (M3 wave 2): a payment this device sent, before it is mined."
+  },
+  "icu:SwarmChat__notice--sent-failed": {
+    "messageformat": "The network did not take this payment.",
+    "description": "SWARM (M3 wave 2): a payment this device sent that failed."
+  },
+  "icu:SwarmChat__notice--sent-unlisted": {
+    "messageformat": "Your wallet does not list this payment yet.",
+    "description": "SWARM (M3 wave 2): a payment this device sent that the wallet has not listed yet."
+  },
+  "icu:SwarmChat__notice--return-address": {
+    "messageformat": "{name} included an address for paying back.",
+    "description": "SWARM (M3 wave 2): a received notice that carried the sender's address."
   }
 }

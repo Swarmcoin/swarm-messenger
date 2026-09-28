@@ -10,6 +10,8 @@ import * as Errors from '../types/errors.std.ts';
 import { isIncomingStory, isStory } from './helpers.std.ts';
 import { getAuthor } from './sources.preload.ts';
 import { messageHasPaymentEvent } from './payments.std.ts';
+import { isSwarmPaymentEvent } from '../types/Payment.std.ts';
+import { onSwarmPaymentEventReceived } from '../services/swarmChatPayments.preload.ts';
 import { getMessageIdForLogging } from '../util/idForLogging.preload.ts';
 import {
   deliveryReceiptQueue,
@@ -789,6 +791,18 @@ export async function handleDataMessage(
       if (result === ModifyTargetMessageResult.Deleted) {
         confirm();
         return;
+      }
+
+      // SWARM addition (M3 wave 2): an address shared here is checked by the
+      // wallet and kept against this conversation; a payment notice is
+      // remembered for the Wallet pane. Beside the message, never instead.
+      if (isSwarmPaymentEvent(message.get('payment'))) {
+        drop(
+          onSwarmPaymentEventReceived({
+            conversation,
+            message: message.attributes,
+          })
+        );
       }
 
       log.info(`${idLog}: Batching save`);

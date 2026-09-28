@@ -94,7 +94,13 @@ import { DAY, HOUR, MINUTE, SECOND } from '../../util/durations/index.std.ts';
 import { BadgeImageTheme } from '../../badges/BadgeImageTheme.std.ts';
 import { getBadgeImageFileLocalPath } from '../../badges/getBadgeImageFileLocalPath.std.ts';
 import { handleOutsideClick } from '../../util/handleOutsideClick.dom.ts';
-import { isPaymentNotificationEvent } from '../../types/Payment.std.ts';
+import {
+  isPaymentNotificationEvent,
+  isSwarmPaymentEvent,
+} from '../../types/Payment.std.ts';
+import type { SwarmPaymentEvent } from '../../types/Payment.std.ts';
+import { SwarmPaymentBubble } from './SwarmPaymentBubble.dom.tsx';
+import type { SwarmPaymentBubbleOwnProps } from './SwarmPaymentBubble.dom.tsx';
 import type { AnyPaymentEvent } from '../../types/Payment.std.ts';
 import { getPaymentEventDescription } from '../../messages/payments.std.ts';
 import { PanelType } from '../../types/Panels.std.ts';
@@ -338,6 +344,10 @@ export type PropsHousekeeping = {
   interactivity: MessageInteractivity;
   platform: string;
   renderAudioAttachment: (props: RenderAudioAttachmentProps) => ReactNode;
+  // SWARM addition (M3 wave 2): the content of a SWARM payment notice or
+  // address message, which reads the wallet. Without it (previews, edit
+  // history) the message's own words are drawn.
+  renderSwarmPayment?: (props: SwarmPaymentBubbleOwnProps) => ReactNode;
   shouldCollapseAbove: boolean;
   shouldCollapseBelow: boolean;
   shouldHideMetadata: boolean;
@@ -1994,6 +2004,10 @@ export class Message extends PureComponent<Props, State> {
       conversationColor,
       i18n,
     } = this.props;
+    // SWARM addition (M3 wave 2).
+    if (payment != null && isSwarmPaymentEvent(payment)) {
+      return this.#renderSwarmPayment(payment);
+    }
     if (payment == null || !isPaymentNotificationEvent(payment)) {
       return null;
     }
@@ -2025,6 +2039,32 @@ export class Message extends PureComponent<Props, State> {
         )}
       </div>
     );
+  }
+
+  // SWARM addition (M3 wave 2).
+  #renderSwarmPayment(payment: SwarmPaymentEvent): ReactNode {
+    const {
+      author,
+      conversationId,
+      conversationTitle,
+      direction,
+      i18n,
+      id,
+      renderSwarmPayment,
+    } = this.props;
+    const ownProps: SwarmPaymentBubbleOwnProps = {
+      messageId: id,
+      conversationId,
+      direction,
+      payment,
+      senderTitle: author.title,
+      conversationTitle,
+      senderIsMe: author.isMe,
+    };
+    if (renderSwarmPayment != null) {
+      return renderSwarmPayment(ownProps);
+    }
+    return <SwarmPaymentBubble {...ownProps} i18n={i18n} />;
   }
 
   #renderPoll(): ReactNode {

@@ -255,6 +255,8 @@ export function getConversation(model: ConversationModel): ConversationType {
     shouldShowDraft,
     sortedGroupMembers,
     terminated: Boolean(attributes.terminated),
+    // SWARM addition (M3 wave 2).
+    swarmPayments: attributes.swarmPayments,
     timestamp: dropNull(timestamp),
     title: getTitle(attributes),
     titleNoDefault: getTitleNoDefault(attributes),

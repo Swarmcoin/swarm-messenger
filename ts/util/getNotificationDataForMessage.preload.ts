@@ -53,7 +53,7 @@ import {
   isMessageRequestResponse,
   isPinnedMessageNotification,
 } from '../state/selectors/message.preload.ts';
-import { getAuthor } from '../messages/sources.preload.ts';
+import { getAuthor, getSourceServiceId } from '../messages/sources.preload.ts';
 import {
   messageHasPaymentEvent,
   getPaymentEventNotificationText,
@@ -178,7 +178,11 @@ export function getNotificationDataForMessage(
   }
 
   if (messageHasPaymentEvent(attributes)) {
-    const sender = findAndFormatContact(attributes.sourceServiceId);
+    // SWARM change (M3 wave 2): an outgoing message has no sourceServiceId of
+    // its own; upstream's lookup named this device's own SWARM address shares
+    // and requests "Unknown contact". getSourceServiceId answers our ACI for
+    // an outgoing message, as every other branch here does through getAuthor.
+    const sender = findAndFormatContact(getSourceServiceId(attributes));
     const conversation = findAndFormatContact(attributes.conversationId);
     return {
       text: getPaymentEventNotificationText(
