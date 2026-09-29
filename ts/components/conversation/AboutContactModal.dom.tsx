@@ -374,12 +374,10 @@ export function AboutContactModal({
         </div>
       )}
 
-      {!isMe && contact.phoneNumber ? (
-        <div className="AboutContactModal__row">
-          <i className="AboutContactModal__row__icon AboutContactModal__row__icon--phone" />
-          <UserText text={contact.phoneNumber} />
-        </div>
-      ) : null}
+      {/*
+        SWARM change (no phone number in the interface): no phone row. A SWARM
+        account's number is an identifier derived from its wallet, never shown.
+      */}
 
       {!isMe && (
         <div className="AboutContactModal__row">

@@ -10,7 +10,6 @@ import type { ContactListItemConversationType } from '../conversationList/Contac
 import { SearchInput } from '../SearchInput.dom.tsx';
 import type { LocalizerType } from '../../types/Util.std.ts';
 import type { ParsedE164Type } from '../../util/libphonenumberInstance.std.ts';
-import { parseAndFormatPhoneNumber } from '../../util/libphonenumberInstance.std.ts';
 import type { UUIDFetchStateType } from '../../util/uuidFetchState.std.ts';
 import {
   isFetchingByUsername,
@@ -34,6 +33,10 @@ enum TopButtons {
   Visible = 'Visible',
 }
 
+// SWARM change (no phone number in the interface): "New group" and "Find by
+// username"; upstream's third button is "Find by phone number".
+const TOP_BUTTON_COUNT = 2;
+
 // oxlint-disable-next-line react/prefer-function-component
 export class LeftPaneComposeHelper extends LeftPaneHelper<LeftPaneComposePropsType> {
   readonly #composeContacts: ReadonlyArray<ContactListItemConversationType>;
@@ -48,7 +51,6 @@ export class LeftPaneComposeHelper extends LeftPaneHelper<LeftPaneComposePropsTy
   constructor({
     composeContacts,
     composeGroups,
-    regionCode,
     searchTerm,
     uuidFetchState,
     username,
@@ -65,15 +67,10 @@ export class LeftPaneComposeHelper extends LeftPaneHelper<LeftPaneComposePropsTy
       Boolean(username) &&
       this.#composeContacts.every(contact => contact.username !== username);
 
-    const phoneNumber = parseAndFormatPhoneNumber(searchTerm, regionCode);
-    if (!username && phoneNumber) {
-      this.#phoneNumber = phoneNumber;
-      this.#isPhoneNumberVisible = this.#composeContacts.every(
-        contact => contact.e164 !== phoneNumber.e164
-      );
-    } else {
-      this.#isPhoneNumberVisible = false;
-    }
+    // SWARM change (no phone number in the interface): what is typed here is
+    // never read as a phone number. SWARM finds people by username; there is
+    // no "Find by phone number" and no number search result.
+    this.#isPhoneNumberVisible = false;
   }
 
   override getHeaderContents({
@@ -117,7 +114,7 @@ export class LeftPaneComposeHelper extends LeftPaneHelper<LeftPaneComposePropsTy
         i18n={i18n}
         moduleClassName="module-left-pane__compose-search-form"
         onChange={onChangeComposeSearchTerm}
-        placeholder={i18n('icu:contactSearchPlaceholder')}
+        placeholder={i18n('icu:SwarmContactSearchPlaceholder')}
         ref={focusRef}
         value={this.#searchTerm}
       />
@@ -139,7 +136,7 @@ export class LeftPaneComposeHelper extends LeftPaneHelper<LeftPaneComposePropsTy
   getRowCount(): number {
     let result = 0;
     if (this.#hasTopButtons()) {
-      result += 3;
+      result += TOP_BUTTON_COUNT;
     }
     if (this.#hasContactsHeader()) {
       result += 1 + this.#composeContacts.length;
@@ -166,11 +163,10 @@ export class LeftPaneComposeHelper extends LeftPaneHelper<LeftPaneComposePropsTy
       if (virtualRowIndex === 1) {
         return { type: RowType.FindByUsername };
       }
-      if (virtualRowIndex === 2) {
-        return { type: RowType.FindByPhoneNumber };
-      }
+      // SWARM change (no phone number in the interface): no third button,
+      // "Find by phone number".
 
-      virtualRowIndex -= 3;
+      virtualRowIndex -= TOP_BUTTON_COUNT;
     }
 
     if (this.#hasContactsHeader()) {
@@ -335,7 +331,7 @@ export class LeftPaneComposeHelper extends LeftPaneHelper<LeftPaneComposePropsTy
 
     if (this.#hasTopButtons()) {
       top = 0;
-      rowCount += 3;
+      rowCount += TOP_BUTTON_COUNT;
     }
     if (this.#hasContactsHeader()) {
       contact = rowCount;

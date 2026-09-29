@@ -538,7 +538,7 @@ export function SendStoryModal({
         <SearchInput
           disabled={groupConversations.length === 0}
           i18n={i18n}
-          placeholder={i18n('icu:contactSearchPlaceholder')}
+          placeholder={i18n('icu:SwarmContactSearchPlaceholder')}
           moduleClassName="StoriesSettingsModal__search"
           onChange={event => {
             setSearchTerm(event.target.value);

@@ -29,22 +29,17 @@ export function UsernameOnboardingModal({
         </AxoDialog.Header>
         <AxoDialog.Body>
           <div className={tw('mb-2 flex flex-col gap-4')}>
-            <UsernameOnboardingModalItem
-              label={i18n(
-                'icu:UsernameOnboardingModalBody__row__number__title'
-              )}
-              description={i18n(
-                'icu:UsernameOnboardingModalBody__row__number__body'
-              )}
-              imageLight="../images/phone_40_color.svg"
-              imageDark="../images/phone_40_color_dark.svg"
-            />
+            {/*
+              SWARM change (no phone number in the interface): no "Phone number
+              privacy" row, and the username row does not talk about giving
+              out a phone number.
+            */}
             <UsernameOnboardingModalItem
               label={i18n(
                 'icu:UsernameOnboardingModalBody__row__username__title'
               )}
               description={i18n(
-                'icu:UsernameOnboardingModalBody__row__username__body'
+                'icu:SwarmUsernameOnboardingModalBody__row__username__body'
               )}
               imageLight="../images/usernames_40_color.svg"
               imageDark="../images/usernames_40_color_dark.svg"

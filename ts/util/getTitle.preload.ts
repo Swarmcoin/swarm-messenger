@@ -11,6 +11,7 @@ import { instance, PhoneNumberFormat } from './libphonenumberInstance.std.ts';
 import { isDirectConversation } from './whatTypeOfConversation.dom.ts';
 import { isConversationEverUnregistered } from './isConversationUnregistered.dom.ts';
 import { getE164 } from './getE164.std.ts';
+import { isSwarmAccountNumber } from './swarm/swarmAccountNumber.std.ts';
 import { itemStorage } from '../textsecure/Storage.preload.ts';
 
 type TitleOptions = {
@@ -164,6 +165,16 @@ export function getNumber(
 }
 
 export function renderNumber(e164: string): string | undefined {
+  // SWARM change (no phone number in the interface): a SWARM account's
+  // identifier is shaped like a phone number and is not one, so it has no
+  // rendering. Everything that shows a number - titles, the `phoneNumber` of a
+  // conversation, notifications - then does what it does for an account
+  // without a number: a title falls back to the profile name, then the
+  // username, then "Unknown".
+  if (isSwarmAccountNumber(e164)) {
+    return undefined;
+  }
+
   try {
     const parsedNumber = instance.parse(e164);
     const regionCode = getRegionCodeForNumber(e164);

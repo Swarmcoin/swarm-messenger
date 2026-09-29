@@ -23,7 +23,8 @@ export function UsernameMegaphone({
 
         <div className="UsernameMegaphone__row__text">
           <h2>{i18n('icu:UsernameMegaphone__title')}</h2>
-          <p>{i18n('icu:UsernameMegaphone__body')}</p>
+          {/* SWARM change (no phone number in the interface) */}
+          <p>{i18n('icu:SwarmUsernameMegaphone__body')}</p>
         </div>
       </div>
 

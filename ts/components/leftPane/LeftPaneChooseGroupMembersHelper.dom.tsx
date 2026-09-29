@@ -17,7 +17,6 @@ import {
 import { Button } from '../Button.dom.tsx';
 import type { LocalizerType } from '../../types/Util.std.ts';
 import type { ParsedE164Type } from '../../util/libphonenumberInstance.std.ts';
-import { parseAndFormatPhoneNumber } from '../../util/libphonenumberInstance.std.ts';
 import type { UUIDFetchStateType } from '../../util/uuidFetchState.std.ts';
 import {
   isFetchingByUsername,
@@ -61,10 +60,8 @@ export class LeftPaneChooseGroupMembersHelper extends LeftPaneHelper<LeftPaneCho
     isShowingRecommendedGroupSizeModal,
     groupSizeRecommendedLimit,
     groupSizeHardLimit,
-    ourE164,
     ourUsername,
     searchTerm,
-    regionCode,
     selectedContacts,
     uuidFetchState,
     username,
@@ -94,26 +91,10 @@ export class LeftPaneChooseGroupMembersHelper extends LeftPaneHelper<LeftPaneCho
       contact => contact.username === this.#username
     );
 
-    const phoneNumber = parseAndFormatPhoneNumber(searchTerm, regionCode);
-    if (
-      !isUsernameVisible &&
-      (ourUsername === undefined || username !== ourUsername) &&
-      phoneNumber
-    ) {
-      const { e164 } = phoneNumber;
-      this.#isPhoneNumberChecked =
-        phoneNumber.isValid &&
-        selectedContacts.some(contact => contact.e164 === e164);
-
-      const isVisible =
-        e164 !== ourE164 &&
-        this.#candidateContacts.every(contact => contact.e164 !== e164);
-      if (isVisible) {
-        this.#phoneNumber = phoneNumber;
-      }
-    } else {
-      this.#isPhoneNumberChecked = false;
-    }
+    // SWARM change (no phone number in the interface): what is typed here is
+    // never read as a phone number, so there is no "Find by phone number"
+    // row to add someone by number. SWARM finds people by username.
+    this.#isPhoneNumberChecked = false;
     this.#selectedContacts = selectedContacts;
 
     this.#selectedConversationIdsSet = new Set(
@@ -168,7 +149,7 @@ export class LeftPaneChooseGroupMembersHelper extends LeftPaneHelper<LeftPaneCho
         i18n={i18n}
         moduleClassName="module-left-pane__compose-search-form"
         onChange={onChangeComposeSearchTerm}
-        placeholder={i18n('icu:contactSearchPlaceholder')}
+        placeholder={i18n('icu:SwarmContactSearchPlaceholder')}
         ref={focusRef}
         value={this.#searchTerm}
       />

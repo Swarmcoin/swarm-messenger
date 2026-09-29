@@ -179,6 +179,7 @@ import {
   getNumber,
   renderNumber,
 } from '../../util/getTitle.preload.ts';
+import { isSwarmAccountNumber } from '../../util/swarm/swarmAccountNumber.std.ts';
 import { getMessageSentTimestamp } from '../../util/getMessageSentTimestamp.std.ts';
 import type { CallHistorySelectorType } from './callHistory.std.ts';
 import { CallMode, CallDirection } from '../../types/CallDisposition.std.ts';
@@ -2075,7 +2076,11 @@ function getPropsForPhoneNumberDiscovery(
   return {
     conversationId: conversation.id,
     conversationTitle,
-    phoneNumber: renderNumber(e164) ?? e164,
+    // SWARM change (no phone number in the interface): the raw value is the
+    // fallback for a number that cannot be formatted, never for a SWARM
+    // account identifier; without a number the notification shows nothing.
+    phoneNumber:
+      renderNumber(e164) ?? (isSwarmAccountNumber(e164) ? undefined : e164),
   };
 }
 

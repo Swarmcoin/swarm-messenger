@@ -2180,7 +2180,7 @@
   },
   "icu:Preferences--phone-number": {
     "messageformat": "Phone Number",
-    "description": "The label in settings panel shown for the phone number associated with user's account"
+    "description": "(Deleted 2026/09/29) The label in settings panel shown for the phone number associated with user's account"
   },
   "icu:Preferences--device-name": {
     "messageformat": "Device Name",
@@ -2188,7 +2188,11 @@
   },
   "icu:Preferences--device-name__description": {
     "messageformat": "To change the name of this device, open SWARM Messenger on your phone and navigate to Settings > Linked devices",
-    "description": "Shown in the Settings window below the read-only device name"
+    "description": "(Deleted 2026/09/29) Shown in the Settings window below the read-only device name"
+  },
+  "icu:SwarmPreferences__DeviceName--save-failed": {
+    "messageformat": "The name could not be saved. Check your internet connection and try again.",
+    "description": "Settings > General > Device Name > Edit: shown in the dialog when the new name could not be saved on the server."
   },
   "icu:Preferences__EmojiSkinToneDefaultSetting__Label": {
     "messageformat": "Emoji skin tone",
@@ -3294,7 +3298,11 @@
   },
   "icu:contactSearchPlaceholder": {
     "messageformat": "Name, username, or number",
-    "description": "Placeholder to use when searching for contacts in the composer"
+    "description": "(Deleted 2026/09/29) Placeholder to use when searching for contacts in the composer"
+  },
+  "icu:SwarmContactSearchPlaceholder": {
+    "messageformat": "Name or username",
+    "description": "Placeholder of the contact search in New chat, New group, Add members, Forward and Send story. SWARM Messenger finds people by name or username, never by phone number."
   },
   "icu:noContactsFound": {
     "messageformat": "No contacts found",
@@ -3443,7 +3451,12 @@
     "messageformat": "Unlinked"
   },
   "icu:unregisteredWarning": {
-    "messageformat": "Click to re-register and continue messaging. SWARM Messenger is unregistered likely because you registered your phone number with SWARM Messenger on a different device."
+    "messageformat": "Click to re-register and continue messaging. SWARM Messenger is unregistered likely because you registered your phone number with SWARM Messenger on a different device.",
+    "description": "(Deleted 2026/09/29)"
+  },
+  "icu:SwarmUnregisteredWarning": {
+    "messageformat": "Click to sign in again and continue messaging. This computer was signed out, likely because your account was opened on another device with its 24 words.",
+    "description": "Shown in the chat list when this computer, the account’s primary device, is no longer registered. Clicking it opens sign-in."
   },
   "icu:unregistered": {
     "messageformat": "No longer registered"
@@ -8045,7 +8058,11 @@
   },
   "icu:ProfileEditor--info--pnp--no-username": {
     "messageformat": "People can now message you using your optional username so you don’t have to give out your phone number.",
-    "description": "Information shown in profile editor below pnp settings when no username is set"
+    "description": "(Deleted 2026/09/29) Information shown in profile editor below pnp settings when no username is set"
+  },
+  "icu:SwarmProfileEditor--info--no-username": {
+    "messageformat": "Choose a username so people can find you and start a chat with you. It isn’t visible on your profile.",
+    "description": "Settings > Profile: shown under the Username row when no username is set."
   },
   "icu:Bio--speak-freely": {
     "messageformat": "Speak Freely",
@@ -8910,7 +8927,11 @@
   },
   "icu:Preferences--signal-backups-off-description": {
     "messageformat": "Automatic backups with SWARM Messenger’s secure, end-to-end encrypted storage service. Get started on your phone. <learnMoreLink>Learn more</learnMoreLink>.",
-    "description": "Description for message backups using the Signal service."
+    "description": "(Deleted 2026/09/29) Description for message backups using the Signal service."
+  },
+  "icu:SwarmPreferences--signal-backups-off-description": {
+    "messageformat": "Automatic backups with SWARM Messenger’s secure, end-to-end encrypted storage service. They can’t be turned on from this computer yet. <learnMoreLink>Learn more</learnMoreLink>.",
+    "description": "Settings > Backups, when backups are off. A SWARM desktop is its account’s primary device and there is no phone to turn backups on from."
   },
   "icu:Preferences--backup-section-description": {
     "messageformat": "Back up your message history so you never lose data when you get a new phone or reinstall SWARM Messenger.",
@@ -9174,11 +9195,11 @@
   },
   "icu:Preferences__pnp__row--title": {
     "messageformat": "Phone Number",
-    "description": "Title of Phone Number row in Privacy section of Preferences window"
+    "description": "(Deleted 2026/09/29) Title of Phone Number row in Privacy section of Preferences window"
   },
   "icu:Preferences__pnp__row--body": {
     "messageformat": "Choose who can see your phone number and who can contact you on SWARM Messenger with it.",
-    "description": "Body of Phone Number row in Privacy section of Preferences window"
+    "description": "(Deleted 2026/09/29) Body of Phone Number row in Privacy section of Preferences window"
   },
   "icu:Preferences__pnp__row--button": {
     "messageformat": "Change…",
@@ -9802,15 +9823,15 @@
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability": {
     "messageformat": "Who can find me by phone number",
-    "description": "Label for the phone number discoverability option on profile entry screen"
+    "description": "(Deleted 2026/09/29) Label for the phone number discoverability option on profile entry screen"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--change-button": {
     "messageformat": "Change",
-    "description": "Button to open phone number discoverability dialog on profile entry screen"
+    "description": "(Deleted 2026/09/29) Button to open phone number discoverability dialog on profile entry screen"
   },
   "icu:StandaloneRegistration--ProfileEntry--discoverability--done-button": {
     "messageformat": "Done",
-    "description": "Button to close phone number discoverability dialog on profile entry screen"
+    "description": "(Deleted 2026/09/29) Button to close phone number discoverability dialog on profile entry screen"
   },
   "icu:StandaloneRegistration--ProfileEntry--continue": {
     "messageformat": "Continue",
@@ -11048,11 +11069,11 @@
   },
   "icu:UsernameOnboardingModalBody__row__number__title": {
     "messageformat": "Phone number privacy",
-    "description": "Title of the first row of username onboarding modal"
+    "description": "(Deleted 2026/09/29) Title of the first row of username onboarding modal"
   },
   "icu:UsernameOnboardingModalBody__row__number__body": {
     "messageformat": "Your phone number is no longer visible in chats. If your number is saved to a friend’s contacts, they will still see it.",
-    "description": "Body of the first row of username onboarding modal"
+    "description": "(Deleted 2026/09/29) Body of the first row of username onboarding modal"
   },
   "icu:UsernameOnboardingModalBody__row__username__title": {
     "messageformat": "Usernames",
@@ -11060,7 +11081,11 @@
   },
   "icu:UsernameOnboardingModalBody__row__username__body": {
     "messageformat": "People can now message you using your optional username so you don’t have to give out your phone number. Usernames aren’t visible on your profile.",
-    "description": "Body of the second row of username onboarding modal"
+    "description": "(Deleted 2026/09/29) Body of the second row of username onboarding modal"
+  },
+  "icu:SwarmUsernameOnboardingModalBody__row__username__body": {
+    "messageformat": "People find you and start a chat with you by your username. Usernames aren’t visible on your profile.",
+    "description": "Body of the Usernames row of the username onboarding modal."
   },
   "icu:UsernameOnboardingModalBody__row__qr__title": {
     "messageformat": "QR codes and links",
@@ -11084,7 +11109,11 @@
   },
   "icu:UsernameMegaphone__body": {
     "messageformat": "Introducing phone number privacy, optional usernames and links.",
-    "description": "Body of username megaphone"
+    "description": "(Deleted 2026/09/29) Body of username megaphone"
+  },
+  "icu:SwarmUsernameMegaphone__body": {
+    "messageformat": "Set up a username so people can find you and start a chat with you.",
+    "description": "Body of the username megaphone in the chat list, for an account without a username."
   },
   "icu:UsernameMegaphone__learn-more": {
     "messageformat": "Learn more",

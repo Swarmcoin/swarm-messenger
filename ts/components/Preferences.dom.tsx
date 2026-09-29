@@ -102,6 +102,7 @@ import { isDonationsPage } from './PreferencesDonations.dom.tsx';
 import type { VisibleRemoteMegaphoneType } from '../types/Megaphone.std.ts';
 import { TitlebarDragArea } from './TitlebarDragArea.dom.tsx';
 import { LinkedDevicesOnboardingDialog } from './preferences/LinkedDevicesOnboardingDialog.dom.tsx';
+import { SwarmDeviceNameItem } from './preferences/SwarmDeviceNameItem.dom.tsx';
 import { SignalAccountKeys } from './preferences/SignalAccountKeys.dom.tsx';
 import { SignalAccountKeysButton } from './preferences/SignalAccountKeysButton.dom.tsx';
 import type { PreferredBadgeSelectorType } from '../state/selectors/badges.preload.ts';
@@ -115,7 +116,6 @@ import { AxoList } from '../axo/items/AxoList.dom.tsx';
 import { AxoSwitchItem } from '../axo/items/AxoSwitchItem.dom.tsx';
 import { AxoSelectItem } from '../axo/items/AxoSelectItem.dom.tsx';
 import { AxoClickableItem } from '../axo/items/AxoClickableItem.dom.tsx';
-import { AxoTextItem } from '../axo/items/AxoTextItem.dom.tsx';
 import { AxoPanel } from '../axo/AxoPanel.dom.tsx';
 
 const { isNumber, noop, partition } = lodash;
@@ -391,6 +391,9 @@ type PropsFunctionType = {
   onUnreadRemindersChange: CheckboxChangeHandlerType;
   onWhoCanFindMeChange: SelectChangeHandlerType<PhoneNumberDiscoverability>;
   onWhoCanSeeMeChange: SelectChangeHandlerType<PhoneNumberSharingMode>;
+  // SWARM addition (no phone number in the interface): renames this device;
+  // without it, Settings > General shows the name read-only.
+  onDeviceNameChange?: (name: string) => Promise<void>;
   onZoomFactorChange: SelectChangeHandlerType<ZoomFactorType>;
   openFileInFolder: (path: string) => void;
   internalDeleteAllMegaphones: () => Promise<number>;
@@ -591,6 +594,7 @@ export function Preferences({
   onUnreadRemindersChange,
   onWhoCanFindMeChange,
   onWhoCanSeeMeChange,
+  onDeviceNameChange,
   onZoomFactorChange,
   otherTabsUnreadCount,
   settingsLocation,
@@ -980,18 +984,18 @@ export function Preferences({
   } else if (settingsLocation.page === SettingsPage.General) {
     const pageContents = (
       <AxoList.Group>
-        <List
-          footerDescription={i18n('icu:Preferences--device-name__description')}
-        >
-          {phoneNumber && (
-            <AxoTextItem.Root
-              label={i18n('icu:Preferences--phone-number')}
-              value={phoneNumber}
-            />
-          )}
-          <AxoTextItem.Root
-            label={i18n('icu:Preferences--device-name')}
-            value={deviceName}
+        {/*
+          SWARM change (no phone number in the interface): no "Phone Number"
+          row - a SWARM account's number is an identifier derived from its
+          wallet, never shown - and the device name is changed here: this
+          desktop is the account's primary device, so there is no phone to
+          open and no hint that says so.
+        */}
+        <List>
+          <SwarmDeviceNameItem
+            i18n={i18n}
+            deviceName={deviceName}
+            onDeviceNameChange={onDeviceNameChange}
           />
         </List>
         {weArePrimaryDevice && (
@@ -1872,14 +1876,13 @@ export function Preferences({
 
     const pageContents = (
       <AxoList.Group>
-        <List>
-          <AxoClickableItem.Root
-            label={i18n('icu:Preferences__pnp__row--title')}
-            description={i18n('icu:Preferences__pnp__row--body')}
-            arrow="next"
-            onClick={() => setSettingsLocation({ page: SettingsPage.PNP })}
-          />
-        </List>
+        {/*
+          SWARM change (no phone number in the interface): no "Phone Number"
+          row, so the page behind it ("Who can see my number", "Who can find
+          me by number") has no entry point. Both settings are held at Nobody
+          (util/swarm/swarmPhoneNumberPrivacy.preload.ts); the page is left in
+          the tree to keep upstream merges small.
+        */}
         <List>
           <AxoClickableItem.Root
             label={i18n('icu:Preferences--blocked')}
@@ -2668,11 +2671,7 @@ export function Preferences({
                   <div className="Preferences__profile-chip__name">
                     {me.title}
                   </div>
-                  {me.phoneNumber && (
-                    <div className="Preferences__profile-chip__number">
-                      {me.phoneNumber}
-                    </div>
-                  )}
+                  {/* SWARM change (no phone number in the interface): no number line. */}
                   {me.username && (
                     <div className="Preferences__profile-chip__username">
                       {me.username}

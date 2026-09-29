@@ -12,6 +12,7 @@ import type { BoundActionCreatorsMapObject } from '../../hooks/useBoundActions.s
 import type { StateType as RootStateType } from '../reducer.preload.ts';
 import type { ServiceIdString } from '../../types/ServiceId.std.ts';
 import { getServiceIdsForE164s } from '../../util/getServiceIdsForE164s.dom.ts';
+import { looksLikeSwarmAccountNumber } from '../../util/swarm/swarmAccountNumber.std.ts';
 import { useBoundActions } from '../../hooks/useBoundActions.std.ts';
 
 import { noopAction, type NoopActionType } from './noop.std.ts';
@@ -55,6 +56,14 @@ function checkForAccount(
   AccountUpdateActionType | NoopActionType
 > {
   return async (dispatch, getState) => {
+    // SWARM change (no phone number in the interface): a SWARM account
+    // identifier is never a way to reach someone, so a contact card that
+    // carries one does not look it up.
+    if (looksLikeSwarmAccountNumber(phoneNumber)) {
+      dispatch(noopAction('checkForAccount'));
+      return;
+    }
+
     const conversation = window.ConversationController.get(phoneNumber);
     if (conversation && conversation.getServiceId()) {
       log.info(`checkForAccount: found ${phoneNumber} in existing contacts`);

@@ -275,7 +275,9 @@ function ContactSection({
     return (
       <ul className="module-SafetyNumberChangeDialog__contacts">
         {section.contacts.map((contact: ConversationType) => {
-          const shouldShowNumber = Boolean(contact.name || contact.profileName);
+          // SWARM change (no phone number in the interface): the line under
+          // the name never shows a number.
+          const shouldShowNumber = false;
 
           return (
             <ContactRow
@@ -326,7 +328,9 @@ function ContactSection({
       </div>
       <ul className="module-SafetyNumberChangeDialog__contacts">
         {section.contacts.map((contact: ConversationType) => {
-          const shouldShowNumber = Boolean(contact.name || contact.profileName);
+          // SWARM change (no phone number in the interface): the line under
+          // the name never shows a number.
+          const shouldShowNumber = false;
 
           return (
             <ContactRow

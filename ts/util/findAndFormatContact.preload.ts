@@ -5,6 +5,7 @@ import type { ConversationType } from '../state/ducks/conversations.preload.ts';
 import { PLACEHOLDER_CONTACT_ID } from '../state/selectors/conversations.dom.ts';
 import { format, isValidNumber } from '../types/PhoneNumber.std.ts';
 import { itemStorage } from '../textsecure/Storage.preload.ts';
+import { isSwarmAccountNumber } from './swarm/swarmAccountNumber.std.ts';
 
 const PLACEHOLDER_CONTACT: ConversationType = {
   acceptedMessageRequest: false,
@@ -29,7 +30,13 @@ export function findAndFormatContact(identifier?: string): ConversationType {
 
   const regionCode = itemStorage.get('regionCode');
 
-  if (!isValidNumber(identifier, { regionCode })) {
+  // SWARM change (no phone number in the interface): a SWARM account
+  // identifier is a valid number to libphonenumber (+888 is assigned), but it
+  // is never a title.
+  if (
+    isSwarmAccountNumber(identifier) ||
+    !isValidNumber(identifier, { regionCode })
+  ) {
     return PLACEHOLDER_CONTACT;
   }
 

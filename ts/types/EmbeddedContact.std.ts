@@ -22,6 +22,7 @@ import { toLogFormat } from './errors.std.ts';
 import type { ServiceIdString } from './ServiceId.std.ts';
 import type { migrateDataToFileSystem } from '../util/attachments/migrateDataToFilesystem.std.ts';
 import { getLocalAttachmentUrl } from '../util/getLocalAttachmentUrl.std.ts';
+import { looksLikeSwarmAccountNumber } from '../util/swarm/swarmAccountNumber.std.ts';
 import type { ContextType } from './Message2.preload.ts';
 
 const { omit } = lodash;
@@ -159,7 +160,14 @@ export function embeddedContactSelector(
     serviceId?: ServiceIdString;
   }
 ): ReadonlyDeep<EmbeddedContactForUIType> {
-  const { firstNumber, serviceId, regionCode } = options;
+  const { regionCode } = options;
+
+  // SWARM change (no phone number in the interface): a SWARM account
+  // identifier in a shared contact is neither shown nor used to look anyone up
+  // or to offer "Send message".
+  const isSwarmIdentifier = looksLikeSwarmAccountNumber(options.firstNumber);
+  const firstNumber = isSwarmIdentifier ? undefined : options.firstNumber;
+  const serviceId = isSwarmIdentifier ? undefined : options.serviceId;
 
   const { avatar } = contact;
   let avatarForUI: EmbeddedContactForUIType['avatar'];
@@ -189,12 +197,14 @@ export function embeddedContactSelector(
     avatar: avatarForUI,
     number:
       contact.number &&
-      contact.number.map(item => ({
-        ...item,
-        value: formatPhoneNumber(item.value, {
-          ourRegionCode: regionCode,
-        }),
-      })),
+      contact.number
+        .filter(item => !looksLikeSwarmAccountNumber(item.value))
+        .map(item => ({
+          ...item,
+          value: formatPhoneNumber(item.value, {
+            ourRegionCode: regionCode,
+          }),
+        })),
   };
 }
 

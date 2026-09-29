@@ -19,18 +19,13 @@ import { shouldNeverBeCalled } from '../../../../util/shouldNeverBeCalled.std.ts
 import { useRestoreFocus } from '../../../../hooks/useRestoreFocus.dom.ts';
 import { missingCaseError } from '../../../../util/missingCaseError.std.ts';
 import type { LookupConversationWithoutServiceIdActionsType } from '../../../../util/lookupConversationWithoutServiceId.preload.ts';
-import { parseAndFormatPhoneNumber } from '../../../../util/libphonenumberInstance.std.ts';
-import type { ParsedE164Type } from '../../../../util/libphonenumberInstance.std.ts';
 import { filterAndSortConversations } from '../../../../util/filterAndSortConversations.std.ts';
 import type { ConversationType } from '../../../../state/ducks/conversations.preload.ts';
 import type {
   UUIDFetchStateKeyType,
   UUIDFetchStateType,
 } from '../../../../util/uuidFetchState.std.ts';
-import {
-  isFetchingByE164,
-  isFetchingByUsername,
-} from '../../../../util/uuidFetchState.std.ts';
+import { isFetchingByUsername } from '../../../../util/uuidFetchState.std.ts';
 import { ModalHost } from '../../../ModalHost.dom.tsx';
 import { ContactPills } from '../../../ContactPills.dom.tsx';
 import { ContactPill } from '../../../ContactPill.dom.tsx';
@@ -88,7 +83,6 @@ export function ChooseGroupMembersModal({
   i18n,
   maxGroupSize,
   onClose,
-  ourE164,
   ourUsername,
   removeSelectedContact,
   searchTerm,
@@ -111,23 +105,9 @@ export function ChooseGroupMembersModal({
     username !== ourUsername &&
     candidateContacts.every(contact => contact.username !== username);
 
-  let phoneNumber: ParsedE164Type | undefined;
-  if (!username) {
-    phoneNumber = parseAndFormatPhoneNumber(searchTerm, regionCode);
-  }
-
-  let isPhoneNumberChecked = false;
-  let isPhoneNumberVisible = false;
-  if (phoneNumber) {
-    const { e164 } = phoneNumber;
-    isPhoneNumberChecked =
-      phoneNumber.isValid &&
-      selectedContacts.some(contact => contact.e164 === e164);
-
-    isPhoneNumberVisible =
-      e164 !== ourE164 &&
-      candidateContacts.every(contact => contact.e164 !== e164);
-  }
+  // SWARM change (no phone number in the interface): what is typed here is
+  // never read as a phone number, so there is no "Find by phone number" row to
+  // add someone by number. SWARM finds people by username.
 
   const inputRef = useRef<null | HTMLInputElement>(null);
 
@@ -187,24 +167,19 @@ export function ChooseGroupMembersModal({
   if (filteredContacts.length) {
     rowCount += filteredContacts.length;
   }
-  if (isPhoneNumberVisible || isUsernameVisible) {
+  if (isUsernameVisible) {
     // "Contacts" header
     if (filteredContacts.length) {
       rowCount += 1;
     }
 
-    // "Find by phone number" + phone number
-    // or
     // "Find by username" + username
     rowCount += 2;
   }
   const getRow = (index: number): undefined | Row => {
     let virtualIndex = index;
 
-    if (
-      (isPhoneNumberVisible || isUsernameVisible) &&
-      filteredContacts.length
-    ) {
+    if (isUsernameVisible && filteredContacts.length) {
       if (virtualIndex === 0) {
         return {
           type: RowType.Header,
@@ -239,29 +214,6 @@ export function ChooseGroupMembersModal({
     }
 
     virtualIndex -= filteredContacts.length;
-
-    if (isPhoneNumberVisible) {
-      strictAssert(
-        phoneNumber !== undefined,
-        "phone number can't be visible if not present"
-      );
-      if (virtualIndex === 0) {
-        return {
-          type: RowType.Header,
-          // oxlint-disable-next-line typescript/no-shadow
-          getHeaderText: i18n => i18n('icu:findByPhoneNumberHeader'),
-        };
-      }
-      if (virtualIndex === 1) {
-        return {
-          type: RowType.PhoneNumberCheckbox,
-          isChecked: isPhoneNumberChecked,
-          isFetching: isFetchingByE164(uuidFetchState, phoneNumber.e164),
-          phoneNumber,
-        };
-      }
-      virtualIndex -= 2;
-    }
 
     if (username) {
       if (virtualIndex === 0) {
@@ -399,7 +351,7 @@ export function ChooseGroupMembersModal({
         </h1>
         <SearchInput
           i18n={i18n}
-          placeholder={i18n('icu:contactSearchPlaceholder')}
+          placeholder={i18n('icu:SwarmContactSearchPlaceholder')}
           onChange={event => {
             setSearchTerm(event.target.value);
           }}

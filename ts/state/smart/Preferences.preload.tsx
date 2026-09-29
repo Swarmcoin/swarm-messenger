@@ -61,6 +61,7 @@ import { DurationInSeconds } from '../../util/durations/duration-in-seconds.std.
 import { PhoneNumberDiscoverability } from '../../util/phoneNumberDiscoverability.std.ts';
 import { PhoneNumberSharingMode } from '../../types/PhoneNumberSharingMode.std.ts';
 import { writeProfile } from '../../services/writeProfile.preload.ts';
+import { setThisDeviceName } from '../../util/swarm/swarmDeviceName.preload.ts';
 import { keyTransparency } from '../../services/keyTransparency.preload.ts';
 import { getConversation } from '../../util/getConversation.preload.ts';
 import { waitForEvent } from '../../shims/events.dom.ts';
@@ -1182,6 +1183,7 @@ export function SmartPreferences(): JSX.Element | null {
         onUnreadRemindersChange={onUnreadRemindersChange}
         onWhoCanFindMeChange={onWhoCanFindMeChange}
         onWhoCanSeeMeChange={onWhoCanSeeMeChange}
+        onDeviceNameChange={setThisDeviceName}
         onZoomFactorChange={onZoomFactorChange}
         openFileInFolder={openFileInFolder}
         osName={osName}

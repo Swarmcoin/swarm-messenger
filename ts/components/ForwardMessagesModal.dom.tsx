@@ -343,7 +343,7 @@ export function ForwardMessagesModal({
             <SearchInput
               disabled={candidateConversations.length === 0}
               i18n={i18n}
-              placeholder={i18n('icu:contactSearchPlaceholder')}
+              placeholder={i18n('icu:SwarmContactSearchPlaceholder')}
               onChange={event => {
                 setSearchTerm(event.target.value);
               }}

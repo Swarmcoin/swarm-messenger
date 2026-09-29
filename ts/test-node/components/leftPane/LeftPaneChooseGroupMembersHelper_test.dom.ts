@@ -172,7 +172,9 @@ describe('LeftPaneChooseGroupMembersHelper', () => {
       });
     });
 
-    it('returns a header, then the phone number, then a blank space if there are contacts', () => {
+    it('returns no rows for a phone number', () => {
+      // SWARM change (no phone number in the interface): upstream shows a
+      // "Find by phone number" header, the number, then a blank space.
       const helper = new LeftPaneChooseGroupMembersHelper({
         ...defaults,
         candidateContacts: [],
@@ -181,21 +183,8 @@ describe('LeftPaneChooseGroupMembersHelper', () => {
         selectedContacts: [],
       });
 
-      assert.deepEqual(
-        _testHeaderText(helper.getRow(0)),
-        'icu:findByPhoneNumberHeader'
-      );
-      assert.deepEqual(helper.getRow(1), {
-        type: RowType.PhoneNumberCheckbox,
-        phoneNumber: {
-          isValid: false,
-          userInput: '212 555',
-          e164: '+1212555',
-        },
-        isChecked: false,
-        isFetching: false,
-      });
-      assert.deepEqual(helper.getRow(2), { type: RowType.Blank });
+      assert.strictEqual(helper.getRowCount(), 0);
+      assert.isUndefined(helper.getRow(0));
     });
 
     it('returns a header, then the username, then a blank space if there are contacts', () => {

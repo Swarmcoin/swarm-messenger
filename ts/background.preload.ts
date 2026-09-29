@@ -274,6 +274,8 @@ import {
   maybeQueueDeviceInfoFetch,
   onDeviceNameChangeSync,
 } from './util/onDeviceNameChangeSync.preload.ts';
+import { ensureSwarmPhoneNumberPrivacy } from './util/swarm/swarmPhoneNumberPrivacy.preload.ts';
+import { maybeNameThisPrimaryDevice } from './util/swarm/swarmDeviceName.preload.ts';
 import { postSaveUpdates } from './util/cleanup.preload.ts';
 import { handleDataMessage } from './messages/handleDataMessage.preload.ts';
 import { MessageModel } from './models/messages.preload.ts';
@@ -2034,6 +2036,12 @@ async function startApp(): Promise<void> {
     drop(ensureAEP());
     drop(maybeQueueDeviceInfoFetch());
     Stickers.downloadQueuedPacks();
+
+    // SWARM addition (no phone number in the interface): the account's
+    // phone-number settings at their most private, and a name for a primary
+    // device that never got one.
+    drop(ensureSwarmPhoneNumberPrivacy());
+    drop(maybeNameThisPrimaryDevice());
   }
 
   async function afterEveryLinkedStartupOnNewVersion({

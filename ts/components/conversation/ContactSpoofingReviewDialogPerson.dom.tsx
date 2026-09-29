@@ -97,12 +97,7 @@ export function ContactSpoofingReviewDialogPerson({
           name
         )}
         {callout}
-        {conversation.phoneNumber ? (
-          <div className="module-ContactSpoofingReviewDialogPerson__info__property">
-            <i className="module-ContactSpoofingReviewDialogPerson__info__property__icon module-ContactSpoofingReviewDialogPerson__info__property__icon--phone" />
-            <div>{conversation.phoneNumber}</div>
-          </div>
-        ) : null}
+        {/* SWARM change (no phone number in the interface): no phone line. */}
         {isSignalConnection ? (
           <div className="module-ContactSpoofingReviewDialogPerson__info__property">
             <i className="module-ContactSpoofingReviewDialogPerson__info__property__icon module-ContactSpoofingReviewDialogPerson__info__property__icon--connections" />

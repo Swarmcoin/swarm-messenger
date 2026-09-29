@@ -206,8 +206,13 @@ export function PreferencesBackups({
                 <label>
                   {i18n('icu:Preferences--signal-backups')}{' '}
                   <div className="Preferences--backup-details__value">
+                    {/*
+                      SWARM change (no phone number in the interface): Signal
+                      says "Get started on your phone"; a SWARM desktop is the
+                      account's primary device and has no phone.
+                    */}
                     <I18n
-                      id="icu:Preferences--signal-backups-off-description"
+                      id="icu:SwarmPreferences--signal-backups-off-description"
                       i18n={i18n}
                       components={{
                         learnMoreLink,

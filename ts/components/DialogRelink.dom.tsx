@@ -34,12 +34,15 @@ export function DialogRelink({
   >(null);
 
   if (weArePrimaryDevice) {
+    // SWARM change (no phone number in the interface): Signal's text says the
+    // phone number was registered on another device. A SWARM account is
+    // signed out here when its 24 words were used on another device.
     return (
       <LeftPaneDialog
         containerWidthBreakpoint={containerWidthBreakpoint}
         type="warning"
         icon="relink"
-        clickLabel={i18n('icu:unregisteredWarning')}
+        clickLabel={i18n('icu:SwarmUnregisteredWarning')}
         onClick={reregister}
         title={i18n('icu:unregistered')}
         hasAction

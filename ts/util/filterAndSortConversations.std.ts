@@ -10,6 +10,7 @@ import type { UnreadStatsIncludeMuted } from './countUnreadStats.std.ts';
 import { isConversationUnread } from './countUnreadStats.std.ts';
 import { getE164 } from './getE164.std.ts';
 import { removeDiacritics } from './removeDiacritics.std.ts';
+import { isSwarmAccountNumber } from './swarm/swarmAccountNumber.std.ts';
 import { isAciString } from './isAciString.std.ts';
 
 // See: https://fusejs.io/api/options.html#includescore
@@ -54,7 +55,10 @@ const FUSE_OPTIONS: IFuseOptions<ConversationType> = {
   ] satisfies ReadonlyArray<ConversationTypeFuseOptionKey>,
   getFn: (convo, path) => {
     if (path === 'e164' || (path.length === 1 && path[0] === 'e164')) {
-      return getE164(convo) ?? '';
+      const e164 = getE164(convo);
+      // SWARM change (no phone number in the interface): nobody is found by a
+      // SWARM account identifier, so it is not something a search matches.
+      return e164 == null || isSwarmAccountNumber(e164) ? '' : e164;
     }
     const text = Fuse.config.getFn(convo, path);
     if (text == null) {

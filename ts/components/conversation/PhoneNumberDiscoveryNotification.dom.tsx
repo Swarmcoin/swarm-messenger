@@ -15,7 +15,9 @@ import {
 export type PropsDataType = {
   conversationId: string;
   conversationTitle: string;
-  phoneNumber: string;
+  // SWARM change (no phone number in the interface): absent when the number
+  // is a SWARM account identifier, which is never shown.
+  phoneNumber: string | undefined;
 };
 export type PropsType = PropsDataType & {
   getSharedGroupNames: GetSharedGroupNamesType;
@@ -25,7 +27,7 @@ export type PropsType = PropsDataType & {
 // Also known as a Session Switchover Event (SSE)
 export function PhoneNumberDiscoveryNotification(
   props: PropsType
-): JSX.Element {
+): JSX.Element | null {
   const {
     conversationId,
     conversationTitle,
@@ -39,6 +41,12 @@ export function PhoneNumberDiscoveryNotification(
     getSharedGroupNames
   );
   const sharedGroup = sharedGroupNames[0];
+
+  // SWARM change (no phone number in the interface): "{number} belongs to
+  // {name}" has nothing to say without the number.
+  if (phoneNumber == null) {
+    return null;
+  }
 
   const message = getStringForPhoneNumberDiscovery({
     conversationTitle,
