@@ -376,7 +376,14 @@ export const DecimalPriceSchema = z
   .refine(value => /[1-9]/.test(value), { message: 'not a positive price' });
 
 /** The most hourly closes the pane draws (the service sends up to 48). */
-export const SWARM_PRICE_SPARKLINE_MAX = 168;
+export const SWARM_PRICE_SPARKLINE_MAX = 49;
+
+/**
+ * SWARM addition (PD-5c): the most values a series may arrive with. Longer
+ * series than the pane keeps (49 hourly, 31 daily: the closes plus the live
+ * price, spec section 6.1) are trimmed from the oldest end, not refused.
+ */
+export const SWARM_PRICE_SERIES_INPUT_MAX = 1000;
 
 /**
  * Whether a URL is a pool page on DexScreener: https, exactly the host
@@ -444,7 +451,7 @@ export const PoolIdSchema = z.string().regex(/^0x[0-9a-fA-F]{64}$/);
 export const TokenAddressSchema = z.string().regex(/^0x[0-9a-fA-F]{40}$/);
 
 /** At most this many daily closes are drawn (the service sends up to 30). */
-export const SWARM_PRICE_DAILY_MAX = 60;
+export const SWARM_PRICE_DAILY_MAX = 31;
 
 const UsdAmountSchema = z.number().nonnegative().max(1e15);
 const UnixSchema = z.number().int().positive();
@@ -502,8 +509,10 @@ export const SwarmPriceRelaySchema = z.object({
   source: droppedIfInvalid(SlugSchema),
   sparkline_usd: z
     .array(z.number().nonnegative())
-    .max(SWARM_PRICE_SPARKLINE_MAX)
+    .max(SWARM_PRICE_SERIES_INPUT_MAX)
     .optional(),
+  /** How many hourly closes `sparkline_usd` holds (one more: the live price). */
+  sparkline_hours: droppedIfInvalid(z.number().int().positive().max(1000)),
   pool: z
     .object({
       chain: droppedIfInvalid(SlugSchema),
@@ -528,7 +537,7 @@ export const SwarmPriceRelaySchema = z.object({
   price_eth: droppedIfInvalid(DecimalPriceSchema),
   hourly_from_unix: droppedIfInvalid(UnixSchema),
   daily_usd: droppedIfInvalid(
-    z.array(z.number().nonnegative()).max(SWARM_PRICE_DAILY_MAX)
+    z.array(z.number().nonnegative()).max(SWARM_PRICE_SERIES_INPUT_MAX)
   ),
   daily_from_unix: droppedIfInvalid(UnixSchema),
   transactions_24h: droppedIfInvalid(TransactionsSchema),
@@ -570,6 +579,12 @@ export const SwarmPriceReadingSchema = z.object({
   dailyUsd: z.array(z.number().nonnegative()).max(SWARM_PRICE_DAILY_MAX),
   /** The day of the first `dailyUsd` value, Unix seconds. */
   dailyFromUnix: UnixSchema.nullable(),
+  /**
+   * SWARM addition (PD-5c): the last value of the series is the live price,
+   * not a close (spec section 6.1); the page says "now" for it.
+   */
+  hourlyEndsLive: z.boolean(),
+  dailyEndsLive: z.boolean(),
   transactions24h: TransactionsSchema.nullable(),
   liquidityUsd: UsdAmountSchema.nullable(),
   volume24hUsd: UsdAmountSchema.nullable(),

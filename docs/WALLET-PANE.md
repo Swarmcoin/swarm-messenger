@@ -565,6 +565,19 @@ not fit is dropped alone; the price stays. The live answer of 2026-10-05 19:01 U
 `daily_usd`, `hourly_from_unix`, `transactions_24h` or `pool.fee_pct` yet: the 30d button is then
 disabled, the readout shows values without times, and those figures show `—`.
 
+**The live price at the end of a series (PD-5c).** Since 19:21 UTC on 2026-10-05 the service
+ends both series with the live price (spec section 6.1, amended): 48 hourly closes plus the live
+price, up to 30 daily closes plus the live price. The main process keeps at most 49 hourly and 31
+daily values, from the newest end, and moves the start time on by what it drops (a longer series is
+trimmed, not refused; more than 1000 values refuse the document). A series ends at the live price
+when it holds one value more than its closes, counted from its start time to the document's time
+(one per hour or day, the current one included), or, for the hourly series without a start time,
+from `sparkline_hours` (`keepPriceSeries`, `hourlyEndsLive` / `dailyEndsLive` in the reading).
+The live price stays in every range (24h is 24 closes and the live price), and the readout says
+"$0.9305 · now" for it instead of a time (`icu:SwarmWallet__price--page-readout--now`). The
+service's answer of 19:23 UTC, with these fields, is saved as a second fixture and parsed in
+`swarmPriceRelay_test.node.ts`.
+
 **Tests.** `SwarmWalletPane_test.preload.tsx` (the view and Back; everything for a fresh price;
 the range switch drawing three different series; the pointer readout; a range without data
 disabled; no data at all; extreme labels; missing figures; links only on the fixed hosts; off;

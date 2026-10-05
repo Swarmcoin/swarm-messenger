@@ -886,7 +886,10 @@ not fit on its own; no new channel and no new request. 31 more strings
 (`icu:SwarmWallet__price--page-*`; `--open-pool` became `--open-page`; the
 change chips take a period). Tests: page states, ranges, readout, schema, and
 the live service's answer of 19:01 UTC saved as a fixture; `test-node:swarm`
-402 → 424 passing. Details: `docs/WALLET-PANE.md` section 13.1.
+402 → 424 passing. Then (PD-5c) both series end with the live price, as the
+service sends them since 19:21 UTC: at most 49 hourly / 31 daily values kept,
+the last point read out as "now", in every range; 429 passing. Details:
+`docs/WALLET-PANE.md` section 13.1.
 
 **Not changed, noted.** The price service went live at 19:00 UTC that day; the
 card and the page have been seen against its saved answer and the

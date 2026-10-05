@@ -246,12 +246,15 @@ export type PriceChartSeriesType = Readonly<{
   /** The time of the first value, Unix seconds, or null when not known. */
   fromUnix: number | null;
   stepSeconds: number;
+  /** The last value is the live price ("now"), not a close (PD-5c). */
+  endsLive: boolean;
 }>;
 
 /**
  * What a range of the page's chart draws: `24h` the last 24 hourly closes,
- * `48h` all of them, `30d` the daily closes. Null when the range has fewer
- * than two points (its button is then disabled).
+ * `48h` all of them, `30d` the daily closes - each followed by the live
+ * price when the series ends with it (spec section 6.1). Null when the
+ * range has fewer than two points (its button is then disabled).
  */
 export function priceChartSeries(
   reading: Readonly<{
@@ -259,6 +262,8 @@ export function priceChartSeries(
     hourlyFromUnix: number | null;
     dailyUsd: ReadonlyArray<number>;
     dailyFromUnix: number | null;
+    hourlyEndsLive: boolean;
+    dailyEndsLive: boolean;
   }>,
   range: PriceChartRangeType
 ): PriceChartSeriesType | null {
@@ -268,11 +273,15 @@ export function priceChartSeries(
       values: reading.dailyUsd,
       fromUnix: reading.dailyFromUnix,
       stepSeconds: 24 * 3600,
+      endsLive: reading.dailyEndsLive,
     };
   } else {
     const hourly = reading.sparklineUsd;
-    const skip = range === '24h' ? Math.max(0, hourly.length - 24) : 0;
+    // 24 closes, and the live price after them when the series has it.
+    const shown = 24 + (reading.hourlyEndsLive ? 1 : 0);
+    const skip = range === '24h' ? Math.max(0, hourly.length - shown) : 0;
     series = {
+      endsLive: reading.hourlyEndsLive,
       values: hourly.slice(skip),
       fromUnix:
         reading.hourlyFromUnix == null

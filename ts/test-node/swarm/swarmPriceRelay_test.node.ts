@@ -16,6 +16,7 @@ import { join } from 'node:path';
 import { assert } from 'chai';
 
 import {
+  keepPriceSeries,
   PRICE_FETCH_EVERY_MS,
   PRICE_MAX_BODY_BYTES,
   SWARM_PRICE_RELAY_URL,
@@ -34,6 +35,15 @@ import { SwarmPriceRelaySchema } from '../../types/SwarmWallet.std.ts';
  * (GET https://wallet.swarm.green/api/price/swm, 200) and saved; the tests
  * never fetch it.
  */
+/**
+ * The live service's answer of 19:23 UTC the same day, after it gained the
+ * section 6.1 fields and the live price at the end of both series.
+ */
+const LIVE_BODY_6_1 = readFileSync(
+  join(import.meta.dirname, 'fixtures', 'swarmPriceLive-2026-10-05T1923Z.json'),
+  'utf8'
+);
+
 const LIVE_BODY = readFileSync(
   join(import.meta.dirname, 'fixtures', 'swarmPriceLive-2026-10-05T1901Z.json'),
   'utf8'
@@ -47,6 +57,8 @@ const NO_PAGE_FIELDS = {
   hourlyFromUnix: null,
   dailyUsd: [],
   dailyFromUnix: null,
+  hourlyEndsLive: false,
+  dailyEndsLive: false,
   transactions24h: null,
   liquidityUsd: null,
   volume24hUsd: null,
@@ -178,6 +190,8 @@ describe('SWARM price: the price service read (PD-5)', () => {
           hourlyFromUnix: null,
           dailyUsd: [],
           dailyFromUnix: null,
+          hourlyEndsLive: false,
+          dailyEndsLive: false,
           transactions24h: null,
           liquidityUsd: 3761.34,
           volume24hUsd: 378.11,
@@ -231,6 +245,7 @@ describe('SWARM price: the price service read (PD-5)', () => {
         ...fixture(),
         price_eth: 1.9e-4,
         daily_usd: ['0.31'],
+        sparkline_hours: 'many',
         daily_from_unix: -1,
         transactions_24h: { buys: -1, sells: 0 },
         liquidity_usd: 'a lot',
@@ -317,7 +332,8 @@ describe('SWARM price: the price service read (PD-5)', () => {
           ['dexscreener', true],
         ]
       );
-      // Not in the service's answer yet on that day (spec section 6.1).
+      // Not in the service's answer yet at 19:01 (spec section 6.1).
+      assert.isFalse(reading.hourlyEndsLive, '48 closes, no live price');
       assert.deepEqual(reading.dailyUsd, []);
       assert.isNull(reading.hourlyFromUnix);
       assert.isNull(reading.transactions24h);
@@ -343,6 +359,122 @@ describe('SWARM price: the price service read (PD-5)', () => {
         assert.strictEqual(reading?.priceUsd, '0.84114343');
         assert.isNull(reading?.dexscreenerUrl, String(url));
       }
+    });
+
+    it('reads the live answer with the section 6.1 fields (19:23 UTC, saved)', () => {
+      const document: unknown = JSON.parse(LIVE_BODY_6_1);
+      assert.isTrue(SwarmPriceRelaySchema.safeParse(document).success);
+      const reading = readingFromRelayDocument(document);
+      assert.isNotNull(reading);
+      if (reading == null) {
+        return;
+      }
+      assert.strictEqual(reading.priceUsd, '0.930495329015849');
+      // 48 hourly closes and the live price.
+      assert.lengthOf(reading.sparklineUsd, 49);
+      assert.isTrue(reading.hourlyEndsLive);
+      assert.strictEqual(reading.sparklineUsd[48], 0.930495);
+      assert.strictEqual(reading.hourlyFromUnix, 1791057600);
+      // Three daily closes (5 Oct included) and the live price.
+      assert.deepEqual(reading.dailyUsd.length, 4);
+      assert.isTrue(reading.dailyEndsLive);
+      assert.strictEqual(reading.dailyFromUnix, 1790985600);
+      assert.deepEqual(reading.transactions24h, { buys: 5, sells: 0 });
+      assert.strictEqual(reading.feePct, 0.9);
+      assert.strictEqual(reading.poolCreatedUnix, 1791029643);
+      assert.strictEqual(reading.liquidityUsd, 3835.92);
+      assert.deepEqual(
+        reading.sources.map(({ id, ok, priceUsd }) => [id, ok, priceUsd]),
+        [
+          ['geckoterminal', true, '0.930495329015849'],
+          ['dexscreener', true, '0.9817'],
+        ]
+      );
+    });
+
+    it('keeps at most 49 hourly and 31 daily values, moving the start on', () => {
+      const generated = 1_800_000_000;
+      const hourStart = Math.floor(generated / 3600) * 3600;
+      // 60 closes and the live price: trimmed to the newest 49.
+      const hourly = Array.from({ length: 61 }, (_, index) => index + 1);
+      const dayStart = Math.floor(generated / 86400) * 86400;
+      const daily = Array.from({ length: 41 }, (_, index) => index + 1);
+      const reading = readingFromRelayDocument({
+        ...fixture(),
+        generated_unix: generated,
+        sparkline_usd: hourly,
+        hourly_from_unix: hourStart - 59 * 3600,
+        daily_usd: daily,
+        daily_from_unix: dayStart - 39 * 86400,
+      });
+      assert.lengthOf(reading?.sparklineUsd ?? [], 49);
+      assert.strictEqual(reading?.sparklineUsd[0], 13);
+      assert.strictEqual(reading?.sparklineUsd[48], 61);
+      assert.strictEqual(reading?.hourlyFromUnix, hourStart - 47 * 3600);
+      assert.isTrue(reading?.hourlyEndsLive);
+      assert.lengthOf(reading?.dailyUsd ?? [], 31);
+      assert.strictEqual(reading?.dailyUsd[30], 41);
+      assert.strictEqual(reading?.dailyFromUnix, dayStart - 29 * 86400);
+      assert.isTrue(reading?.dailyEndsLive);
+      // A series longer than any the service could mean is refused whole.
+      assert.isNull(
+        readingFromRelayDocument({
+          ...fixture(),
+          sparkline_usd: Array.from({ length: 1001 }, () => 1),
+        })
+      );
+    });
+
+    it('tells a series that ends at the live price from closes only', () => {
+      const base = {
+        stepSeconds: 3600,
+        generatedUnix: 36_000 + 1800,
+        keep: 49,
+      };
+      // Started at hour 0, the document is in hour 10: 11 closes.
+      const closes = Array.from({ length: 11 }, () => 1);
+      assert.isFalse(
+        keepPriceSeries({
+          ...base,
+          values: closes,
+          fromUnix: 0,
+          declaredCloses: null,
+        }).endsLive
+      );
+      assert.isTrue(
+        keepPriceSeries({
+          ...base,
+          values: [...closes, 2],
+          fromUnix: 0,
+          declaredCloses: null,
+        }).endsLive
+      );
+      // Without a start time: the declared close count.
+      assert.isTrue(
+        keepPriceSeries({
+          ...base,
+          values: Array.from({ length: 49 }, () => 1),
+          fromUnix: null,
+          declaredCloses: 48,
+        }).endsLive
+      );
+      assert.isFalse(
+        keepPriceSeries({
+          ...base,
+          values: Array.from({ length: 48 }, () => 1),
+          fromUnix: null,
+          declaredCloses: 48,
+        }).endsLive
+      );
+      assert.isFalse(
+        keepPriceSeries({
+          ...base,
+          values: [1, 2],
+          fromUnix: null,
+          declaredCloses: null,
+        }).endsLive,
+        'nothing to count by: closes'
+      );
     });
 
     it('takes a minimal document: no change, no sparkline, no pool', () => {

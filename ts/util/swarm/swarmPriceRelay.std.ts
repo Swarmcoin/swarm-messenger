@@ -19,6 +19,10 @@ import {
   SwarmPriceReadingSchema,
   SwarmPriceRelaySchema,
 } from '../../types/SwarmWallet.std.ts';
+import {
+  SWARM_PRICE_DAILY_MAX,
+  SWARM_PRICE_SPARKLINE_MAX,
+} from '../../types/SwarmWallet.std.ts';
 import type {
   SwarmPriceReadingType,
   SwarmPriceStateType,
@@ -59,6 +63,53 @@ export type PriceFetchResultType =
   | Readonly<{ ok: true; reading: SwarmPriceReadingType }>
   | Readonly<{ ok: false; failure: PriceFailureType }>;
 
+export type PriceSeriesType = Readonly<{
+  values: ReadonlyArray<number>;
+  fromUnix: number | null;
+  endsLive: boolean;
+}>;
+
+/**
+ * SWARM addition (PD-5c): one of the service's series as the pane keeps it.
+ *
+ * Spec section 6.1: each series is its closes plus, as the last value, the
+ * live price. A series is taken to end at the live price when it holds one
+ * value more than it has closes: the closes counted from its start time to
+ * the document's time (one per hour or day, the current one included), or,
+ * for the hourly series without a start time, `sparkline_hours`.
+ *
+ * At most `keep` values are kept, from the newest end; the start time moves
+ * on by the values dropped.
+ */
+export function keepPriceSeries({
+  values,
+  fromUnix,
+  stepSeconds,
+  generatedUnix,
+  declaredCloses,
+  keep,
+}: {
+  values: ReadonlyArray<number>;
+  fromUnix: number | null;
+  stepSeconds: number;
+  generatedUnix: number;
+  declaredCloses: number | null;
+  keep: number;
+}): PriceSeriesType {
+  let closes: number | null = declaredCloses;
+  if (fromUnix != null && generatedUnix >= fromUnix) {
+    closes = Math.floor((generatedUnix - fromUnix) / stepSeconds) + 1;
+  }
+  const endsLive =
+    closes != null && values.length >= 2 && values.length === closes + 1;
+  const drop = Math.max(0, values.length - keep);
+  return {
+    values: drop === 0 ? values : values.slice(drop),
+    fromUnix: fromUnix == null ? null : fromUnix + drop * stepSeconds,
+    endsLive,
+  };
+}
+
 /** The service's document, reduced to what the pane draws. */
 export function readingFromRelayDocument(
   document: unknown
@@ -68,10 +119,26 @@ export function readingFromRelayDocument(
     return null;
   }
   const relay = parsed.data;
+  const hourly = keepPriceSeries({
+    values: relay.sparkline_usd ?? [],
+    fromUnix: relay.hourly_from_unix ?? null,
+    stepSeconds: 3600,
+    generatedUnix: relay.generated_unix,
+    declaredCloses: relay.sparkline_hours ?? null,
+    keep: SWARM_PRICE_SPARKLINE_MAX,
+  });
+  const daily = keepPriceSeries({
+    values: relay.daily_usd ?? [],
+    fromUnix: relay.daily_from_unix ?? null,
+    stepSeconds: 24 * 3600,
+    generatedUnix: relay.generated_unix,
+    declaredCloses: null,
+    keep: SWARM_PRICE_DAILY_MAX,
+  });
   return {
     priceUsd: relay.price_usd,
     changePct24h: relay.change_pct?.h24 ?? null,
-    sparklineUsd: relay.sparkline_usd ?? [],
+    sparklineUsd: [...hourly.values],
     dexscreenerUrl: relay.pool?.dexscreener_url ?? null,
     chain: relay.pool?.chain ?? null,
     dex: relay.pool?.dex ?? null,
@@ -82,9 +149,11 @@ export function readingFromRelayDocument(
     priceEth: relay.price_eth ?? null,
     changePct1h: relay.change_pct?.h1 ?? null,
     changePct6h: relay.change_pct?.h6 ?? null,
-    hourlyFromUnix: relay.hourly_from_unix ?? null,
-    dailyUsd: relay.daily_usd ?? [],
-    dailyFromUnix: relay.daily_from_unix ?? null,
+    hourlyFromUnix: hourly.fromUnix,
+    dailyUsd: [...daily.values],
+    dailyFromUnix: daily.fromUnix,
+    hourlyEndsLive: hourly.endsLive,
+    dailyEndsLive: daily.endsLive,
     transactions24h: relay.transactions_24h ?? null,
     liquidityUsd: relay.liquidity_usd ?? null,
     volume24hUsd: relay.volume_24h_usd ?? null,

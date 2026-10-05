@@ -392,15 +392,22 @@ function Chart({
   const shownPoint = points[shownIndex] ?? latest;
   const shownValue = series.values[shownIndex] ?? 0;
   const time = pointTime(i18n, series, shownIndex);
-  const readout =
-    time == null
-      ? i18n('icu:SwarmWallet__price--page-readout--no-time', {
-          price: chartValueText(shownValue),
-        })
-      : i18n('icu:SwarmWallet__price--page-readout', {
-          price: chartValueText(shownValue),
-          time,
-        });
+  let readout: string;
+  if (series.endsLive && shownIndex === lastIndex) {
+    // The live price, not a close (spec section 6.1).
+    readout = i18n('icu:SwarmWallet__price--page-readout--now', {
+      price: chartValueText(shownValue),
+    });
+  } else if (time == null) {
+    readout = i18n('icu:SwarmWallet__price--page-readout--no-time', {
+      price: chartValueText(shownValue),
+    });
+  } else {
+    readout = i18n('icu:SwarmWallet__price--page-readout', {
+      price: chartValueText(shownValue),
+      time,
+    });
+  }
 
   // The highest and lowest values, unless the latest label already says it.
   const edgeLabels: Array<{ index: number; testId: string }> = [];

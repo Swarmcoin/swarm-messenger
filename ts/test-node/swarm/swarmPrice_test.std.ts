@@ -280,6 +280,8 @@ describe('SWARM price: amounts and words (PD-5)', () => {
         hourlyFromUnix: 1_000_000,
         dailyUsd: [1, 2, 3],
         dailyFromUnix: 2_000_000,
+        hourlyEndsLive: false,
+        dailyEndsLive: false,
       };
       const day = priceChartSeries(reading, '24h');
       assert.deepEqual(day?.values, hourly.slice(24));
@@ -291,6 +293,7 @@ describe('SWARM price: amounts and words (PD-5)', () => {
         values: [1, 2, 3],
         fromUnix: 2_000_000,
         stepSeconds: 86_400,
+        endsLive: false,
       });
       // Fewer than two points: no range.
       assert.isNull(priceChartSeries({ ...reading, dailyUsd: [1] }, '30d'));
@@ -352,6 +355,35 @@ describe('SWARM price: amounts and words (PD-5)', () => {
       ]) {
         assert.isFalse(isGeckoterminalPoolUrl(bad), bad);
       }
+    });
+  });
+
+  describe('the live price at the end of a series (PD-5c)', () => {
+    it('keeps it in every range: 24h is 24 closes and the live price', () => {
+      const hourly = Array.from({ length: 49 }, (_, index) => index + 1);
+      const reading = {
+        sparklineUsd: hourly,
+        hourlyFromUnix: 1_000_000,
+        dailyUsd: [1, 2, 3, 4],
+        dailyFromUnix: 2_000_000,
+        hourlyEndsLive: true,
+        dailyEndsLive: true,
+      };
+      const day = priceChartSeries(reading, '24h');
+      assert.lengthOf(day?.values ?? [], 25);
+      assert.strictEqual(day?.values[24], 49, 'ends at the live price');
+      assert.strictEqual(day?.values[0], 25);
+      assert.strictEqual(day?.fromUnix, 1_000_000 + 24 * 3600);
+      assert.isTrue(day?.endsLive);
+      assert.lengthOf(priceChartSeries(reading, '48h')?.values ?? [], 49);
+      assert.isTrue(priceChartSeries(reading, '30d')?.endsLive);
+      // Without the live price, 24h is the last 24 closes.
+      const closesOnly = priceChartSeries(
+        { ...reading, hourlyEndsLive: false },
+        '24h'
+      );
+      assert.lengthOf(closesOnly?.values ?? [], 24);
+      assert.isFalse(closesOnly?.endsLive);
     });
   });
 });

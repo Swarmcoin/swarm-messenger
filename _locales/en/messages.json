@@ -12761,6 +12761,10 @@
     "messageformat": "${price} · {time}",
     "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Above the chart: the value under the pointer (or the latest) and its time. price is already formatted, e.g. 0.8411."
   },
+  "icu:SwarmWallet__price--page-readout--now": {
+    "messageformat": "${price} · now",
+    "description": "SWARM (PD-5c): the SWM price page. Above the chart, for its last point, which is the live price rather than an hourly or daily close. price is already formatted, e.g. 0.9305."
+  },
   "icu:SwarmWallet__price--page-readout--no-time": {
     "messageformat": "${price}",
     "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Above the chart, when the time of the value is not known."

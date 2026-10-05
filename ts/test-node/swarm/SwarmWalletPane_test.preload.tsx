@@ -411,6 +411,8 @@ const READING: SwarmPriceReadingType = {
     0.75, 0.78, 0.8, 0.8411,
   ],
   dailyFromUnix: 1788652800,
+  hourlyEndsLive: false,
+  dailyEndsLive: false,
   transactions24h: { buys: 9, sells: 0 },
   liquidityUsd: 3761.34,
   volume24hUsd: 378.11,
@@ -918,5 +920,38 @@ describe('SWARM wallet: the SWM price page (PD-5b)', () => {
       'price'
     );
     assert.notInclude(opening, 'data-testid="price-page"');
+  });
+
+  it('says "now" for the live price at the end of a series (PD-5c)', () => {
+    const hourly = Array.from({ length: 49 }, (_, index) => 0.5 + index / 100);
+    const live = price({
+      reading: {
+        ...READING,
+        sparklineUsd: hourly,
+        hourlyEndsLive: true,
+        dailyEndsLive: true,
+      },
+    });
+    for (const range of ['24h', '48h', '30d'] as const) {
+      const html = renderPage({ price: live, initialRange: range });
+      assert.match(
+        textOf(html),
+        /\$\d\.\d{4} · now/,
+        `${range}: the latest point is now`
+      );
+    }
+    const day = renderPage({ price: live, initialRange: '24h' });
+    // 24 closes and the live price: 25 points.
+    const line = /data-testid="price-chart-line" d="([^"]+)"/.exec(day)?.[1];
+    assert.lengthOf(line?.split(' L') ?? [], 25);
+    assert.include(textOf(day), '$0.9800 · now');
+    // A point before the end keeps its time.
+    const earlier = renderPage({
+      price: live,
+      initialRange: '48h',
+      initialHoverIndex: 0,
+    });
+    assert.notMatch(textOf(earlier), /· now/);
+    assert.match(textOf(earlier), /\$0\.5000 · \w{3} \d{1,2} \d{2}:\d{2}/);
   });
 });
