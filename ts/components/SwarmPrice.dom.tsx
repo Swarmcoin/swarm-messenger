@@ -325,7 +325,7 @@ export function PriceCard({
   }
 
   const cardClass = tw(
-    'flex flex-col gap-3 rounded-lg bg-surface-secondary p-4 text-start'
+    'flex flex-col gap-3 rounded-lg bg-surface-secondary p-4 text-start text-primary'
   );
   const url = shown?.reading.dexscreenerUrl;
   if (url != null) {

@@ -1,0 +1,674 @@
+<!doctype html>
+<!-- SWARM Messenger, Wallet pane with the SWM price (PD-5, 2026-10-05): state "ageing".
+     Static markup of ts/components/SwarmWalletPane.dom.tsx rendered with
+     renderToStaticMarkup and the real English strings; light theme left, dark
+     theme right. The stylesheets are the app's own, built by
+     `pnpm run generate` (stylesheets/*.css are not in git). Fixture data:
+     the spec's reading (specs/PRICE-DISPLAY.md 2.1), an 11 132.58 SWM balance
+     and a placeholder address. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Wallet pane price: ageing</title>
+    <link rel="stylesheet" href="../../../stylesheets/manifest.css" />
+    <link rel="stylesheet" href="../../../stylesheets/tailwind.css" />
+    <style>
+      html,
+      body {
+        height: auto !important;
+        width: auto !important;
+        margin: 0;
+      }
+      .pd5-row {
+        display: flex;
+        gap: 0;
+        align-items: stretch;
+      }
+      .pd5-col {
+        width: 680px;
+        height: auto;
+      }
+      .pd5-col > div {
+        height: auto !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="pd5-row">
+      <div class="pd5-col light-theme bg-surface-primary text-primary">
+        <div
+          data-testid="SwarmWalletPane"
+          data-wallet-status="ready"
+          class="flex size-full flex-col overflow-y-auto"
+        >
+          <div class="mx-auto flex w-full max-w-160 flex-col gap-6 p-6">
+            <header class="flex flex-col gap-1">
+              <h1 class="type-title-large text-primary">Wallet</h1>
+              <p data-testid="network" class="type-body-medium text-primary">
+                SWARM mainnet
+              </p>
+              <p class="type-body-small text-secondary">
+                Light server ⁨lwd-main.swarm.green:443⁩
+              </p>
+              <p data-testid="height" class="type-body-small text-secondary">
+                Block 4,821 · Up to date · Chain checked
+              </p>
+            </header>
+            <div data-testid="ready" class="flex flex-col gap-6">
+              <section
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <h2 class="type-title-small text-primary">Balance</h2>
+                <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1">
+                  <dt class="type-body-medium text-secondary">Confirmed</dt>
+                  <dd class="type-title-medium">
+                    <span
+                      data-testid="balance-confirmed"
+                      class="font-swarm-mono text-primary"
+                      >⁨11 132.58000000⁩ SWM</span
+                    >
+                  </dd>
+                  <dt class="type-body-medium text-secondary">Pending</dt>
+                  <dd class="type-body-medium">
+                    <span
+                      data-testid="balance-pending"
+                      class="font-swarm-mono text-primary"
+                      >⁨0.00000000⁩ SWM</span
+                    >
+                  </dd>
+                </dl>
+                <span
+                  data-testid="balance-fiat"
+                  data-price-dimmed="true"
+                  class="block font-swarm-mono type-body-medium text-disabled"
+                  >≈ $⁨9,364.10⁩ USD</span
+                >
+              </section>
+              <a
+                data-testid="price-card"
+                data-price-status="ageing"
+                href="https://dexscreener.com/base/0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Open the SWM/ETH pool on DexScreener"
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4 text-start text-primary no-underline outline-none hover:bg-surface-tertiary focus-visible:axo-focus-ring"
+                ><div class="flex items-center gap-2">
+                  <span
+                    class="font-swarm-mono type-caption tracking-[0.12em] text-secondary uppercase"
+                    >SWM price</span
+                  ><span
+                    data-testid="price-freshness"
+                    data-freshness="ageing"
+                    aria-hidden="true"
+                    class="size-2 rounded-full bg-warning-bright"
+                  ></span
+                  ><span
+                    data-testid="price-info"
+                    title="Indicative price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote."
+                    aria-label="Indicative price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote."
+                    role="note"
+                    class="ms-auto type-body-medium text-secondary"
+                    >ⓘ</span
+                  >
+                </div>
+                <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <span class="flex items-baseline gap-1.5 text-disabled"
+                    ><span
+                      data-testid="price-usd"
+                      class="font-display text-[32px]/10 font-semibold"
+                      >$0.8411</span
+                    ><span class="font-swarm-mono type-body-small"
+                      >USD</span
+                    ></span
+                  ><span
+                    data-testid="price-change"
+                    data-direction="down"
+                    class="rounded-full bg-destructive-tint px-2 py-0.5 font-swarm-mono type-body-small text-destructive"
+                    >▼ ⁨3.2⁩ % 24h</span
+                  >
+                </div>
+                <svg
+                  data-testid="price-sparkline"
+                  role="img"
+                  aria-label="SWM price over the last 48 hours"
+                  viewBox="0 0 280 48"
+                  preserveAspectRatio="none"
+                  class="h-12 w-full text-(--axo-color-brand-primary)"
+                >
+                  <defs>
+                    <linearGradient id="_R_ke_" x1="0" y1="0" x2="0" y2="1">
+                      <stop
+                        offset="0"
+                        stop-color="currentColor"
+                        stop-opacity="0.28"
+                      ></stop>
+                      <stop
+                        offset="1"
+                        stop-color="currentColor"
+                        stop-opacity="0"
+                      ></stop>
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M0,46 L18.67,43.86 L37.33,45.41 L56,39.43 L74.67,36.9 L93.33,34.23 L112,30.62 L130.67,31.64 L149.33,28.22 L168,25.86 L186.67,20.23 L205.33,14.2 L224,16.14 L242.67,10.38 L261.33,7.42 L280,2 L280,48 L0,48 Z"
+                    fill="url(#_R_ke_)"
+                    stroke="none"
+                  ></path>
+                  <path
+                    d="M0,46 L18.67,43.86 L37.33,45.41 L56,39.43 L74.67,36.9 L93.33,34.23 L112,30.62 L130.67,31.64 L149.33,28.22 L168,25.86 L186.67,20.23 L205.33,14.2 L224,16.14 L242.67,10.38 L261.33,7.42 L280,2"
+                    fill="none"
+                    stroke-width="1.5"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                    vector-effect="non-scaling-stroke"
+                    class="stroke-(--axo-color-brand-primary)"
+                  ></path>
+                </svg>
+                <p
+                  data-testid="price-meta"
+                  class="font-swarm-mono type-caption text-secondary"
+                >
+                  Base · Uniswap v4 · GeckoTerminal · as of ⁨06:21 PM⁩
+                </p></a
+              >
+              <section
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <h2 class="type-title-small text-primary">Receive</h2>
+                <p class="type-body-small text-secondary">
+                  Your SWARM address. It is not secret, but everyone you give it
+                  to can link the payments they make to it.
+                </p>
+                <div class="flex flex-wrap items-start gap-4">
+                  <div class="shrink-0 rounded-md bg-[white] p-2">
+                    <img
+                      alt="QR code of your SWARM address"
+                      class="size-40"
+                      src='data:image/svg+xml;utf8,&lt;svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="33px" height="33px" viewBox="0 0 33 33"  preserveAspectRatio="xMinYMin meet"&gt;&lt;rect width="100%" height="100%" fill="white" cx="0" cy="0"/&gt;&lt;path d="M0,0l1,0 0,1 -1,0 0,-1z M1,0l1,0 0,1 -1,0 0,-1z M2,0l1,0 0,1 -1,0 0,-1z M3,0l1,0 0,1 -1,0 0,-1z M4,0l1,0 0,1 -1,0 0,-1z M5,0l1,0 0,1 -1,0 0,-1z M6,0l1,0 0,1 -1,0 0,-1z M10,0l1,0 0,1 -1,0 0,-1z M12,0l1,0 0,1 -1,0 0,-1z M13,0l1,0 0,1 -1,0 0,-1z M16,0l1,0 0,1 -1,0 0,-1z M17,0l1,0 0,1 -1,0 0,-1z M18,0l1,0 0,1 -1,0 0,-1z M19,0l1,0 0,1 -1,0 0,-1z M20,0l1,0 0,1 -1,0 0,-1z M22,0l1,0 0,1 -1,0 0,-1z M23,0l1,0 0,1 -1,0 0,-1z M26,0l1,0 0,1 -1,0 0,-1z M27,0l1,0 0,1 -1,0 0,-1z M28,0l1,0 0,1 -1,0 0,-1z M29,0l1,0 0,1 -1,0 0,-1z M30,0l1,0 0,1 -1,0 0,-1z M31,0l1,0 0,1 -1,0 0,-1z M32,0l1,0 0,1 -1,0 0,-1z M0,1l1,0 0,1 -1,0 0,-1z M6,1l1,0 0,1 -1,0 0,-1z M8,1l1,0 0,1 -1,0 0,-1z M10,1l1,0 0,1 -1,0 0,-1z M14,1l1,0 0,1 -1,0 0,-1z M15,1l1,0 0,1 -1,0 0,-1z M20,1l1,0 0,1 -1,0 0,-1z M21,1l1,0 0,1 -1,0 0,-1z M26,1l1,0 0,1 -1,0 0,-1z M32,1l1,0 0,1 -1,0 0,-1z M0,2l1,0 0,1 -1,0 0,-1z M2,2l1,0 0,1 -1,0 0,-1z M3,2l1,0 0,1 -1,0 0,-1z M4,2l1,0 0,1 -1,0 0,-1z M6,2l1,0 0,1 -1,0 0,-1z M12,2l1,0 0,1 -1,0 0,-1z M15,2l1,0 0,1 -1,0 0,-1z M21,2l1,0 0,1 -1,0 0,-1z M26,2l1,0 0,1 -1,0 0,-1z M28,2l1,0 0,1 -1,0 0,-1z M29,2l1,0 0,1 -1,0 0,-1z M30,2l1,0 0,1 -1,0 0,-1z M32,2l1,0 0,1 -1,0 0,-1z M0,3l1,0 0,1 -1,0 0,-1z M2,3l1,0 0,1 -1,0 0,-1z M3,3l1,0 0,1 -1,0 0,-1z M4,3l1,0 0,1 -1,0 0,-1z M6,3l1,0 0,1 -1,0 0,-1z M8,3l1,0 0,1 -1,0 0,-1z M9,3l1,0 0,1 -1,0 0,-1z M10,3l1,0 0,1 -1,0 0,-1z M12,3l1,0 0,1 -1,0 0,-1z M13,3l1,0 0,1 -1,0 0,-1z M14,3l1,0 0,1 -1,0 0,-1z M15,3l1,0 0,1 -1,0 0,-1z M16,3l1,0 0,1 -1,0 0,-1z M17,3l1,0 0,1 -1,0 0,-1z M22,3l1,0 0,1 -1,0 0,-1z M24,3l1,0 0,1 -1,0 0,-1z M26,3l1,0 0,1 -1,0 0,-1z M28,3l1,0 0,1 -1,0 0,-1z M29,3l1,0 0,1 -1,0 0,-1z M30,3l1,0 0,1 -1,0 0,-1z M32,3l1,0 0,1 -1,0 0,-1z M0,4l1,0 0,1 -1,0 0,-1z M2,4l1,0 0,1 -1,0 0,-1z M3,4l1,0 0,1 -1,0 0,-1z M4,4l1,0 0,1 -1,0 0,-1z M6,4l1,0 0,1 -1,0 0,-1z M9,4l1,0 0,1 -1,0 0,-1z M16,4l1,0 0,1 -1,0 0,-1z M19,4l1,0 0,1 -1,0 0,-1z M20,4l1,0 0,1 -1,0 0,-1z M21,4l1,0 0,1 -1,0 0,-1z M23,4l1,0 0,1 -1,0 0,-1z M26,4l1,0 0,1 -1,0 0,-1z M28,4l1,0 0,1 -1,0 0,-1z M29,4l1,0 0,1 -1,0 0,-1z M30,4l1,0 0,1 -1,0 0,-1z M32,4l1,0 0,1 -1,0 0,-1z M0,5l1,0 0,1 -1,0 0,-1z M6,5l1,0 0,1 -1,0 0,-1z M8,5l1,0 0,1 -1,0 0,-1z M9,5l1,0 0,1 -1,0 0,-1z M11,5l1,0 0,1 -1,0 0,-1z M12,5l1,0 0,1 -1,0 0,-1z M14,5l1,0 0,1 -1,0 0,-1z M15,5l1,0 0,1 -1,0 0,-1z M16,5l1,0 0,1 -1,0 0,-1z M18,5l1,0 0,1 -1,0 0,-1z M21,5l1,0 0,1 -1,0 0,-1z M26,5l1,0 0,1 -1,0 0,-1z M32,5l1,0 0,1 -1,0 0,-1z M0,6l1,0 0,1 -1,0 0,-1z M1,6l1,0 0,1 -1,0 0,-1z M2,6l1,0 0,1 -1,0 0,-1z M3,6l1,0 0,1 -1,0 0,-1z M4,6l1,0 0,1 -1,0 0,-1z M5,6l1,0 0,1 -1,0 0,-1z M6,6l1,0 0,1 -1,0 0,-1z M8,6l1,0 0,1 -1,0 0,-1z M10,6l1,0 0,1 -1,0 0,-1z M12,6l1,0 0,1 -1,0 0,-1z M14,6l1,0 0,1 -1,0 0,-1z M16,6l1,0 0,1 -1,0 0,-1z M18,6l1,0 0,1 -1,0 0,-1z M20,6l1,0 0,1 -1,0 0,-1z M22,6l1,0 0,1 -1,0 0,-1z M24,6l1,0 0,1 -1,0 0,-1z M26,6l1,0 0,1 -1,0 0,-1z M27,6l1,0 0,1 -1,0 0,-1z M28,6l1,0 0,1 -1,0 0,-1z M29,6l1,0 0,1 -1,0 0,-1z M30,6l1,0 0,1 -1,0 0,-1z M31,6l1,0 0,1 -1,0 0,-1z M32,6l1,0 0,1 -1,0 0,-1z M9,7l1,0 0,1 -1,0 0,-1z M10,7l1,0 0,1 -1,0 0,-1z M11,7l1,0 0,1 -1,0 0,-1z M14,7l1,0 0,1 -1,0 0,-1z M15,7l1,0 0,1 -1,0 0,-1z M16,7l1,0 0,1 -1,0 0,-1z M18,7l1,0 0,1 -1,0 0,-1z M21,7l1,0 0,1 -1,0 0,-1z M22,7l1,0 0,1 -1,0 0,-1z M0,8l1,0 0,1 -1,0 0,-1z M1,8l1,0 0,1 -1,0 0,-1z M2,8l1,0 0,1 -1,0 0,-1z M3,8l1,0 0,1 -1,0 0,-1z M4,8l1,0 0,1 -1,0 0,-1z M6,8l1,0 0,1 -1,0 0,-1z M7,8l1,0 0,1 -1,0 0,-1z M8,8l1,0 0,1 -1,0 0,-1z M9,8l1,0 0,1 -1,0 0,-1z M11,8l1,0 0,1 -1,0 0,-1z M17,8l1,0 0,1 -1,0 0,-1z M19,8l1,0 0,1 -1,0 0,-1z M20,8l1,0 0,1 -1,0 0,-1z M22,8l1,0 0,1 -1,0 0,-1z M24,8l1,0 0,1 -1,0 0,-1z M25,8l1,0 0,1 -1,0 0,-1z M27,8l1,0 0,1 -1,0 0,-1z M29,8l1,0 0,1 -1,0 0,-1z M31,8l1,0 0,1 -1,0 0,-1z M0,9l1,0 0,1 -1,0 0,-1z M2,9l1,0 0,1 -1,0 0,-1z M3,9l1,0 0,1 -1,0 0,-1z M5,9l1,0 0,1 -1,0 0,-1z M8,9l1,0 0,1 -1,0 0,-1z M10,9l1,0 0,1 -1,0 0,-1z M12,9l1,0 0,1 -1,0 0,-1z M13,9l1,0 0,1 -1,0 0,-1z M16,9l1,0 0,1 -1,0 0,-1z M17,9l1,0 0,1 -1,0 0,-1z M18,9l1,0 0,1 -1,0 0,-1z M19,9l1,0 0,1 -1,0 0,-1z M20,9l1,0 0,1 -1,0 0,-1z M23,9l1,0 0,1 -1,0 0,-1z M26,9l1,0 0,1 -1,0 0,-1z M30,9l1,0 0,1 -1,0 0,-1z M31,9l1,0 0,1 -1,0 0,-1z M32,9l1,0 0,1 -1,0 0,-1z M0,10l1,0 0,1 -1,0 0,-1z M2,10l1,0 0,1 -1,0 0,-1z M3,10l1,0 0,1 -1,0 0,-1z M6,10l1,0 0,1 -1,0 0,-1z M7,10l1,0 0,1 -1,0 0,-1z M10,10l1,0 0,1 -1,0 0,-1z M13,10l1,0 0,1 -1,0 0,-1z M14,10l1,0 0,1 -1,0 0,-1z M15,10l1,0 0,1 -1,0 0,-1z M16,10l1,0 0,1 -1,0 0,-1z M20,10l1,0 0,1 -1,0 0,-1z M21,10l1,0 0,1 -1,0 0,-1z M22,10l1,0 0,1 -1,0 0,-1z M24,10l1,0 0,1 -1,0 0,-1z M25,10l1,0 0,1 -1,0 0,-1z M26,10l1,0 0,1 -1,0 0,-1z M29,10l1,0 0,1 -1,0 0,-1z M30,10l1,0 0,1 -1,0 0,-1z M31,10l1,0 0,1 -1,0 0,-1z M0,11l1,0 0,1 -1,0 0,-1z M4,11l1,0 0,1 -1,0 0,-1z M12,11l1,0 0,1 -1,0 0,-1z M13,11l1,0 0,1 -1,0 0,-1z M15,11l1,0 0,1 -1,0 0,-1z M18,11l1,0 0,1 -1,0 0,-1z M20,11l1,0 0,1 -1,0 0,-1z M21,11l1,0 0,1 -1,0 0,-1z M22,11l1,0 0,1 -1,0 0,-1z M25,11l1,0 0,1 -1,0 0,-1z M27,11l1,0 0,1 -1,0 0,-1z M29,11l1,0 0,1 -1,0 0,-1z M30,11l1,0 0,1 -1,0 0,-1z M31,11l1,0 0,1 -1,0 0,-1z M0,12l1,0 0,1 -1,0 0,-1z M1,12l1,0 0,1 -1,0 0,-1z M5,12l1,0 0,1 -1,0 0,-1z M6,12l1,0 0,1 -1,0 0,-1z M8,12l1,0 0,1 -1,0 0,-1z M9,12l1,0 0,1 -1,0 0,-1z M10,12l1,0 0,1 -1,0 0,-1z M12,12l1,0 0,1 -1,0 0,-1z M14,12l1,0 0,1 -1,0 0,-1z M15,12l1,0 0,1 -1,0 0,-1z M17,12l1,0 0,1 -1,0 0,-1z M22,12l1,0 0,1 -1,0 0,-1z M23,12l1,0 0,1 -1,0 0,-1z M24,12l1,0 0,1 -1,0 0,-1z M25,12l1,0 0,1 -1,0 0,-1z M27,12l1,0 0,1 -1,0 0,-1z M28,12l1,0 0,1 -1,0 0,-1z M0,13l1,0 0,1 -1,0 0,-1z M5,13l1,0 0,1 -1,0 0,-1z M16,13l1,0 0,1 -1,0 0,-1z M18,13l1,0 0,1 -1,0 0,-1z M19,13l1,0 0,1 -1,0 0,-1z M20,13l1,0 0,1 -1,0 0,-1z M21,13l1,0 0,1 -1,0 0,-1z M22,13l1,0 0,1 -1,0 0,-1z M23,13l1,0 0,1 -1,0 0,-1z M25,13l1,0 0,1 -1,0 0,-1z M26,13l1,0 0,1 -1,0 0,-1z M29,13l1,0 0,1 -1,0 0,-1z M30,13l1,0 0,1 -1,0 0,-1z M31,13l1,0 0,1 -1,0 0,-1z M32,13l1,0 0,1 -1,0 0,-1z M0,14l1,0 0,1 -1,0 0,-1z M2,14l1,0 0,1 -1,0 0,-1z M6,14l1,0 0,1 -1,0 0,-1z M7,14l1,0 0,1 -1,0 0,-1z M8,14l1,0 0,1 -1,0 0,-1z M9,14l1,0 0,1 -1,0 0,-1z M11,14l1,0 0,1 -1,0 0,-1z M12,14l1,0 0,1 -1,0 0,-1z M15,14l1,0 0,1 -1,0 0,-1z M20,14l1,0 0,1 -1,0 0,-1z M21,14l1,0 0,1 -1,0 0,-1z M24,14l1,0 0,1 -1,0 0,-1z M27,14l1,0 0,1 -1,0 0,-1z M29,14l1,0 0,1 -1,0 0,-1z M30,14l1,0 0,1 -1,0 0,-1z M1,15l1,0 0,1 -1,0 0,-1z M2,15l1,0 0,1 -1,0 0,-1z M3,15l1,0 0,1 -1,0 0,-1z M4,15l1,0 0,1 -1,0 0,-1z M5,15l1,0 0,1 -1,0 0,-1z M8,15l1,0 0,1 -1,0 0,-1z M9,15l1,0 0,1 -1,0 0,-1z M11,15l1,0 0,1 -1,0 0,-1z M14,15l1,0 0,1 -1,0 0,-1z M15,15l1,0 0,1 -1,0 0,-1z M20,15l1,0 0,1 -1,0 0,-1z M21,15l1,0 0,1 -1,0 0,-1z M24,15l1,0 0,1 -1,0 0,-1z M27,15l1,0 0,1 -1,0 0,-1z M28,15l1,0 0,1 -1,0 0,-1z M29,15l1,0 0,1 -1,0 0,-1z M30,15l1,0 0,1 -1,0 0,-1z M31,15l1,0 0,1 -1,0 0,-1z M2,16l1,0 0,1 -1,0 0,-1z M4,16l1,0 0,1 -1,0 0,-1z M6,16l1,0 0,1 -1,0 0,-1z M7,16l1,0 0,1 -1,0 0,-1z M11,16l1,0 0,1 -1,0 0,-1z M16,16l1,0 0,1 -1,0 0,-1z M17,16l1,0 0,1 -1,0 0,-1z M22,16l1,0 0,1 -1,0 0,-1z M25,16l1,0 0,1 -1,0 0,-1z M28,16l1,0 0,1 -1,0 0,-1z M29,16l1,0 0,1 -1,0 0,-1z M31,16l1,0 0,1 -1,0 0,-1z M32,16l1,0 0,1 -1,0 0,-1z M0,17l1,0 0,1 -1,0 0,-1z M1,17l1,0 0,1 -1,0 0,-1z M3,17l1,0 0,1 -1,0 0,-1z M4,17l1,0 0,1 -1,0 0,-1z M8,17l1,0 0,1 -1,0 0,-1z M10,17l1,0 0,1 -1,0 0,-1z M12,17l1,0 0,1 -1,0 0,-1z M13,17l1,0 0,1 -1,0 0,-1z M14,17l1,0 0,1 -1,0 0,-1z M16,17l1,0 0,1 -1,0 0,-1z M18,17l1,0 0,1 -1,0 0,-1z M19,17l1,0 0,1 -1,0 0,-1z M20,17l1,0 0,1 -1,0 0,-1z M23,17l1,0 0,1 -1,0 0,-1z M26,17l1,0 0,1 -1,0 0,-1z M32,17l1,0 0,1 -1,0 0,-1z M0,18l1,0 0,1 -1,0 0,-1z M3,18l1,0 0,1 -1,0 0,-1z M4,18l1,0 0,1 -1,0 0,-1z M5,18l1,0 0,1 -1,0 0,-1z M6,18l1,0 0,1 -1,0 0,-1z M8,18l1,0 0,1 -1,0 0,-1z M9,18l1,0 0,1 -1,0 0,-1z M13,18l1,0 0,1 -1,0 0,-1z M14,18l1,0 0,1 -1,0 0,-1z M15,18l1,0 0,1 -1,0 0,-1z M16,18l1,0 0,1 -1,0 0,-1z M21,18l1,0 0,1 -1,0 0,-1z M22,18l1,0 0,1 -1,0 0,-1z M25,18l1,0 0,1 -1,0 0,-1z M26,18l1,0 0,1 -1,0 0,-1z M30,18l1,0 0,1 -1,0 0,-1z M31,18l1,0 0,1 -1,0 0,-1z M0,19l1,0 0,1 -1,0 0,-1z M1,19l1,0 0,1 -1,0 0,-1z M8,19l1,0 0,1 -1,0 0,-1z M9,19l1,0 0,1 -1,0 0,-1z M10,19l1,0 0,1 -1,0 0,-1z M12,19l1,0 0,1 -1,0 0,-1z M13,19l1,0 0,1 -1,0 0,-1z M15,19l1,0 0,1 -1,0 0,-1z M16,19l1,0 0,1 -1,0 0,-1z M20,19l1,0 0,1 -1,0 0,-1z M21,19l1,0 0,1 -1,0 0,-1z M29,19l1,0 0,1 -1,0 0,-1z M30,19l1,0 0,1 -1,0 0,-1z M31,19l1,0 0,1 -1,0 0,-1z M32,19l1,0 0,1 -1,0 0,-1z M2,20l1,0 0,1 -1,0 0,-1z M4,20l1,0 0,1 -1,0 0,-1z M5,20l1,0 0,1 -1,0 0,-1z M6,20l1,0 0,1 -1,0 0,-1z M7,20l1,0 0,1 -1,0 0,-1z M9,20l1,0 0,1 -1,0 0,-1z M10,20l1,0 0,1 -1,0 0,-1z M12,20l1,0 0,1 -1,0 0,-1z M14,20l1,0 0,1 -1,0 0,-1z M15,20l1,0 0,1 -1,0 0,-1z M17,20l1,0 0,1 -1,0 0,-1z M19,20l1,0 0,1 -1,0 0,-1z M22,20l1,0 0,1 -1,0 0,-1z M23,20l1,0 0,1 -1,0 0,-1z M24,20l1,0 0,1 -1,0 0,-1z M25,20l1,0 0,1 -1,0 0,-1z M27,20l1,0 0,1 -1,0 0,-1z M28,20l1,0 0,1 -1,0 0,-1z M31,20l1,0 0,1 -1,0 0,-1z M0,21l1,0 0,1 -1,0 0,-1z M1,21l1,0 0,1 -1,0 0,-1z M3,21l1,0 0,1 -1,0 0,-1z M4,21l1,0 0,1 -1,0 0,-1z M8,21l1,0 0,1 -1,0 0,-1z M9,21l1,0 0,1 -1,0 0,-1z M10,21l1,0 0,1 -1,0 0,-1z M16,21l1,0 0,1 -1,0 0,-1z M17,21l1,0 0,1 -1,0 0,-1z M19,21l1,0 0,1 -1,0 0,-1z M20,21l1,0 0,1 -1,0 0,-1z M21,21l1,0 0,1 -1,0 0,-1z M23,21l1,0 0,1 -1,0 0,-1z M26,21l1,0 0,1 -1,0 0,-1z M30,21l1,0 0,1 -1,0 0,-1z M31,21l1,0 0,1 -1,0 0,-1z M32,21l1,0 0,1 -1,0 0,-1z M0,22l1,0 0,1 -1,0 0,-1z M2,22l1,0 0,1 -1,0 0,-1z M3,22l1,0 0,1 -1,0 0,-1z M6,22l1,0 0,1 -1,0 0,-1z M7,22l1,0 0,1 -1,0 0,-1z M11,22l1,0 0,1 -1,0 0,-1z M12,22l1,0 0,1 -1,0 0,-1z M15,22l1,0 0,1 -1,0 0,-1z M16,22l1,0 0,1 -1,0 0,-1z M18,22l1,0 0,1 -1,0 0,-1z M21,22l1,0 0,1 -1,0 0,-1z M22,22l1,0 0,1 -1,0 0,-1z M25,22l1,0 0,1 -1,0 0,-1z M29,22l1,0 0,1 -1,0 0,-1z M30,22l1,0 0,1 -1,0 0,-1z M31,22l1,0 0,1 -1,0 0,-1z M0,23l1,0 0,1 -1,0 0,-1z M3,23l1,0 0,1 -1,0 0,-1z M11,23l1,0 0,1 -1,0 0,-1z M14,23l1,0 0,1 -1,0 0,-1z M15,23l1,0 0,1 -1,0 0,-1z M16,23l1,0 0,1 -1,0 0,-1z M18,23l1,0 0,1 -1,0 0,-1z M21,23l1,0 0,1 -1,0 0,-1z M22,23l1,0 0,1 -1,0 0,-1z M24,23l1,0 0,1 -1,0 0,-1z M25,23l1,0 0,1 -1,0 0,-1z M29,23l1,0 0,1 -1,0 0,-1z M30,23l1,0 0,1 -1,0 0,-1z M31,23l1,0 0,1 -1,0 0,-1z M32,23l1,0 0,1 -1,0 0,-1z M0,24l1,0 0,1 -1,0 0,-1z M2,24l1,0 0,1 -1,0 0,-1z M5,24l1,0 0,1 -1,0 0,-1z M6,24l1,0 0,1 -1,0 0,-1z M7,24l1,0 0,1 -1,0 0,-1z M8,24l1,0 0,1 -1,0 0,-1z M9,24l1,0 0,1 -1,0 0,-1z M10,24l1,0 0,1 -1,0 0,-1z M11,24l1,0 0,1 -1,0 0,-1z M15,24l1,0 0,1 -1,0 0,-1z M17,24l1,0 0,1 -1,0 0,-1z M20,24l1,0 0,1 -1,0 0,-1z M22,24l1,0 0,1 -1,0 0,-1z M24,24l1,0 0,1 -1,0 0,-1z M25,24l1,0 0,1 -1,0 0,-1z M26,24l1,0 0,1 -1,0 0,-1z M27,24l1,0 0,1 -1,0 0,-1z M28,24l1,0 0,1 -1,0 0,-1z M8,25l1,0 0,1 -1,0 0,-1z M9,25l1,0 0,1 -1,0 0,-1z M12,25l1,0 0,1 -1,0 0,-1z M13,25l1,0 0,1 -1,0 0,-1z M14,25l1,0 0,1 -1,0 0,-1z M16,25l1,0 0,1 -1,0 0,-1z M18,25l1,0 0,1 -1,0 0,-1z M19,25l1,0 0,1 -1,0 0,-1z M20,25l1,0 0,1 -1,0 0,-1z M21,25l1,0 0,1 -1,0 0,-1z M24,25l1,0 0,1 -1,0 0,-1z M28,25l1,0 0,1 -1,0 0,-1z M29,25l1,0 0,1 -1,0 0,-1z M31,25l1,0 0,1 -1,0 0,-1z M32,25l1,0 0,1 -1,0 0,-1z M0,26l1,0 0,1 -1,0 0,-1z M1,26l1,0 0,1 -1,0 0,-1z M2,26l1,0 0,1 -1,0 0,-1z M3,26l1,0 0,1 -1,0 0,-1z M4,26l1,0 0,1 -1,0 0,-1z M5,26l1,0 0,1 -1,0 0,-1z M6,26l1,0 0,1 -1,0 0,-1z M8,26l1,0 0,1 -1,0 0,-1z M10,26l1,0 0,1 -1,0 0,-1z M13,26l1,0 0,1 -1,0 0,-1z M14,26l1,0 0,1 -1,0 0,-1z M15,26l1,0 0,1 -1,0 0,-1z M18,26l1,0 0,1 -1,0 0,-1z M20,26l1,0 0,1 -1,0 0,-1z M21,26l1,0 0,1 -1,0 0,-1z M22,26l1,0 0,1 -1,0 0,-1z M23,26l1,0 0,1 -1,0 0,-1z M24,26l1,0 0,1 -1,0 0,-1z M26,26l1,0 0,1 -1,0 0,-1z M28,26l1,0 0,1 -1,0 0,-1z M29,26l1,0 0,1 -1,0 0,-1z M30,26l1,0 0,1 -1,0 0,-1z M31,26l1,0 0,1 -1,0 0,-1z M0,27l1,0 0,1 -1,0 0,-1z M6,27l1,0 0,1 -1,0 0,-1z M9,27l1,0 0,1 -1,0 0,-1z M12,27l1,0 0,1 -1,0 0,-1z M13,27l1,0 0,1 -1,0 0,-1z M15,27l1,0 0,1 -1,0 0,-1z M16,27l1,0 0,1 -1,0 0,-1z M20,27l1,0 0,1 -1,0 0,-1z M21,27l1,0 0,1 -1,0 0,-1z M22,27l1,0 0,1 -1,0 0,-1z M23,27l1,0 0,1 -1,0 0,-1z M24,27l1,0 0,1 -1,0 0,-1z M28,27l1,0 0,1 -1,0 0,-1z M29,27l1,0 0,1 -1,0 0,-1z M30,27l1,0 0,1 -1,0 0,-1z M31,27l1,0 0,1 -1,0 0,-1z M0,28l1,0 0,1 -1,0 0,-1z M2,28l1,0 0,1 -1,0 0,-1z M3,28l1,0 0,1 -1,0 0,-1z M4,28l1,0 0,1 -1,0 0,-1z M6,28l1,0 0,1 -1,0 0,-1z M8,28l1,0 0,1 -1,0 0,-1z M9,28l1,0 0,1 -1,0 0,-1z M12,28l1,0 0,1 -1,0 0,-1z M14,28l1,0 0,1 -1,0 0,-1z M17,28l1,0 0,1 -1,0 0,-1z M19,28l1,0 0,1 -1,0 0,-1z M22,28l1,0 0,1 -1,0 0,-1z M24,28l1,0 0,1 -1,0 0,-1z M25,28l1,0 0,1 -1,0 0,-1z M26,28l1,0 0,1 -1,0 0,-1z M27,28l1,0 0,1 -1,0 0,-1z M28,28l1,0 0,1 -1,0 0,-1z M29,28l1,0 0,1 -1,0 0,-1z M31,28l1,0 0,1 -1,0 0,-1z M32,28l1,0 0,1 -1,0 0,-1z M0,29l1,0 0,1 -1,0 0,-1z M2,29l1,0 0,1 -1,0 0,-1z M3,29l1,0 0,1 -1,0 0,-1z M4,29l1,0 0,1 -1,0 0,-1z M6,29l1,0 0,1 -1,0 0,-1z M8,29l1,0 0,1 -1,0 0,-1z M10,29l1,0 0,1 -1,0 0,-1z M16,29l1,0 0,1 -1,0 0,-1z M17,29l1,0 0,1 -1,0 0,-1z M18,29l1,0 0,1 -1,0 0,-1z M19,29l1,0 0,1 -1,0 0,-1z M20,29l1,0 0,1 -1,0 0,-1z M22,29l1,0 0,1 -1,0 0,-1z M24,29l1,0 0,1 -1,0 0,-1z M25,29l1,0 0,1 -1,0 0,-1z M27,29l1,0 0,1 -1,0 0,-1z M28,29l1,0 0,1 -1,0 0,-1z M30,29l1,0 0,1 -1,0 0,-1z M31,29l1,0 0,1 -1,0 0,-1z M32,29l1,0 0,1 -1,0 0,-1z M0,30l1,0 0,1 -1,0 0,-1z M2,30l1,0 0,1 -1,0 0,-1z M3,30l1,0 0,1 -1,0 0,-1z M4,30l1,0 0,1 -1,0 0,-1z M6,30l1,0 0,1 -1,0 0,-1z M8,30l1,0 0,1 -1,0 0,-1z M10,30l1,0 0,1 -1,0 0,-1z M11,30l1,0 0,1 -1,0 0,-1z M12,30l1,0 0,1 -1,0 0,-1z M15,30l1,0 0,1 -1,0 0,-1z M20,30l1,0 0,1 -1,0 0,-1z M21,30l1,0 0,1 -1,0 0,-1z M26,30l1,0 0,1 -1,0 0,-1z M30,30l1,0 0,1 -1,0 0,-1z M0,31l1,0 0,1 -1,0 0,-1z M6,31l1,0 0,1 -1,0 0,-1z M8,31l1,0 0,1 -1,0 0,-1z M10,31l1,0 0,1 -1,0 0,-1z M11,31l1,0 0,1 -1,0 0,-1z M14,31l1,0 0,1 -1,0 0,-1z M15,31l1,0 0,1 -1,0 0,-1z M21,31l1,0 0,1 -1,0 0,-1z M23,31l1,0 0,1 -1,0 0,-1z M25,31l1,0 0,1 -1,0 0,-1z M27,31l1,0 0,1 -1,0 0,-1z M29,31l1,0 0,1 -1,0 0,-1z M30,31l1,0 0,1 -1,0 0,-1z M0,32l1,0 0,1 -1,0 0,-1z M1,32l1,0 0,1 -1,0 0,-1z M2,32l1,0 0,1 -1,0 0,-1z M3,32l1,0 0,1 -1,0 0,-1z M4,32l1,0 0,1 -1,0 0,-1z M5,32l1,0 0,1 -1,0 0,-1z M6,32l1,0 0,1 -1,0 0,-1z M8,32l1,0 0,1 -1,0 0,-1z M9,32l1,0 0,1 -1,0 0,-1z M10,32l1,0 0,1 -1,0 0,-1z M11,32l1,0 0,1 -1,0 0,-1z M15,32l1,0 0,1 -1,0 0,-1z M16,32l1,0 0,1 -1,0 0,-1z M17,32l1,0 0,1 -1,0 0,-1z M22,32l1,0 0,1 -1,0 0,-1z M23,32l1,0 0,1 -1,0 0,-1z M24,32l1,0 0,1 -1,0 0,-1z M25,32l1,0 0,1 -1,0 0,-1z M28,32l1,0 0,1 -1,0 0,-1z M31,32l1,0 0,1 -1,0 0,-1z " stroke="transparent" fill="black"/&gt;&lt;/svg&gt;'
+                    />
+                  </div>
+                  <div class="flex min-w-0 flex-1 flex-col gap-2">
+                    <code
+                      data-testid="address"
+                      class="font-swarm-mono type-body-small break-all text-primary select-text"
+                      >swm1qexampleexampleexampleexampleexampleexampleexampleexample</code
+                    >
+                    <div>
+                      <button
+                        type="button"
+                        class="relative inline-flex max-w-full min-w-12 items-center-safe justify-center-safe rounded-full bg-primary px-2 py-1 type-body-small font-medium text-primary focus-visible:axo-focus-ring not-aria-disabled:active:bg-primary-pressed data-[axo-discouraged=true]:text-disabled forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:focus:border-[Highlight] forced-colors:aria-disabled:text-[GrayText] forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]"
+                      >
+                        <span
+                          class="flex shrink grow items-center-safe justify-center-safe gap-1 overflow-hidden"
+                          ><span class="min-w-0 shrink grow truncate"
+                            >Copy address</span
+                          ></span
+                        >
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <section
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <h2 class="type-title-small text-primary">Send</h2>
+                <form data-testid="send-form" class="flex flex-col gap-3">
+                  <label class="flex flex-col gap-1"
+                    ><span class="type-body-small text-secondary">To</span
+                    ><input
+                      class="w-full rounded-lg border border-primary bg-surface-primary p-2 font-swarm-mono type-body-medium text-primary"
+                      placeholder="swm1…"
+                      spellcheck="false"
+                      autocomplete="off"
+                      name="to"
+                      value="" /></label
+                  ><label class="flex flex-col gap-1"
+                    ><span class="type-body-small text-secondary"
+                      >Amount in SWM</span
+                    ><input
+                      class="w-full rounded-lg border border-primary bg-surface-primary p-2 font-swarm-mono type-body-medium text-primary"
+                      inputmode="decimal"
+                      placeholder="0.00000000"
+                      spellcheck="false"
+                      autocomplete="off"
+                      name="amount"
+                      value="" /></label
+                  ><label class="flex flex-col gap-1"
+                    ><span class="type-body-small text-secondary"
+                      >Memo (optional, only the recipient can read it)</span
+                    ><textarea
+                      name="memo"
+                      class="h-16 w-full resize-none rounded-lg border border-primary bg-surface-primary p-2 type-body-medium text-primary"
+                      spellcheck="false"
+                    ></textarea>
+                  </label>
+                  <div>
+                    <button
+                      type="button"
+                      class="relative inline-flex max-w-full min-w-14 items-center-safe justify-center-safe rounded-full bg-accent px-3 py-1.5 type-body-medium font-medium text-primary-oncolor focus-visible:axo-focus-ring not-aria-disabled:active:bg-accent-pressed data-[axo-discouraged=true]:text-disabled-oncolor forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:focus:border-[Highlight] forced-colors:aria-disabled:text-[GrayText] forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]"
+                    >
+                      <span
+                        aria-hidden="false"
+                        class="flex shrink grow items-center-safe justify-center-safe gap-1 overflow-hidden"
+                        ><span class="min-w-0 shrink grow truncate"
+                          >Review payment</span
+                        ></span
+                      >
+                    </button>
+                  </div>
+                </form>
+              </section>
+              <section
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <h2 class="type-title-small text-primary">Transactions</h2>
+                <p
+                  data-testid="history-empty"
+                  class="type-body-medium text-secondary"
+                >
+                  No transactions yet.
+                </p>
+              </section>
+              <section data-testid="recovery-phrase">
+                <section
+                  class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+                >
+                  <h2 class="type-title-small text-primary">Recovery phrase</h2>
+                  <p class="type-body-medium text-primary">
+                    Your 24 recovery words are this account and the money in
+                    this wallet: anyone who has them owns both.
+                  </p>
+                  <div>
+                    <button
+                      type="button"
+                      class="relative inline-flex max-w-full min-w-14 items-center-safe justify-center-safe rounded-full bg-primary px-3 py-1.5 type-body-medium font-medium text-primary focus-visible:axo-focus-ring not-aria-disabled:active:bg-primary-pressed data-[axo-discouraged=true]:text-disabled forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:focus:border-[Highlight] forced-colors:aria-disabled:text-[GrayText] forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]"
+                    >
+                      <span
+                        aria-hidden="false"
+                        class="flex shrink grow items-center-safe justify-center-safe gap-1 overflow-hidden"
+                        ><span class="min-w-0 shrink grow truncate"
+                          >Show recovery phrase</span
+                        ></span
+                      >
+                    </button>
+                  </div>
+                </section>
+              </section>
+              <section
+                data-testid="price-setting"
+                class="flex flex-col gap-2 rounded-lg bg-surface-secondary p-4"
+              >
+                <div class="flex items-center gap-3">
+                  <span id="_R_12_" class="grow type-body-medium text-primary"
+                    >Show SWM price (USD)</span
+                  ><button
+                    type="button"
+                    role="switch"
+                    aria-checked="true"
+                    data-state="checked"
+                    value="on"
+                    aria-labelledby="_R_12_"
+                    class="group relative z-0 flex h-[18px] w-8 items-center overflow-hidden rounded-full border border-secondary bg-primary inset-shadow-on-color focus-visible:axo-focus-ring not-data-disabled:active:bg-primary-pressed data-disabled:bg-control"
+                  >
+                    <span
+                      class="absolute inset-y-0 w-5.5 -translate-x-3.5 rounded-s-full bg-accent opacity-0 transition-all duration-200 ease-out-cubic group-not-data-disabled:group-active:bg-accent-pressed group-data-disabled:w-7.5 group-data-disabled:rounded-full group-data-[state=checked]:translate-x-0 group-data-[state=checked]:opacity-100 group-data-disabled:group-data-[state=checked]:opacity-25 rtl:translate-x-3.5 forced-colors:bg-[AccentColor] forced-colors:group-data-disabled:bg-[GrayText]"
+                    ></span
+                    ><span
+                      class="invisible absolute inset-s-0.5 z-0 text-[12px] forced-color-adjust-none forced-colors:visible forced-colors:text-[AccentColorText]"
+                      ><span
+                        aria-hidden="true"
+                        class="font-symbols text-inherit forced-color-adjust-none select-none"
+                        ></span
+                      ></span
+                    ><span
+                      data-state="checked"
+                      class="z-10 block size-4 rounded-full bg-(--axo-color-label-primary-oncolor) shadow-[0.5px_0_0.5px_0.5px,-0.5px_0_0.5px_0.5px] shadow-[#000]/12 transition-all duration-200 ease-out-cubic data-disabled:bg-(--axo-color-label-disabled-oncolor) data-[state=checked]:translate-x-3.5 rtl:data-[state=checked]:-translate-x-3.5 forced-colors:border forced-colors:data-disabled:bg-[ButtonFace]"
+                    ></span></button
+                  ><input
+                    type="checkbox"
+                    aria-hidden="true"
+                    tabindex="-1"
+                    style="
+                      position: absolute;
+                      pointer-events: none;
+                      opacity: 0;
+                      margin: 0;
+                      transform: translateX(-100%);
+                    "
+                    checked=""
+                    value="on"
+                  />
+                </div>
+                <p class="type-body-small text-secondary">
+                  The price comes from the SWARM price service
+                  (wallet.swarm.green), which reads the SWM/ETH pool on Base
+                  from GeckoTerminal and DexScreener. Your addresses and
+                  balances are never sent. Switch this off and the wallet makes
+                  no price requests.
+                </p>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pd5-col dark-theme bg-surface-primary text-primary">
+        <div
+          data-testid="SwarmWalletPane"
+          data-wallet-status="ready"
+          class="flex size-full flex-col overflow-y-auto"
+        >
+          <div class="mx-auto flex w-full max-w-160 flex-col gap-6 p-6">
+            <header class="flex flex-col gap-1">
+              <h1 class="type-title-large text-primary">Wallet</h1>
+              <p data-testid="network" class="type-body-medium text-primary">
+                SWARM mainnet
+              </p>
+              <p class="type-body-small text-secondary">
+                Light server ⁨lwd-main.swarm.green:443⁩
+              </p>
+              <p data-testid="height" class="type-body-small text-secondary">
+                Block 4,821 · Up to date · Chain checked
+              </p>
+            </header>
+            <div data-testid="ready" class="flex flex-col gap-6">
+              <section
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <h2 class="type-title-small text-primary">Balance</h2>
+                <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1">
+                  <dt class="type-body-medium text-secondary">Confirmed</dt>
+                  <dd class="type-title-medium">
+                    <span
+                      data-testid="balance-confirmed"
+                      class="font-swarm-mono text-primary"
+                      >⁨11 132.58000000⁩ SWM</span
+                    >
+                  </dd>
+                  <dt class="type-body-medium text-secondary">Pending</dt>
+                  <dd class="type-body-medium">
+                    <span
+                      data-testid="balance-pending"
+                      class="font-swarm-mono text-primary"
+                      >⁨0.00000000⁩ SWM</span
+                    >
+                  </dd>
+                </dl>
+                <span
+                  data-testid="balance-fiat"
+                  data-price-dimmed="true"
+                  class="block font-swarm-mono type-body-medium text-disabled"
+                  >≈ $⁨9,364.10⁩ USD</span
+                >
+              </section>
+              <a
+                data-testid="price-card"
+                data-price-status="ageing"
+                href="https://dexscreener.com/base/0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Open the SWM/ETH pool on DexScreener"
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4 text-start text-primary no-underline outline-none hover:bg-surface-tertiary focus-visible:axo-focus-ring"
+                ><div class="flex items-center gap-2">
+                  <span
+                    class="font-swarm-mono type-caption tracking-[0.12em] text-secondary uppercase"
+                    >SWM price</span
+                  ><span
+                    data-testid="price-freshness"
+                    data-freshness="ageing"
+                    aria-hidden="true"
+                    class="size-2 rounded-full bg-warning-bright"
+                  ></span
+                  ><span
+                    data-testid="price-info"
+                    title="Indicative price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote."
+                    aria-label="Indicative price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote."
+                    role="note"
+                    class="ms-auto type-body-medium text-secondary"
+                    >ⓘ</span
+                  >
+                </div>
+                <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <span class="flex items-baseline gap-1.5 text-disabled"
+                    ><span
+                      data-testid="price-usd"
+                      class="font-display text-[32px]/10 font-semibold"
+                      >$0.8411</span
+                    ><span class="font-swarm-mono type-body-small"
+                      >USD</span
+                    ></span
+                  ><span
+                    data-testid="price-change"
+                    data-direction="down"
+                    class="rounded-full bg-destructive-tint px-2 py-0.5 font-swarm-mono type-body-small text-destructive"
+                    >▼ ⁨3.2⁩ % 24h</span
+                  >
+                </div>
+                <svg
+                  data-testid="price-sparkline"
+                  role="img"
+                  aria-label="SWM price over the last 48 hours"
+                  viewBox="0 0 280 48"
+                  preserveAspectRatio="none"
+                  class="h-12 w-full text-(--axo-color-brand-primary)"
+                >
+                  <defs>
+                    <linearGradient id="_R_ke_" x1="0" y1="0" x2="0" y2="1">
+                      <stop
+                        offset="0"
+                        stop-color="currentColor"
+                        stop-opacity="0.28"
+                      ></stop>
+                      <stop
+                        offset="1"
+                        stop-color="currentColor"
+                        stop-opacity="0"
+                      ></stop>
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M0,46 L18.67,43.86 L37.33,45.41 L56,39.43 L74.67,36.9 L93.33,34.23 L112,30.62 L130.67,31.64 L149.33,28.22 L168,25.86 L186.67,20.23 L205.33,14.2 L224,16.14 L242.67,10.38 L261.33,7.42 L280,2 L280,48 L0,48 Z"
+                    fill="url(#_R_ke_)"
+                    stroke="none"
+                  ></path>
+                  <path
+                    d="M0,46 L18.67,43.86 L37.33,45.41 L56,39.43 L74.67,36.9 L93.33,34.23 L112,30.62 L130.67,31.64 L149.33,28.22 L168,25.86 L186.67,20.23 L205.33,14.2 L224,16.14 L242.67,10.38 L261.33,7.42 L280,2"
+                    fill="none"
+                    stroke-width="1.5"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                    vector-effect="non-scaling-stroke"
+                    class="stroke-(--axo-color-brand-primary)"
+                  ></path>
+                </svg>
+                <p
+                  data-testid="price-meta"
+                  class="font-swarm-mono type-caption text-secondary"
+                >
+                  Base · Uniswap v4 · GeckoTerminal · as of ⁨06:21 PM⁩
+                </p></a
+              >
+              <section
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <h2 class="type-title-small text-primary">Receive</h2>
+                <p class="type-body-small text-secondary">
+                  Your SWARM address. It is not secret, but everyone you give it
+                  to can link the payments they make to it.
+                </p>
+                <div class="flex flex-wrap items-start gap-4">
+                  <div class="shrink-0 rounded-md bg-[white] p-2">
+                    <img
+                      alt="QR code of your SWARM address"
+                      class="size-40"
+                      src='data:image/svg+xml;utf8,&lt;svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="33px" height="33px" viewBox="0 0 33 33"  preserveAspectRatio="xMinYMin meet"&gt;&lt;rect width="100%" height="100%" fill="white" cx="0" cy="0"/&gt;&lt;path d="M0,0l1,0 0,1 -1,0 0,-1z M1,0l1,0 0,1 -1,0 0,-1z M2,0l1,0 0,1 -1,0 0,-1z M3,0l1,0 0,1 -1,0 0,-1z M4,0l1,0 0,1 -1,0 0,-1z M5,0l1,0 0,1 -1,0 0,-1z M6,0l1,0 0,1 -1,0 0,-1z M10,0l1,0 0,1 -1,0 0,-1z M12,0l1,0 0,1 -1,0 0,-1z M13,0l1,0 0,1 -1,0 0,-1z M16,0l1,0 0,1 -1,0 0,-1z M17,0l1,0 0,1 -1,0 0,-1z M18,0l1,0 0,1 -1,0 0,-1z M19,0l1,0 0,1 -1,0 0,-1z M20,0l1,0 0,1 -1,0 0,-1z M22,0l1,0 0,1 -1,0 0,-1z M23,0l1,0 0,1 -1,0 0,-1z M26,0l1,0 0,1 -1,0 0,-1z M27,0l1,0 0,1 -1,0 0,-1z M28,0l1,0 0,1 -1,0 0,-1z M29,0l1,0 0,1 -1,0 0,-1z M30,0l1,0 0,1 -1,0 0,-1z M31,0l1,0 0,1 -1,0 0,-1z M32,0l1,0 0,1 -1,0 0,-1z M0,1l1,0 0,1 -1,0 0,-1z M6,1l1,0 0,1 -1,0 0,-1z M8,1l1,0 0,1 -1,0 0,-1z M10,1l1,0 0,1 -1,0 0,-1z M14,1l1,0 0,1 -1,0 0,-1z M15,1l1,0 0,1 -1,0 0,-1z M20,1l1,0 0,1 -1,0 0,-1z M21,1l1,0 0,1 -1,0 0,-1z M26,1l1,0 0,1 -1,0 0,-1z M32,1l1,0 0,1 -1,0 0,-1z M0,2l1,0 0,1 -1,0 0,-1z M2,2l1,0 0,1 -1,0 0,-1z M3,2l1,0 0,1 -1,0 0,-1z M4,2l1,0 0,1 -1,0 0,-1z M6,2l1,0 0,1 -1,0 0,-1z M12,2l1,0 0,1 -1,0 0,-1z M15,2l1,0 0,1 -1,0 0,-1z M21,2l1,0 0,1 -1,0 0,-1z M26,2l1,0 0,1 -1,0 0,-1z M28,2l1,0 0,1 -1,0 0,-1z M29,2l1,0 0,1 -1,0 0,-1z M30,2l1,0 0,1 -1,0 0,-1z M32,2l1,0 0,1 -1,0 0,-1z M0,3l1,0 0,1 -1,0 0,-1z M2,3l1,0 0,1 -1,0 0,-1z M3,3l1,0 0,1 -1,0 0,-1z M4,3l1,0 0,1 -1,0 0,-1z M6,3l1,0 0,1 -1,0 0,-1z M8,3l1,0 0,1 -1,0 0,-1z M9,3l1,0 0,1 -1,0 0,-1z M10,3l1,0 0,1 -1,0 0,-1z M12,3l1,0 0,1 -1,0 0,-1z M13,3l1,0 0,1 -1,0 0,-1z M14,3l1,0 0,1 -1,0 0,-1z M15,3l1,0 0,1 -1,0 0,-1z M16,3l1,0 0,1 -1,0 0,-1z M17,3l1,0 0,1 -1,0 0,-1z M22,3l1,0 0,1 -1,0 0,-1z M24,3l1,0 0,1 -1,0 0,-1z M26,3l1,0 0,1 -1,0 0,-1z M28,3l1,0 0,1 -1,0 0,-1z M29,3l1,0 0,1 -1,0 0,-1z M30,3l1,0 0,1 -1,0 0,-1z M32,3l1,0 0,1 -1,0 0,-1z M0,4l1,0 0,1 -1,0 0,-1z M2,4l1,0 0,1 -1,0 0,-1z M3,4l1,0 0,1 -1,0 0,-1z M4,4l1,0 0,1 -1,0 0,-1z M6,4l1,0 0,1 -1,0 0,-1z M9,4l1,0 0,1 -1,0 0,-1z M16,4l1,0 0,1 -1,0 0,-1z M19,4l1,0 0,1 -1,0 0,-1z M20,4l1,0 0,1 -1,0 0,-1z M21,4l1,0 0,1 -1,0 0,-1z M23,4l1,0 0,1 -1,0 0,-1z M26,4l1,0 0,1 -1,0 0,-1z M28,4l1,0 0,1 -1,0 0,-1z M29,4l1,0 0,1 -1,0 0,-1z M30,4l1,0 0,1 -1,0 0,-1z M32,4l1,0 0,1 -1,0 0,-1z M0,5l1,0 0,1 -1,0 0,-1z M6,5l1,0 0,1 -1,0 0,-1z M8,5l1,0 0,1 -1,0 0,-1z M9,5l1,0 0,1 -1,0 0,-1z M11,5l1,0 0,1 -1,0 0,-1z M12,5l1,0 0,1 -1,0 0,-1z M14,5l1,0 0,1 -1,0 0,-1z M15,5l1,0 0,1 -1,0 0,-1z M16,5l1,0 0,1 -1,0 0,-1z M18,5l1,0 0,1 -1,0 0,-1z M21,5l1,0 0,1 -1,0 0,-1z M26,5l1,0 0,1 -1,0 0,-1z M32,5l1,0 0,1 -1,0 0,-1z M0,6l1,0 0,1 -1,0 0,-1z M1,6l1,0 0,1 -1,0 0,-1z M2,6l1,0 0,1 -1,0 0,-1z M3,6l1,0 0,1 -1,0 0,-1z M4,6l1,0 0,1 -1,0 0,-1z M5,6l1,0 0,1 -1,0 0,-1z M6,6l1,0 0,1 -1,0 0,-1z M8,6l1,0 0,1 -1,0 0,-1z M10,6l1,0 0,1 -1,0 0,-1z M12,6l1,0 0,1 -1,0 0,-1z M14,6l1,0 0,1 -1,0 0,-1z M16,6l1,0 0,1 -1,0 0,-1z M18,6l1,0 0,1 -1,0 0,-1z M20,6l1,0 0,1 -1,0 0,-1z M22,6l1,0 0,1 -1,0 0,-1z M24,6l1,0 0,1 -1,0 0,-1z M26,6l1,0 0,1 -1,0 0,-1z M27,6l1,0 0,1 -1,0 0,-1z M28,6l1,0 0,1 -1,0 0,-1z M29,6l1,0 0,1 -1,0 0,-1z M30,6l1,0 0,1 -1,0 0,-1z M31,6l1,0 0,1 -1,0 0,-1z M32,6l1,0 0,1 -1,0 0,-1z M9,7l1,0 0,1 -1,0 0,-1z M10,7l1,0 0,1 -1,0 0,-1z M11,7l1,0 0,1 -1,0 0,-1z M14,7l1,0 0,1 -1,0 0,-1z M15,7l1,0 0,1 -1,0 0,-1z M16,7l1,0 0,1 -1,0 0,-1z M18,7l1,0 0,1 -1,0 0,-1z M21,7l1,0 0,1 -1,0 0,-1z M22,7l1,0 0,1 -1,0 0,-1z M0,8l1,0 0,1 -1,0 0,-1z M1,8l1,0 0,1 -1,0 0,-1z M2,8l1,0 0,1 -1,0 0,-1z M3,8l1,0 0,1 -1,0 0,-1z M4,8l1,0 0,1 -1,0 0,-1z M6,8l1,0 0,1 -1,0 0,-1z M7,8l1,0 0,1 -1,0 0,-1z M8,8l1,0 0,1 -1,0 0,-1z M9,8l1,0 0,1 -1,0 0,-1z M11,8l1,0 0,1 -1,0 0,-1z M17,8l1,0 0,1 -1,0 0,-1z M19,8l1,0 0,1 -1,0 0,-1z M20,8l1,0 0,1 -1,0 0,-1z M22,8l1,0 0,1 -1,0 0,-1z M24,8l1,0 0,1 -1,0 0,-1z M25,8l1,0 0,1 -1,0 0,-1z M27,8l1,0 0,1 -1,0 0,-1z M29,8l1,0 0,1 -1,0 0,-1z M31,8l1,0 0,1 -1,0 0,-1z M0,9l1,0 0,1 -1,0 0,-1z M2,9l1,0 0,1 -1,0 0,-1z M3,9l1,0 0,1 -1,0 0,-1z M5,9l1,0 0,1 -1,0 0,-1z M8,9l1,0 0,1 -1,0 0,-1z M10,9l1,0 0,1 -1,0 0,-1z M12,9l1,0 0,1 -1,0 0,-1z M13,9l1,0 0,1 -1,0 0,-1z M16,9l1,0 0,1 -1,0 0,-1z M17,9l1,0 0,1 -1,0 0,-1z M18,9l1,0 0,1 -1,0 0,-1z M19,9l1,0 0,1 -1,0 0,-1z M20,9l1,0 0,1 -1,0 0,-1z M23,9l1,0 0,1 -1,0 0,-1z M26,9l1,0 0,1 -1,0 0,-1z M30,9l1,0 0,1 -1,0 0,-1z M31,9l1,0 0,1 -1,0 0,-1z M32,9l1,0 0,1 -1,0 0,-1z M0,10l1,0 0,1 -1,0 0,-1z M2,10l1,0 0,1 -1,0 0,-1z M3,10l1,0 0,1 -1,0 0,-1z M6,10l1,0 0,1 -1,0 0,-1z M7,10l1,0 0,1 -1,0 0,-1z M10,10l1,0 0,1 -1,0 0,-1z M13,10l1,0 0,1 -1,0 0,-1z M14,10l1,0 0,1 -1,0 0,-1z M15,10l1,0 0,1 -1,0 0,-1z M16,10l1,0 0,1 -1,0 0,-1z M20,10l1,0 0,1 -1,0 0,-1z M21,10l1,0 0,1 -1,0 0,-1z M22,10l1,0 0,1 -1,0 0,-1z M24,10l1,0 0,1 -1,0 0,-1z M25,10l1,0 0,1 -1,0 0,-1z M26,10l1,0 0,1 -1,0 0,-1z M29,10l1,0 0,1 -1,0 0,-1z M30,10l1,0 0,1 -1,0 0,-1z M31,10l1,0 0,1 -1,0 0,-1z M0,11l1,0 0,1 -1,0 0,-1z M4,11l1,0 0,1 -1,0 0,-1z M12,11l1,0 0,1 -1,0 0,-1z M13,11l1,0 0,1 -1,0 0,-1z M15,11l1,0 0,1 -1,0 0,-1z M18,11l1,0 0,1 -1,0 0,-1z M20,11l1,0 0,1 -1,0 0,-1z M21,11l1,0 0,1 -1,0 0,-1z M22,11l1,0 0,1 -1,0 0,-1z M25,11l1,0 0,1 -1,0 0,-1z M27,11l1,0 0,1 -1,0 0,-1z M29,11l1,0 0,1 -1,0 0,-1z M30,11l1,0 0,1 -1,0 0,-1z M31,11l1,0 0,1 -1,0 0,-1z M0,12l1,0 0,1 -1,0 0,-1z M1,12l1,0 0,1 -1,0 0,-1z M5,12l1,0 0,1 -1,0 0,-1z M6,12l1,0 0,1 -1,0 0,-1z M8,12l1,0 0,1 -1,0 0,-1z M9,12l1,0 0,1 -1,0 0,-1z M10,12l1,0 0,1 -1,0 0,-1z M12,12l1,0 0,1 -1,0 0,-1z M14,12l1,0 0,1 -1,0 0,-1z M15,12l1,0 0,1 -1,0 0,-1z M17,12l1,0 0,1 -1,0 0,-1z M22,12l1,0 0,1 -1,0 0,-1z M23,12l1,0 0,1 -1,0 0,-1z M24,12l1,0 0,1 -1,0 0,-1z M25,12l1,0 0,1 -1,0 0,-1z M27,12l1,0 0,1 -1,0 0,-1z M28,12l1,0 0,1 -1,0 0,-1z M0,13l1,0 0,1 -1,0 0,-1z M5,13l1,0 0,1 -1,0 0,-1z M16,13l1,0 0,1 -1,0 0,-1z M18,13l1,0 0,1 -1,0 0,-1z M19,13l1,0 0,1 -1,0 0,-1z M20,13l1,0 0,1 -1,0 0,-1z M21,13l1,0 0,1 -1,0 0,-1z M22,13l1,0 0,1 -1,0 0,-1z M23,13l1,0 0,1 -1,0 0,-1z M25,13l1,0 0,1 -1,0 0,-1z M26,13l1,0 0,1 -1,0 0,-1z M29,13l1,0 0,1 -1,0 0,-1z M30,13l1,0 0,1 -1,0 0,-1z M31,13l1,0 0,1 -1,0 0,-1z M32,13l1,0 0,1 -1,0 0,-1z M0,14l1,0 0,1 -1,0 0,-1z M2,14l1,0 0,1 -1,0 0,-1z M6,14l1,0 0,1 -1,0 0,-1z M7,14l1,0 0,1 -1,0 0,-1z M8,14l1,0 0,1 -1,0 0,-1z M9,14l1,0 0,1 -1,0 0,-1z M11,14l1,0 0,1 -1,0 0,-1z M12,14l1,0 0,1 -1,0 0,-1z M15,14l1,0 0,1 -1,0 0,-1z M20,14l1,0 0,1 -1,0 0,-1z M21,14l1,0 0,1 -1,0 0,-1z M24,14l1,0 0,1 -1,0 0,-1z M27,14l1,0 0,1 -1,0 0,-1z M29,14l1,0 0,1 -1,0 0,-1z M30,14l1,0 0,1 -1,0 0,-1z M1,15l1,0 0,1 -1,0 0,-1z M2,15l1,0 0,1 -1,0 0,-1z M3,15l1,0 0,1 -1,0 0,-1z M4,15l1,0 0,1 -1,0 0,-1z M5,15l1,0 0,1 -1,0 0,-1z M8,15l1,0 0,1 -1,0 0,-1z M9,15l1,0 0,1 -1,0 0,-1z M11,15l1,0 0,1 -1,0 0,-1z M14,15l1,0 0,1 -1,0 0,-1z M15,15l1,0 0,1 -1,0 0,-1z M20,15l1,0 0,1 -1,0 0,-1z M21,15l1,0 0,1 -1,0 0,-1z M24,15l1,0 0,1 -1,0 0,-1z M27,15l1,0 0,1 -1,0 0,-1z M28,15l1,0 0,1 -1,0 0,-1z M29,15l1,0 0,1 -1,0 0,-1z M30,15l1,0 0,1 -1,0 0,-1z M31,15l1,0 0,1 -1,0 0,-1z M2,16l1,0 0,1 -1,0 0,-1z M4,16l1,0 0,1 -1,0 0,-1z M6,16l1,0 0,1 -1,0 0,-1z M7,16l1,0 0,1 -1,0 0,-1z M11,16l1,0 0,1 -1,0 0,-1z M16,16l1,0 0,1 -1,0 0,-1z M17,16l1,0 0,1 -1,0 0,-1z M22,16l1,0 0,1 -1,0 0,-1z M25,16l1,0 0,1 -1,0 0,-1z M28,16l1,0 0,1 -1,0 0,-1z M29,16l1,0 0,1 -1,0 0,-1z M31,16l1,0 0,1 -1,0 0,-1z M32,16l1,0 0,1 -1,0 0,-1z M0,17l1,0 0,1 -1,0 0,-1z M1,17l1,0 0,1 -1,0 0,-1z M3,17l1,0 0,1 -1,0 0,-1z M4,17l1,0 0,1 -1,0 0,-1z M8,17l1,0 0,1 -1,0 0,-1z M10,17l1,0 0,1 -1,0 0,-1z M12,17l1,0 0,1 -1,0 0,-1z M13,17l1,0 0,1 -1,0 0,-1z M14,17l1,0 0,1 -1,0 0,-1z M16,17l1,0 0,1 -1,0 0,-1z M18,17l1,0 0,1 -1,0 0,-1z M19,17l1,0 0,1 -1,0 0,-1z M20,17l1,0 0,1 -1,0 0,-1z M23,17l1,0 0,1 -1,0 0,-1z M26,17l1,0 0,1 -1,0 0,-1z M32,17l1,0 0,1 -1,0 0,-1z M0,18l1,0 0,1 -1,0 0,-1z M3,18l1,0 0,1 -1,0 0,-1z M4,18l1,0 0,1 -1,0 0,-1z M5,18l1,0 0,1 -1,0 0,-1z M6,18l1,0 0,1 -1,0 0,-1z M8,18l1,0 0,1 -1,0 0,-1z M9,18l1,0 0,1 -1,0 0,-1z M13,18l1,0 0,1 -1,0 0,-1z M14,18l1,0 0,1 -1,0 0,-1z M15,18l1,0 0,1 -1,0 0,-1z M16,18l1,0 0,1 -1,0 0,-1z M21,18l1,0 0,1 -1,0 0,-1z M22,18l1,0 0,1 -1,0 0,-1z M25,18l1,0 0,1 -1,0 0,-1z M26,18l1,0 0,1 -1,0 0,-1z M30,18l1,0 0,1 -1,0 0,-1z M31,18l1,0 0,1 -1,0 0,-1z M0,19l1,0 0,1 -1,0 0,-1z M1,19l1,0 0,1 -1,0 0,-1z M8,19l1,0 0,1 -1,0 0,-1z M9,19l1,0 0,1 -1,0 0,-1z M10,19l1,0 0,1 -1,0 0,-1z M12,19l1,0 0,1 -1,0 0,-1z M13,19l1,0 0,1 -1,0 0,-1z M15,19l1,0 0,1 -1,0 0,-1z M16,19l1,0 0,1 -1,0 0,-1z M20,19l1,0 0,1 -1,0 0,-1z M21,19l1,0 0,1 -1,0 0,-1z M29,19l1,0 0,1 -1,0 0,-1z M30,19l1,0 0,1 -1,0 0,-1z M31,19l1,0 0,1 -1,0 0,-1z M32,19l1,0 0,1 -1,0 0,-1z M2,20l1,0 0,1 -1,0 0,-1z M4,20l1,0 0,1 -1,0 0,-1z M5,20l1,0 0,1 -1,0 0,-1z M6,20l1,0 0,1 -1,0 0,-1z M7,20l1,0 0,1 -1,0 0,-1z M9,20l1,0 0,1 -1,0 0,-1z M10,20l1,0 0,1 -1,0 0,-1z M12,20l1,0 0,1 -1,0 0,-1z M14,20l1,0 0,1 -1,0 0,-1z M15,20l1,0 0,1 -1,0 0,-1z M17,20l1,0 0,1 -1,0 0,-1z M19,20l1,0 0,1 -1,0 0,-1z M22,20l1,0 0,1 -1,0 0,-1z M23,20l1,0 0,1 -1,0 0,-1z M24,20l1,0 0,1 -1,0 0,-1z M25,20l1,0 0,1 -1,0 0,-1z M27,20l1,0 0,1 -1,0 0,-1z M28,20l1,0 0,1 -1,0 0,-1z M31,20l1,0 0,1 -1,0 0,-1z M0,21l1,0 0,1 -1,0 0,-1z M1,21l1,0 0,1 -1,0 0,-1z M3,21l1,0 0,1 -1,0 0,-1z M4,21l1,0 0,1 -1,0 0,-1z M8,21l1,0 0,1 -1,0 0,-1z M9,21l1,0 0,1 -1,0 0,-1z M10,21l1,0 0,1 -1,0 0,-1z M16,21l1,0 0,1 -1,0 0,-1z M17,21l1,0 0,1 -1,0 0,-1z M19,21l1,0 0,1 -1,0 0,-1z M20,21l1,0 0,1 -1,0 0,-1z M21,21l1,0 0,1 -1,0 0,-1z M23,21l1,0 0,1 -1,0 0,-1z M26,21l1,0 0,1 -1,0 0,-1z M30,21l1,0 0,1 -1,0 0,-1z M31,21l1,0 0,1 -1,0 0,-1z M32,21l1,0 0,1 -1,0 0,-1z M0,22l1,0 0,1 -1,0 0,-1z M2,22l1,0 0,1 -1,0 0,-1z M3,22l1,0 0,1 -1,0 0,-1z M6,22l1,0 0,1 -1,0 0,-1z M7,22l1,0 0,1 -1,0 0,-1z M11,22l1,0 0,1 -1,0 0,-1z M12,22l1,0 0,1 -1,0 0,-1z M15,22l1,0 0,1 -1,0 0,-1z M16,22l1,0 0,1 -1,0 0,-1z M18,22l1,0 0,1 -1,0 0,-1z M21,22l1,0 0,1 -1,0 0,-1z M22,22l1,0 0,1 -1,0 0,-1z M25,22l1,0 0,1 -1,0 0,-1z M29,22l1,0 0,1 -1,0 0,-1z M30,22l1,0 0,1 -1,0 0,-1z M31,22l1,0 0,1 -1,0 0,-1z M0,23l1,0 0,1 -1,0 0,-1z M3,23l1,0 0,1 -1,0 0,-1z M11,23l1,0 0,1 -1,0 0,-1z M14,23l1,0 0,1 -1,0 0,-1z M15,23l1,0 0,1 -1,0 0,-1z M16,23l1,0 0,1 -1,0 0,-1z M18,23l1,0 0,1 -1,0 0,-1z M21,23l1,0 0,1 -1,0 0,-1z M22,23l1,0 0,1 -1,0 0,-1z M24,23l1,0 0,1 -1,0 0,-1z M25,23l1,0 0,1 -1,0 0,-1z M29,23l1,0 0,1 -1,0 0,-1z M30,23l1,0 0,1 -1,0 0,-1z M31,23l1,0 0,1 -1,0 0,-1z M32,23l1,0 0,1 -1,0 0,-1z M0,24l1,0 0,1 -1,0 0,-1z M2,24l1,0 0,1 -1,0 0,-1z M5,24l1,0 0,1 -1,0 0,-1z M6,24l1,0 0,1 -1,0 0,-1z M7,24l1,0 0,1 -1,0 0,-1z M8,24l1,0 0,1 -1,0 0,-1z M9,24l1,0 0,1 -1,0 0,-1z M10,24l1,0 0,1 -1,0 0,-1z M11,24l1,0 0,1 -1,0 0,-1z M15,24l1,0 0,1 -1,0 0,-1z M17,24l1,0 0,1 -1,0 0,-1z M20,24l1,0 0,1 -1,0 0,-1z M22,24l1,0 0,1 -1,0 0,-1z M24,24l1,0 0,1 -1,0 0,-1z M25,24l1,0 0,1 -1,0 0,-1z M26,24l1,0 0,1 -1,0 0,-1z M27,24l1,0 0,1 -1,0 0,-1z M28,24l1,0 0,1 -1,0 0,-1z M8,25l1,0 0,1 -1,0 0,-1z M9,25l1,0 0,1 -1,0 0,-1z M12,25l1,0 0,1 -1,0 0,-1z M13,25l1,0 0,1 -1,0 0,-1z M14,25l1,0 0,1 -1,0 0,-1z M16,25l1,0 0,1 -1,0 0,-1z M18,25l1,0 0,1 -1,0 0,-1z M19,25l1,0 0,1 -1,0 0,-1z M20,25l1,0 0,1 -1,0 0,-1z M21,25l1,0 0,1 -1,0 0,-1z M24,25l1,0 0,1 -1,0 0,-1z M28,25l1,0 0,1 -1,0 0,-1z M29,25l1,0 0,1 -1,0 0,-1z M31,25l1,0 0,1 -1,0 0,-1z M32,25l1,0 0,1 -1,0 0,-1z M0,26l1,0 0,1 -1,0 0,-1z M1,26l1,0 0,1 -1,0 0,-1z M2,26l1,0 0,1 -1,0 0,-1z M3,26l1,0 0,1 -1,0 0,-1z M4,26l1,0 0,1 -1,0 0,-1z M5,26l1,0 0,1 -1,0 0,-1z M6,26l1,0 0,1 -1,0 0,-1z M8,26l1,0 0,1 -1,0 0,-1z M10,26l1,0 0,1 -1,0 0,-1z M13,26l1,0 0,1 -1,0 0,-1z M14,26l1,0 0,1 -1,0 0,-1z M15,26l1,0 0,1 -1,0 0,-1z M18,26l1,0 0,1 -1,0 0,-1z M20,26l1,0 0,1 -1,0 0,-1z M21,26l1,0 0,1 -1,0 0,-1z M22,26l1,0 0,1 -1,0 0,-1z M23,26l1,0 0,1 -1,0 0,-1z M24,26l1,0 0,1 -1,0 0,-1z M26,26l1,0 0,1 -1,0 0,-1z M28,26l1,0 0,1 -1,0 0,-1z M29,26l1,0 0,1 -1,0 0,-1z M30,26l1,0 0,1 -1,0 0,-1z M31,26l1,0 0,1 -1,0 0,-1z M0,27l1,0 0,1 -1,0 0,-1z M6,27l1,0 0,1 -1,0 0,-1z M9,27l1,0 0,1 -1,0 0,-1z M12,27l1,0 0,1 -1,0 0,-1z M13,27l1,0 0,1 -1,0 0,-1z M15,27l1,0 0,1 -1,0 0,-1z M16,27l1,0 0,1 -1,0 0,-1z M20,27l1,0 0,1 -1,0 0,-1z M21,27l1,0 0,1 -1,0 0,-1z M22,27l1,0 0,1 -1,0 0,-1z M23,27l1,0 0,1 -1,0 0,-1z M24,27l1,0 0,1 -1,0 0,-1z M28,27l1,0 0,1 -1,0 0,-1z M29,27l1,0 0,1 -1,0 0,-1z M30,27l1,0 0,1 -1,0 0,-1z M31,27l1,0 0,1 -1,0 0,-1z M0,28l1,0 0,1 -1,0 0,-1z M2,28l1,0 0,1 -1,0 0,-1z M3,28l1,0 0,1 -1,0 0,-1z M4,28l1,0 0,1 -1,0 0,-1z M6,28l1,0 0,1 -1,0 0,-1z M8,28l1,0 0,1 -1,0 0,-1z M9,28l1,0 0,1 -1,0 0,-1z M12,28l1,0 0,1 -1,0 0,-1z M14,28l1,0 0,1 -1,0 0,-1z M17,28l1,0 0,1 -1,0 0,-1z M19,28l1,0 0,1 -1,0 0,-1z M22,28l1,0 0,1 -1,0 0,-1z M24,28l1,0 0,1 -1,0 0,-1z M25,28l1,0 0,1 -1,0 0,-1z M26,28l1,0 0,1 -1,0 0,-1z M27,28l1,0 0,1 -1,0 0,-1z M28,28l1,0 0,1 -1,0 0,-1z M29,28l1,0 0,1 -1,0 0,-1z M31,28l1,0 0,1 -1,0 0,-1z M32,28l1,0 0,1 -1,0 0,-1z M0,29l1,0 0,1 -1,0 0,-1z M2,29l1,0 0,1 -1,0 0,-1z M3,29l1,0 0,1 -1,0 0,-1z M4,29l1,0 0,1 -1,0 0,-1z M6,29l1,0 0,1 -1,0 0,-1z M8,29l1,0 0,1 -1,0 0,-1z M10,29l1,0 0,1 -1,0 0,-1z M16,29l1,0 0,1 -1,0 0,-1z M17,29l1,0 0,1 -1,0 0,-1z M18,29l1,0 0,1 -1,0 0,-1z M19,29l1,0 0,1 -1,0 0,-1z M20,29l1,0 0,1 -1,0 0,-1z M22,29l1,0 0,1 -1,0 0,-1z M24,29l1,0 0,1 -1,0 0,-1z M25,29l1,0 0,1 -1,0 0,-1z M27,29l1,0 0,1 -1,0 0,-1z M28,29l1,0 0,1 -1,0 0,-1z M30,29l1,0 0,1 -1,0 0,-1z M31,29l1,0 0,1 -1,0 0,-1z M32,29l1,0 0,1 -1,0 0,-1z M0,30l1,0 0,1 -1,0 0,-1z M2,30l1,0 0,1 -1,0 0,-1z M3,30l1,0 0,1 -1,0 0,-1z M4,30l1,0 0,1 -1,0 0,-1z M6,30l1,0 0,1 -1,0 0,-1z M8,30l1,0 0,1 -1,0 0,-1z M10,30l1,0 0,1 -1,0 0,-1z M11,30l1,0 0,1 -1,0 0,-1z M12,30l1,0 0,1 -1,0 0,-1z M15,30l1,0 0,1 -1,0 0,-1z M20,30l1,0 0,1 -1,0 0,-1z M21,30l1,0 0,1 -1,0 0,-1z M26,30l1,0 0,1 -1,0 0,-1z M30,30l1,0 0,1 -1,0 0,-1z M0,31l1,0 0,1 -1,0 0,-1z M6,31l1,0 0,1 -1,0 0,-1z M8,31l1,0 0,1 -1,0 0,-1z M10,31l1,0 0,1 -1,0 0,-1z M11,31l1,0 0,1 -1,0 0,-1z M14,31l1,0 0,1 -1,0 0,-1z M15,31l1,0 0,1 -1,0 0,-1z M21,31l1,0 0,1 -1,0 0,-1z M23,31l1,0 0,1 -1,0 0,-1z M25,31l1,0 0,1 -1,0 0,-1z M27,31l1,0 0,1 -1,0 0,-1z M29,31l1,0 0,1 -1,0 0,-1z M30,31l1,0 0,1 -1,0 0,-1z M0,32l1,0 0,1 -1,0 0,-1z M1,32l1,0 0,1 -1,0 0,-1z M2,32l1,0 0,1 -1,0 0,-1z M3,32l1,0 0,1 -1,0 0,-1z M4,32l1,0 0,1 -1,0 0,-1z M5,32l1,0 0,1 -1,0 0,-1z M6,32l1,0 0,1 -1,0 0,-1z M8,32l1,0 0,1 -1,0 0,-1z M9,32l1,0 0,1 -1,0 0,-1z M10,32l1,0 0,1 -1,0 0,-1z M11,32l1,0 0,1 -1,0 0,-1z M15,32l1,0 0,1 -1,0 0,-1z M16,32l1,0 0,1 -1,0 0,-1z M17,32l1,0 0,1 -1,0 0,-1z M22,32l1,0 0,1 -1,0 0,-1z M23,32l1,0 0,1 -1,0 0,-1z M24,32l1,0 0,1 -1,0 0,-1z M25,32l1,0 0,1 -1,0 0,-1z M28,32l1,0 0,1 -1,0 0,-1z M31,32l1,0 0,1 -1,0 0,-1z " stroke="transparent" fill="black"/&gt;&lt;/svg&gt;'
+                    />
+                  </div>
+                  <div class="flex min-w-0 flex-1 flex-col gap-2">
+                    <code
+                      data-testid="address"
+                      class="font-swarm-mono type-body-small break-all text-primary select-text"
+                      >swm1qexampleexampleexampleexampleexampleexampleexampleexample</code
+                    >
+                    <div>
+                      <button
+                        type="button"
+                        class="relative inline-flex max-w-full min-w-12 items-center-safe justify-center-safe rounded-full bg-primary px-2 py-1 type-body-small font-medium text-primary focus-visible:axo-focus-ring not-aria-disabled:active:bg-primary-pressed data-[axo-discouraged=true]:text-disabled forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:focus:border-[Highlight] forced-colors:aria-disabled:text-[GrayText] forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]"
+                      >
+                        <span
+                          class="flex shrink grow items-center-safe justify-center-safe gap-1 overflow-hidden"
+                          ><span class="min-w-0 shrink grow truncate"
+                            >Copy address</span
+                          ></span
+                        >
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <section
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <h2 class="type-title-small text-primary">Send</h2>
+                <form data-testid="send-form" class="flex flex-col gap-3">
+                  <label class="flex flex-col gap-1"
+                    ><span class="type-body-small text-secondary">To</span
+                    ><input
+                      class="w-full rounded-lg border border-primary bg-surface-primary p-2 font-swarm-mono type-body-medium text-primary"
+                      placeholder="swm1…"
+                      spellcheck="false"
+                      autocomplete="off"
+                      name="to"
+                      value="" /></label
+                  ><label class="flex flex-col gap-1"
+                    ><span class="type-body-small text-secondary"
+                      >Amount in SWM</span
+                    ><input
+                      class="w-full rounded-lg border border-primary bg-surface-primary p-2 font-swarm-mono type-body-medium text-primary"
+                      inputmode="decimal"
+                      placeholder="0.00000000"
+                      spellcheck="false"
+                      autocomplete="off"
+                      name="amount"
+                      value="" /></label
+                  ><label class="flex flex-col gap-1"
+                    ><span class="type-body-small text-secondary"
+                      >Memo (optional, only the recipient can read it)</span
+                    ><textarea
+                      name="memo"
+                      class="h-16 w-full resize-none rounded-lg border border-primary bg-surface-primary p-2 type-body-medium text-primary"
+                      spellcheck="false"
+                    ></textarea>
+                  </label>
+                  <div>
+                    <button
+                      type="button"
+                      class="relative inline-flex max-w-full min-w-14 items-center-safe justify-center-safe rounded-full bg-accent px-3 py-1.5 type-body-medium font-medium text-primary-oncolor focus-visible:axo-focus-ring not-aria-disabled:active:bg-accent-pressed data-[axo-discouraged=true]:text-disabled-oncolor forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:focus:border-[Highlight] forced-colors:aria-disabled:text-[GrayText] forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]"
+                    >
+                      <span
+                        aria-hidden="false"
+                        class="flex shrink grow items-center-safe justify-center-safe gap-1 overflow-hidden"
+                        ><span class="min-w-0 shrink grow truncate"
+                          >Review payment</span
+                        ></span
+                      >
+                    </button>
+                  </div>
+                </form>
+              </section>
+              <section
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <h2 class="type-title-small text-primary">Transactions</h2>
+                <p
+                  data-testid="history-empty"
+                  class="type-body-medium text-secondary"
+                >
+                  No transactions yet.
+                </p>
+              </section>
+              <section data-testid="recovery-phrase">
+                <section
+                  class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+                >
+                  <h2 class="type-title-small text-primary">Recovery phrase</h2>
+                  <p class="type-body-medium text-primary">
+                    Your 24 recovery words are this account and the money in
+                    this wallet: anyone who has them owns both.
+                  </p>
+                  <div>
+                    <button
+                      type="button"
+                      class="relative inline-flex max-w-full min-w-14 items-center-safe justify-center-safe rounded-full bg-primary px-3 py-1.5 type-body-medium font-medium text-primary focus-visible:axo-focus-ring not-aria-disabled:active:bg-primary-pressed data-[axo-discouraged=true]:text-disabled forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:focus:border-[Highlight] forced-colors:aria-disabled:text-[GrayText] forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]"
+                    >
+                      <span
+                        aria-hidden="false"
+                        class="flex shrink grow items-center-safe justify-center-safe gap-1 overflow-hidden"
+                        ><span class="min-w-0 shrink grow truncate"
+                          >Show recovery phrase</span
+                        ></span
+                      >
+                    </button>
+                  </div>
+                </section>
+              </section>
+              <section
+                data-testid="price-setting"
+                class="flex flex-col gap-2 rounded-lg bg-surface-secondary p-4"
+              >
+                <div class="flex items-center gap-3">
+                  <span id="_R_12_" class="grow type-body-medium text-primary"
+                    >Show SWM price (USD)</span
+                  ><button
+                    type="button"
+                    role="switch"
+                    aria-checked="true"
+                    data-state="checked"
+                    value="on"
+                    aria-labelledby="_R_12_"
+                    class="group relative z-0 flex h-[18px] w-8 items-center overflow-hidden rounded-full border border-secondary bg-primary inset-shadow-on-color focus-visible:axo-focus-ring not-data-disabled:active:bg-primary-pressed data-disabled:bg-control"
+                  >
+                    <span
+                      class="absolute inset-y-0 w-5.5 -translate-x-3.5 rounded-s-full bg-accent opacity-0 transition-all duration-200 ease-out-cubic group-not-data-disabled:group-active:bg-accent-pressed group-data-disabled:w-7.5 group-data-disabled:rounded-full group-data-[state=checked]:translate-x-0 group-data-[state=checked]:opacity-100 group-data-disabled:group-data-[state=checked]:opacity-25 rtl:translate-x-3.5 forced-colors:bg-[AccentColor] forced-colors:group-data-disabled:bg-[GrayText]"
+                    ></span
+                    ><span
+                      class="invisible absolute inset-s-0.5 z-0 text-[12px] forced-color-adjust-none forced-colors:visible forced-colors:text-[AccentColorText]"
+                      ><span
+                        aria-hidden="true"
+                        class="font-symbols text-inherit forced-color-adjust-none select-none"
+                        ></span
+                      ></span
+                    ><span
+                      data-state="checked"
+                      class="z-10 block size-4 rounded-full bg-(--axo-color-label-primary-oncolor) shadow-[0.5px_0_0.5px_0.5px,-0.5px_0_0.5px_0.5px] shadow-[#000]/12 transition-all duration-200 ease-out-cubic data-disabled:bg-(--axo-color-label-disabled-oncolor) data-[state=checked]:translate-x-3.5 rtl:data-[state=checked]:-translate-x-3.5 forced-colors:border forced-colors:data-disabled:bg-[ButtonFace]"
+                    ></span></button
+                  ><input
+                    type="checkbox"
+                    aria-hidden="true"
+                    tabindex="-1"
+                    style="
+                      position: absolute;
+                      pointer-events: none;
+                      opacity: 0;
+                      margin: 0;
+                      transform: translateX(-100%);
+                    "
+                    checked=""
+                    value="on"
+                  />
+                </div>
+                <p class="type-body-small text-secondary">
+                  The price comes from the SWARM price service
+                  (wallet.swarm.green), which reads the SWM/ETH pool on Base
+                  from GeckoTerminal and DexScreener. Your addresses and
+                  balances are never sent. Switch this off and the wallet makes
+                  no price requests.
+                </p>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

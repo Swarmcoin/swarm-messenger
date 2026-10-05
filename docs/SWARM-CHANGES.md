@@ -842,3 +842,40 @@ no key derivation, no sign-in code changed.
 has no `darwin-x64` prebuild (see `docs/RELEASES.md`).
 
 `package.json` `version` becomes `0.1.4`.
+
+## 3p. Version 0.1.5: the SWM price in the Wallet tab
+
+2026-10-05 (PD-5 of `specs/PRICE-DISPLAY.md` in the project's specifications).
+The owner asked that every SWARM wallet show the SWM price. The Wallet tab now
+shows it on SWARM Mainnet, from the SWARM price service only.
+
+**What a person sees.** Under the balance, `≈ $9,364.10 USD`; a price card
+below the balance with the price, the 24-hour change, a 48-hour line, where the
+price comes from and how old it is, which opens the pool's page on DexScreener
+in the browser; `≈ $… USD` under the amount while a payment is typed; and at the
+bottom of the tab "Show SWM price (USD)" with one paragraph on what it asks for
+and from where. A price older than 5 minutes is greyed and says "as of hh:mm";
+after an hour without a good reading it says "Price unavailable".
+
+**Change.** No wallet, key, sign-in or chat code changed; no cryptography.
+
+| What                                                                                          | Change                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Main process (`app/SwarmWalletService.main.ts`, `ts/util/swarm/swarmPriceRelay.std.ts`)       | Two channels, `swarm-wallet:price-get` (`{}`) and `swarm-wallet:price-set-enabled` (`{ enabled }`), through the wallet service's own sender gate. `SwarmPriceTracker` reads `https://wallet.swarm.green/api/price/swm` (fixed in code) with Electron `net.fetch`: GET, no redirects, no cookies, 8 s, at most 64 KiB, strict JSON, the `swarm-price/1` schema; at most once a minute and only when the pane asks; never when the switch is off or the wallet is not on SWARM Mainnet. Last good reading in memory and in `config.json` `swarmPriceLast` (at most every 10 minutes); the switch in `swarmShowPrice` (default on). Logs: categories only. |
+| Sender gate (`ts/util/swarm/walletIpc.node.ts`)                                               | The main-window / top-frame rule moved unchanged into `isMainWindowSender`, which every wallet channel uses, so that it is tested.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Types (`ts/types/SwarmWallet.std.ts`)                                                         | `SwarmPriceRelaySchema` (the service's document; `pool.dexscreener_url` only on `https://dexscreener.com` pool pages), `SwarmPriceStateSchema` (what the pane gets: status, switch, reading, when, age).                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Renderer (`ts/services/swarmWallet.preload.ts`, `ts/state/smart/SwarmWalletTab.preload.tsx`)  | `getSwarmPrice`, `setSwarmPriceEnabled` (zod-parsed); asked with the wallet state every 3 s while the tab is shown.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Pane (`ts/components/SwarmPrice.dom.tsx`, `SwarmWalletPane.dom.tsx`, `SwarmSendFlow.dom.tsx`) | The card, the `≈ $` lines (bigint from zatoshi and the decimal price, half-up to the cent; `ts/util/swarm/swarmPrice.std.ts`) and the switch. Light and dark through the app's tokens; the sparkline is inline SVG styled by classes.                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Strings                                                                                       | `icu:SwarmWallet__price--*` (17), English only (other languages fall back to English).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Tests                                                                                         | `swarmPrice_test.std.ts`, `swarmPriceRelay_test.std.ts`, `swarmPriceIpc_test.node.ts`, `SwarmWalletPane_test.preload.tsx`: `test-node:swarm` 336 → 402 passing.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+
+Details, the data flow and the privacy paragraph: `docs/WALLET-PANE.md`
+section 13. Pictures from fixtures: `docs/screenshots/price/`.
+
+**Not changed, noted.** The price service was not live yet when this was
+written, so the card has only been seen against the specification's fixture.
+External links open without a confirmation dialog, as every link in the app
+does. No price in the chat's payment dialog ("Pay with SWARM"), only in the
+Wallet tab.
+
+`package.json` `version` becomes `0.1.5`.

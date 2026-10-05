@@ -21,6 +21,7 @@ app's main process, opened from the same 24 words the account was created with.
 | Receive      | The `swm1…` address in JetBrains Mono, a **Copy address** button and a QR code, with one sentence saying an address is not secret but links the payments made to it.                                                                                                                                         |
 | Send         | To, amount in SWM, optional memo. **Review payment** asks the wallet for a quote and sends nothing. The confirmation screen names the address, amount, fee and total, warns that a payment cannot be undone, and only its **Send X SWM** button sends. The result shows the txid and a link to the explorer. |
 | Transactions | Newest first: received / sent / unknown (an unknown kind is never shown as income), amount, block or "Not yet in a block", memo, and the txid linked to the explorer.                                                                                                                                        |
+| SWM price    | Since 0.1.5 (PD-5), SWARM Mainnet only: `≈ $… USD` under the balance and under the amount being sent, and a price card (price, 24 h change, 48 h sparkline, source, age) that opens the pool's DexScreener page. "Show SWM price (USD)" at the bottom of the pane switches it off. Section 13.               |
 
 Explorer links: `https://mainnet.explore.swarm.green/transactions/<txid>` on mainnet,
 `https://explore.swarm.green/transactions/<txid>` on testnet. Both checked by hand on 2026-09-27:
@@ -98,22 +99,25 @@ its base directory already set.
 ## 4. The IPC surface
 
 All `ipcMain.handle` / `ipcRenderer.invoke`. Every handler first checks that the caller is the main
-window's top frame (`event.sender` and `event.senderFrame`); every other window (About, debug log,
+window's top frame (`event.sender` and `event.senderFrame`; since 0.1.5 the rule is the pure
+`isMainWindowSender` in `walletIpc.node.ts`, tested in `swarmPriceIpc_test.node.ts`); every other window (About, debug log,
 PDF, permissions, screen share) is refused. Every payload is parsed; nothing from the renderer is used
 as a path, a server, a chain or a key.
 
-| Channel                         | In                                      | Out                                                  | Checked in the main process                                                                                                                                                                                                                                          |
-| ------------------------------- | --------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `swarm-wallet:get-state`        | `{ accountKey? }` (base64, 33 bytes)    | the state (section 1)                                | key shape (`^B[A-Za-z0-9+/]{43}$`); opens that account's file if it is not the open one                                                                                                                                                                              |
-| `swarm-wallet:open-with-phrase` | `{ phrase, isNewPhrase, accountKey? }`  | `{ ok, state }` or `{ ok: false, problem }`          | BIP-39 checksum; with `accountKey`, the phrase must derive exactly that account                                                                                                                                                                                      |
-| `swarm-wallet:refresh`          | -                                       | the state                                            | retries an open that failed, else refreshes and syncs                                                                                                                                                                                                                |
-| `swarm-wallet:quote-send`       | `{ to, amount, memo? }`                 | `{ ok, quote }` or `{ ok: false, refusal }`          | address against this network (bech32m checksum, HRP, testnet spellings refused on mainnet and the reverse, Zcash refused); amount parsed exactly as SWM text; memo ≤ 512 bytes and never to a transparent address; amount ≤ spendable, then amount + fee ≤ spendable |
-| `swarm-wallet:confirm-send`     | `{ quoteId }` (32 hex)                  | `{ ok, txids, saved }` or `{ ok: false, refusal }`   | the quote this process issued, unexpired (110 s), once                                                                                                                                                                                                               |
-| `swarm-wallet:cancel-send`      | -                                       | `true`                                               | drops the quote                                                                                                                                                                                                                                                      |
-| `swarm-wallet:set-network`      | `{ network: 'mainnet' \| 'testnet' }`   | the state                                            | refused in a packaged build                                                                                                                                                                                                                                          |
-| `swarm-wallet:new-address`      | `{}` (nothing)                          | `{ ok, address, chain }` or `{ ok: false, refusal }` | Wave 2. Takes nothing, not even a receiver list: Orchard and Sapling, decided here. The address the wallet makes is checked against the network before it is answered.                                                                                               |
-| `swarm-wallet:check-address`    | `{ address }` (at most 1024 characters) | `{ accepted, chain, detail }`                        | Wave 2. The same check as quote-send's, for the network the wallet is on; needs no open wallet.                                                                                                                                                                      |
-| `swarm-wallet:find-transaction` | `{ txid, memoHash?, accountKey? }`      | `wallet-not-ready`, `not-found` or `found` (below)   | Wave 2. txid and memo hash exactly 64 lowercase hex digits, the key as in get-state. Counts as looking at the wallet: it keeps the wallet syncing and opens the signed-in account's wallet.                                                                          |
+| Channel                          | In                                      | Out                                                  | Checked in the main process                                                                                                                                                                                                                                          |
+| -------------------------------- | --------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `swarm-wallet:get-state`         | `{ accountKey? }` (base64, 33 bytes)    | the state (section 1)                                | key shape (`^B[A-Za-z0-9+/]{43}$`); opens that account's file if it is not the open one                                                                                                                                                                              |
+| `swarm-wallet:open-with-phrase`  | `{ phrase, isNewPhrase, accountKey? }`  | `{ ok, state }` or `{ ok: false, problem }`          | BIP-39 checksum; with `accountKey`, the phrase must derive exactly that account                                                                                                                                                                                      |
+| `swarm-wallet:refresh`           | -                                       | the state                                            | retries an open that failed, else refreshes and syncs                                                                                                                                                                                                                |
+| `swarm-wallet:quote-send`        | `{ to, amount, memo? }`                 | `{ ok, quote }` or `{ ok: false, refusal }`          | address against this network (bech32m checksum, HRP, testnet spellings refused on mainnet and the reverse, Zcash refused); amount parsed exactly as SWM text; memo ≤ 512 bytes and never to a transparent address; amount ≤ spendable, then amount + fee ≤ spendable |
+| `swarm-wallet:confirm-send`      | `{ quoteId }` (32 hex)                  | `{ ok, txids, saved }` or `{ ok: false, refusal }`   | the quote this process issued, unexpired (110 s), once                                                                                                                                                                                                               |
+| `swarm-wallet:cancel-send`       | -                                       | `true`                                               | drops the quote                                                                                                                                                                                                                                                      |
+| `swarm-wallet:set-network`       | `{ network: 'mainnet' \| 'testnet' }`   | the state                                            | refused in a packaged build                                                                                                                                                                                                                                          |
+| `swarm-wallet:new-address`       | `{}` (nothing)                          | `{ ok, address, chain }` or `{ ok: false, refusal }` | Wave 2. Takes nothing, not even a receiver list: Orchard and Sapling, decided here. The address the wallet makes is checked against the network before it is answered.                                                                                               |
+| `swarm-wallet:check-address`     | `{ address }` (at most 1024 characters) | `{ accepted, chain, detail }`                        | Wave 2. The same check as quote-send's, for the network the wallet is on; needs no open wallet.                                                                                                                                                                      |
+| `swarm-wallet:find-transaction`  | `{ txid, memoHash?, accountKey? }`      | `wallet-not-ready`, `not-found` or `found` (below)   | Wave 2. txid and memo hash exactly 64 lowercase hex digits, the key as in get-state. Counts as looking at the wallet: it keeps the wallet syncing and opens the signed-in account's wallet.                                                                          |
+| `swarm-wallet:price-get`         | `{}` (nothing)                          | the price state (section 13)                         | 0.1.5. Anything but an empty object is refused. Answers from memory; may start the one request a minute to the price service.                                                                                                                                        |
+| `swarm-wallet:price-set-enabled` | `{ enabled }` (boolean, nothing else)   | the price state                                      | 0.1.5. The switch, kept in `config.json` `swarmShowPrice`.                                                                                                                                                                                                           |
 
 Since wave 2, `confirm-send`'s answer also carries `chain` (the network the payment was made on)
 and `memoHash` (SHA-256 of the memo the main process quoted, as the wallet puts it on-chain, or
@@ -202,7 +206,11 @@ A build without the addon starts and chats normally; the pane says the wallet co
   passed through; the same seed reopened on testnet.
 - `SwarmWalletPane_test.preload.tsx` - the pane rendered with the real English strings in its
   loading, offline (with and without a last balance), ready, catching-up, no-wallet, unavailable and
-  testnet states, the explorer link scheme, and every refusal sentence.
+  testnet states, the explorer link scheme, and every refusal sentence. Since 0.1.5 also the price:
+  fresh, ageing, stale, unavailable, waiting, off, not mainnet, offline, the change chips, no link
+  without a DexScreener page, and the send form's `≈ $` line.
+- `swarmPrice_test.std.ts`, `swarmPriceRelay_test.std.ts`, `swarmPriceIpc_test.node.ts` (0.1.5) -
+  section 13.
 
 Wave 2 (payments inside a chat):
 
@@ -439,3 +447,84 @@ each holding the other's address, so the proof continues from step 5 the moment 
 coins: A pays B 0.01 SWM with a memo, B's bubble goes from "waiting for your wallet to see it" to
 "Received", the txid is checked on `https://explore.swarm.green/transactions/<txid>`, and B pays A
 back with **Pay W2 Alice**.
+
+## 13. The SWM price (0.1.5, PD-5)
+
+**Status.** Implemented and tested by node tests on 2026-10-05 (branch `price-display/messenger`).
+Not yet seen in a running app, and not against the live price service, which did not answer yet
+(404 at 18:23 UTC that day); the tests use the fixture of `specs/PRICE-DISPLAY.md` section 2.1.
+Not reviewed.
+
+**Data flow.**
+
+```
+renderer (main window)
+  SwarmWalletTab.preload.tsx   every 3 s while the pane is shown: getSwarmPrice()
+  swarmWallet.preload.ts       ipcRenderer.invoke('swarm-wallet:price-get', {}), zod-parsed
+        │  same sender gate as every wallet channel (main window, top frame)
+        ▼
+main process
+  app/SwarmWalletService.main.ts            #handle → SwarmPriceTracker.get()
+  ts/util/swarm/swarmPriceRelay.std.ts      answers from memory; when 60 s have passed since
+                                            the last request, starts the next one
+        │  Electron net.fetch, GET, no redirects, no cookies, 8 s, ≤ 64 KiB
+        ▼
+  https://wallet.swarm.green/api/price/swm  (the SWARM price service; fixed in this file)
+```
+
+- **Cadence.** A request is started only by a `price-get` from the pane, at most once per 60 s,
+  success or not. The pane asks only while it is on screen, so with the pane closed the price
+  service hears nothing; when it is opened again after more than a minute, the first ask reads at
+  once.
+- **What is accepted.** `200`, `Content-Type: application/json`, a body of at most 64 KiB
+  (declared or streamed), strict JSON, and `SwarmPriceRelaySchema`: `schema: "swarm-price/1"`,
+  `SWM`/`USD`, `price_usd` a positive decimal string (never a float), optional `change_pct`,
+  `sparkline_usd` (non-negative numbers), `pool.chain`/`pool.dex`/`source` ids, `generated_unix`,
+  `stale`. `pool.dexscreener_url` is kept only when it is a pool page on exactly
+  `https://dexscreener.com` (no port, credentials, query or fragment); otherwise the price stays and
+  the card is not a link. Anything else, a redirect, an error status (the service's `503` after an
+  hour) or no answer in 8 s is a failure category, and the last good reading stays.
+- **Kept reading.** In memory, and in `config.json` `swarmPriceLast` (`{ reading, fetchedAt }`,
+  written at most every 10 minutes). A reading kept from an earlier run is shown greyed, never as
+  fresh, until a read of this run succeeds.
+- **Freshness** (counted by the main process from the time this computer received the reading):
+  fresh < 5 min ("updated 12 s ago"); ageing 5-30 min ("as of hh:mm", greyed); stale > 30 min or
+  when the service says `stale` (greyed, "Price not current"); after 60 min "Price unavailable" and
+  no `≈ $` lines.
+- **Value of a balance.** `≈ $9,364.10 USD` = zatoshi × the decimal price in bigint
+  (`fiatCentsForZatoshi`, 18 price decimals), rounded half-up to the cent once
+  (`ts/util/swarm/swarmPrice.std.ts`). Under the balance (total, confirmed and pending), under the
+  last known balance while offline, and under the send form's amount as it is typed.
+- **The card** (`ts/components/SwarmPrice.dom.tsx`): `SWM PRICE` and a dot (orange fresh, amber
+  ageing, grey stale), the price in Sora (four significant digits under 1 USD, two decimals from
+  1 USD), `▲`/`▼`/neutral 24 h change, a 48 h sparkline (inline SVG, brand stroke 1.5 px, gradient
+  fill, classes only), `Base · Uniswap v4 · GeckoTerminal · updated 12 s ago`, an ⓘ with "Indicative
+  price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote." It is
+  an `<a target="_blank">` to the DexScreener page, opened in the system browser by the main
+  window's window-open handler (no confirmation dialog: the app has none for external links).
+- **SWARM Mainnet only.** On the testnet (developer builds) there is no request, no card and no
+  switch.
+
+**Privacy.** With the pane open and the switch on, the app makes one unauthenticated GET per minute
+to the SWARM price service at `wallet.swarm.green`. Nothing about the wallet goes with it: no
+address, no balance, no identifier, no cookie; the request is the same for every user. The service
+sees the computer's IP address and the time, as any web server does. "Show SWM price (USD)" at the
+bottom of the Wallet pane (default on; `config.json` `swarmShowPrice`) stops every price request;
+nothing is asked of GeckoTerminal or DexScreener directly. Opening the card shows DexScreener, in the
+browser, that this pool was looked at - only on a click. Logs carry categories only ("price: the
+price service gave nothing usable (schema); keeping the last reading"), never a price, an address or
+an amount.
+
+**Tests.** `swarmPrice_test.std.ts` (exact fiat value incl. the spec's examples, half-up, values a
+float cannot hold; price formats; change; freshness boundaries; sparkline; pool URLs),
+`swarmPriceRelay_test.std.ts` (fake fetch: the request's shape, the fixture, malformed JSON, wrong
+schema/symbol/quote/price, wrong content type, error statuses, 64 KiB declared and streamed, the
+deadline, network failure; the tracker with a fake clock: one request per minute under a 3 s poll,
+none without asks, none when off or not on mainnet, failures keep the reading and age it, the
+service's stale flag, the disk throttle, a kept reading, an answer after the switch went off),
+`swarmPriceIpc_test.node.ts` (the sender gate, the payloads, that every channel goes through
+`#handle` and the URL is in one main-side file), `SwarmWalletPane_test.preload.tsx`.
+
+**Pictures.** `docs/screenshots/price/wallet-pane-price-{fresh,ageing,off}.html` - the pane's static
+markup with the app's stylesheets (built by `pnpm run generate`), light and dark side by side - and
+PNGs of them from headless Edge. Rendered from fixtures, not from the running app.
