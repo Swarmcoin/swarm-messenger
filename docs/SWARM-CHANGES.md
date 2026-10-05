@@ -876,8 +876,9 @@ for the price (`specs/PRICE-DISPLAY.md` section 6). The Wallet tab gained a
 second view, `ts/components/SwarmPricePage.dom.tsx`: the card opens it, Back
 returns. Header with freshness; the price large, in ETH, and its 1h / 6h / 24h
 change; a taller chart with 24h / 48h / 30d ranges, the lowest, highest and
-latest values and a pointer readout; the balance and its USD value; liquidity,
-volume, fully diluted value, buys / sells, pool fee and network; the two sources
+latest values and a pointer readout; the balance and its USD value; 24 h
+volume, fully diluted value, buys / sells and pool fee (no liquidity figure, no
+network row, and the card's line names only the source: owner, 21:0x UTC); the two sources
 with their readings, each a link to its pool page (the card's DexScreener link
 moved here, GeckoTerminal joined it); pool id and token contract with Copy; the
 note and the same switch. Off: only the note and the switch. The main-side

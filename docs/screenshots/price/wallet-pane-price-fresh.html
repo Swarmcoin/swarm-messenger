@@ -1,12 +1,12 @@
 <!doctype html>
-<!-- SWARM Messenger (PD-5/PD-5b, 2026-10-05): the Wallet tab, price "fresh".
+<!-- SWARM Messenger 0.1.5 (PD-5, 2026-10-05): the Wallet tab, price "fresh".
      Static markup of the app's components rendered with renderToStaticMarkup
      and the real English strings; light theme left, dark theme right. The
      stylesheets are the app's own, built by `pnpm run generate`
      (stylesheets/*.css are not in git). Data: the SWARM price service's
-     answer of 2026-10-05 19:01 UTC (ts/test-node/swarm/fixtures/), with the
-     spec section 6.1 fields it did not send yet filled in for the picture;
-     an 11 132.58 SWM balance and a placeholder address. -->
+     answer of 2026-10-05 19:23 UTC (ts/test-node/swarm/fixtures/), with a
+     30-day daily series filled in for the picture; an 11 132.58 SWM balance
+     and a placeholder address. -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -83,7 +83,7 @@
                   data-testid="balance-fiat"
                   data-price-dimmed="false"
                   class="block font-swarm-mono type-body-medium text-secondary"
-                  >≈ $⁨9,364.10⁩ USD</span
+                  >≈ $⁨10,358.81⁩ USD</span
                 >
               </section>
               <button
@@ -117,7 +117,7 @@
                     ><span
                       data-testid="price-usd"
                       class="font-display text-[32px]/10 font-semibold"
-                      >$0.8411</span
+                      >$0.9305</span
                     ><span class="font-swarm-mono type-body-small"
                       >USD</span
                     ></span
@@ -126,7 +126,7 @@
                     data-period="24h"
                     data-direction="up"
                     class="rounded-full bg-affirmative-tint px-2 py-0.5 font-swarm-mono type-body-small text-affirmative"
-                    >▲ ⁨28.8⁩ % ⁨24h⁩</span
+                    >▲ ⁨42.4⁩ % ⁨24h⁩</span
                   >
                 </div>
                 <svg
@@ -152,12 +152,12 @@
                     </linearGradient>
                   </defs>
                   <path
-                    d="M0,46 L5.96,46 L11.91,46 L17.87,46 L23.83,46 L29.79,46 L35.74,46 L41.7,46 L47.66,46 L53.62,46 L59.57,46 L65.53,46 L71.49,46 L77.45,46 L83.4,46 L89.36,46 L95.32,46 L101.28,46 L107.23,46 L113.19,46 L119.15,46 L125.11,46 L131.06,35.64 L137.02,35.64 L142.98,35.64 L148.94,35.64 L154.89,35.64 L160.85,35.64 L166.81,35.64 L172.77,35.64 L178.72,35.64 L184.68,35.64 L190.64,35.64 L196.6,35.64 L202.55,35.64 L208.51,35.64 L214.47,35.64 L220.43,35.64 L226.38,35.64 L232.34,35.64 L238.3,32.82 L244.26,32.82 L250.21,16.36 L256.17,16.36 L262.13,2 L268.09,2 L274.04,2 L280,2 L280,48 L0,48 Z"
+                    d="M0,46 L5.83,46 L11.67,46 L17.5,46 L23.33,46 L29.17,46 L35,46 L40.83,46 L46.67,46 L52.5,46 L58.33,46 L64.17,46 L70,46 L75.83,46 L81.67,46 L87.5,46 L93.33,46 L99.17,46 L105,46 L110.83,46 L116.67,46 L122.5,46 L128.33,38.23 L134.17,38.23 L140,38.23 L145.83,38.23 L151.67,38.23 L157.5,38.23 L163.33,38.23 L169.17,38.23 L175,38.23 L180.83,38.23 L186.67,38.23 L192.5,38.23 L198.33,38.23 L204.17,38.23 L210,38.23 L215.83,38.23 L221.67,38.23 L227.5,38.23 L233.33,36.12 L239.17,36.12 L245,23.77 L250.83,23.77 L256.67,13 L262.5,13 L268.33,13 L274.17,2 L280,2 L280,48 L0,48 Z"
                     fill="url(#_R_ke_)"
                     stroke="none"
                   ></path>
                   <path
-                    d="M0,46 L5.96,46 L11.91,46 L17.87,46 L23.83,46 L29.79,46 L35.74,46 L41.7,46 L47.66,46 L53.62,46 L59.57,46 L65.53,46 L71.49,46 L77.45,46 L83.4,46 L89.36,46 L95.32,46 L101.28,46 L107.23,46 L113.19,46 L119.15,46 L125.11,46 L131.06,35.64 L137.02,35.64 L142.98,35.64 L148.94,35.64 L154.89,35.64 L160.85,35.64 L166.81,35.64 L172.77,35.64 L178.72,35.64 L184.68,35.64 L190.64,35.64 L196.6,35.64 L202.55,35.64 L208.51,35.64 L214.47,35.64 L220.43,35.64 L226.38,35.64 L232.34,35.64 L238.3,32.82 L244.26,32.82 L250.21,16.36 L256.17,16.36 L262.13,2 L268.09,2 L274.04,2 L280,2"
+                    d="M0,46 L5.83,46 L11.67,46 L17.5,46 L23.33,46 L29.17,46 L35,46 L40.83,46 L46.67,46 L52.5,46 L58.33,46 L64.17,46 L70,46 L75.83,46 L81.67,46 L87.5,46 L93.33,46 L99.17,46 L105,46 L110.83,46 L116.67,46 L122.5,46 L128.33,38.23 L134.17,38.23 L140,38.23 L145.83,38.23 L151.67,38.23 L157.5,38.23 L163.33,38.23 L169.17,38.23 L175,38.23 L180.83,38.23 L186.67,38.23 L192.5,38.23 L198.33,38.23 L204.17,38.23 L210,38.23 L215.83,38.23 L221.67,38.23 L227.5,38.23 L233.33,36.12 L239.17,36.12 L245,23.77 L250.83,23.77 L256.67,13 L262.5,13 L268.33,13 L274.17,2 L280,2"
                     fill="none"
                     stroke-width="1.5"
                     stroke-linejoin="round"
@@ -170,7 +170,7 @@
                   data-testid="price-meta"
                   class="font-swarm-mono type-caption text-secondary"
                 >
-                  Base · Uniswap v4 · GeckoTerminal · updated 12 s ago
+                  GeckoTerminal · updated 12 s ago
                 </p>
               </button>
               <section
@@ -401,7 +401,7 @@
                   data-testid="balance-fiat"
                   data-price-dimmed="false"
                   class="block font-swarm-mono type-body-medium text-secondary"
-                  >≈ $⁨9,364.10⁩ USD</span
+                  >≈ $⁨10,358.81⁩ USD</span
                 >
               </section>
               <button
@@ -435,7 +435,7 @@
                     ><span
                       data-testid="price-usd"
                       class="font-display text-[32px]/10 font-semibold"
-                      >$0.8411</span
+                      >$0.9305</span
                     ><span class="font-swarm-mono type-body-small"
                       >USD</span
                     ></span
@@ -444,7 +444,7 @@
                     data-period="24h"
                     data-direction="up"
                     class="rounded-full bg-affirmative-tint px-2 py-0.5 font-swarm-mono type-body-small text-affirmative"
-                    >▲ ⁨28.8⁩ % ⁨24h⁩</span
+                    >▲ ⁨42.4⁩ % ⁨24h⁩</span
                   >
                 </div>
                 <svg
@@ -470,12 +470,12 @@
                     </linearGradient>
                   </defs>
                   <path
-                    d="M0,46 L5.96,46 L11.91,46 L17.87,46 L23.83,46 L29.79,46 L35.74,46 L41.7,46 L47.66,46 L53.62,46 L59.57,46 L65.53,46 L71.49,46 L77.45,46 L83.4,46 L89.36,46 L95.32,46 L101.28,46 L107.23,46 L113.19,46 L119.15,46 L125.11,46 L131.06,35.64 L137.02,35.64 L142.98,35.64 L148.94,35.64 L154.89,35.64 L160.85,35.64 L166.81,35.64 L172.77,35.64 L178.72,35.64 L184.68,35.64 L190.64,35.64 L196.6,35.64 L202.55,35.64 L208.51,35.64 L214.47,35.64 L220.43,35.64 L226.38,35.64 L232.34,35.64 L238.3,32.82 L244.26,32.82 L250.21,16.36 L256.17,16.36 L262.13,2 L268.09,2 L274.04,2 L280,2 L280,48 L0,48 Z"
+                    d="M0,46 L5.83,46 L11.67,46 L17.5,46 L23.33,46 L29.17,46 L35,46 L40.83,46 L46.67,46 L52.5,46 L58.33,46 L64.17,46 L70,46 L75.83,46 L81.67,46 L87.5,46 L93.33,46 L99.17,46 L105,46 L110.83,46 L116.67,46 L122.5,46 L128.33,38.23 L134.17,38.23 L140,38.23 L145.83,38.23 L151.67,38.23 L157.5,38.23 L163.33,38.23 L169.17,38.23 L175,38.23 L180.83,38.23 L186.67,38.23 L192.5,38.23 L198.33,38.23 L204.17,38.23 L210,38.23 L215.83,38.23 L221.67,38.23 L227.5,38.23 L233.33,36.12 L239.17,36.12 L245,23.77 L250.83,23.77 L256.67,13 L262.5,13 L268.33,13 L274.17,2 L280,2 L280,48 L0,48 Z"
                     fill="url(#_R_ke_)"
                     stroke="none"
                   ></path>
                   <path
-                    d="M0,46 L5.96,46 L11.91,46 L17.87,46 L23.83,46 L29.79,46 L35.74,46 L41.7,46 L47.66,46 L53.62,46 L59.57,46 L65.53,46 L71.49,46 L77.45,46 L83.4,46 L89.36,46 L95.32,46 L101.28,46 L107.23,46 L113.19,46 L119.15,46 L125.11,46 L131.06,35.64 L137.02,35.64 L142.98,35.64 L148.94,35.64 L154.89,35.64 L160.85,35.64 L166.81,35.64 L172.77,35.64 L178.72,35.64 L184.68,35.64 L190.64,35.64 L196.6,35.64 L202.55,35.64 L208.51,35.64 L214.47,35.64 L220.43,35.64 L226.38,35.64 L232.34,35.64 L238.3,32.82 L244.26,32.82 L250.21,16.36 L256.17,16.36 L262.13,2 L268.09,2 L274.04,2 L280,2"
+                    d="M0,46 L5.83,46 L11.67,46 L17.5,46 L23.33,46 L29.17,46 L35,46 L40.83,46 L46.67,46 L52.5,46 L58.33,46 L64.17,46 L70,46 L75.83,46 L81.67,46 L87.5,46 L93.33,46 L99.17,46 L105,46 L110.83,46 L116.67,46 L122.5,46 L128.33,38.23 L134.17,38.23 L140,38.23 L145.83,38.23 L151.67,38.23 L157.5,38.23 L163.33,38.23 L169.17,38.23 L175,38.23 L180.83,38.23 L186.67,38.23 L192.5,38.23 L198.33,38.23 L204.17,38.23 L210,38.23 L215.83,38.23 L221.67,38.23 L227.5,38.23 L233.33,36.12 L239.17,36.12 L245,23.77 L250.83,23.77 L256.67,13 L262.5,13 L268.33,13 L274.17,2 L280,2"
                     fill="none"
                     stroke-width="1.5"
                     stroke-linejoin="round"
@@ -488,7 +488,7 @@
                   data-testid="price-meta"
                   class="font-swarm-mono type-caption text-secondary"
                 >
-                  Base · Uniswap v4 · GeckoTerminal · updated 12 s ago
+                  GeckoTerminal · updated 12 s ago
                 </p>
               </button>
               <section

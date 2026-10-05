@@ -12777,10 +12777,6 @@
     "messageformat": "Pool",
     "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Heading of the market figures of the SWM/ETH pool."
   },
-  "icu:SwarmWallet__price--page-stat--liquidity": {
-    "messageformat": "Liquidity",
-    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Market figure: the pool's liquidity in USD."
-  },
   "icu:SwarmWallet__price--page-stat--volume": {
     "messageformat": "24 h volume",
     "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Market figure: traded volume in USD over 24 hours."
@@ -12804,10 +12800,6 @@
   "icu:SwarmWallet__price--page-stat--fee-value": {
     "messageformat": "{fee} %",
     "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Value of 'Pool fee', e.g. 0.9 %."
-  },
-  "icu:SwarmWallet__price--page-stat--network": {
-    "messageformat": "Network",
-    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Market figure: the chain the pool is on, e.g. Base."
   },
   "icu:SwarmWallet__price--page-usd": {
     "messageformat": "${amount}",

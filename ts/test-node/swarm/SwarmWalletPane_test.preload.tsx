@@ -473,10 +473,7 @@ describe('SWARM wallet: the SWM price in the Wallet pane (PD-5)', () => {
     assert.include(text, '▲ 36.7 % 24h');
     assert.include(html, 'data-testid="price-sparkline"');
     assert.match(html, /<path d="M0,[0-9.]+ L56,/);
-    assert.include(
-      text,
-      'Base · Uniswap v4 · GeckoTerminal · updated 12 s ago'
-    );
+    assert.include(text, 'GeckoTerminal · updated 12 s ago');
 
     // SWARM change (PD-5b): the card opens the price page; the listing
     // links are on the page, not on the card.
@@ -725,12 +722,15 @@ describe('SWARM wallet: the SWM price page (PD-5b)', () => {
     assert.include(text, '132.58000000 SWM');
     assert.include(text, '≈ $9,364.10 USD');
     // Stats.
-    assert.match(html, /data-testid="price-stat-liquidity"[^>]*>\$3,761</);
     assert.match(html, /data-testid="price-stat-volume"[^>]*>\$378.11</);
     assert.match(html, /data-testid="price-stat-fdv"[^>]*>\$8,411</);
     assert.match(html, /data-testid="price-stat-txns"[^>]*>9 \/ 0</);
     assert.match(html, /data-testid="price-stat-fee"[^>]*>0.9 %</);
-    assert.match(html, /data-testid="price-stat-network"[^>]*>Base</);
+    // Owner 2026-10-05 21:0x UTC: no liquidity and no network row.
+    assert.notInclude(html, 'price-stat-liquidity');
+    assert.notInclude(html, 'price-stat-network');
+    assert.notInclude(text, 'Liquidity');
+    assert.notInclude(text, 'Uniswap');
     // Sources: links on the fixed hosts only; a failed one greyed with a dash.
     assert.match(
       html,
@@ -862,7 +862,7 @@ describe('SWARM wallet: the SWM price page (PD-5b)', () => {
     });
     assert.notInclude(html, 'data-testid="price-page-eth"');
     assert.notInclude(html, 'data-period="1h"');
-    assert.match(html, /data-testid="price-stat-liquidity"[^>]*>—</);
+    assert.match(html, /data-testid="price-stat-volume"[^>]*>\$378.11</);
     assert.match(html, /data-testid="price-stat-txns"[^>]*>—</);
     assert.notInclude(html, 'geckoterminal.com');
     assert.notInclude(html, 'data-testid="price-page-pool"');
@@ -953,5 +953,26 @@ describe('SWARM wallet: the SWM price page (PD-5b)', () => {
     });
     assert.notMatch(textOf(earlier), /· now/);
     assert.match(textOf(earlier), /\$0\.5000 · \w{3} \d{1,2} \d{2}:\d{2}/);
+  });
+
+  it('shows no liquidity, chain or venue (owner, 21:0x UTC)', () => {
+    const card = render(state({ balance: BALANCE }), price({}));
+    assert.match(
+      card,
+      /data-testid="price-meta"[^>]*>GeckoTerminal · updated 12 s ago</
+    );
+    const page = renderPage();
+    for (const html of [card, page]) {
+      // The note names the pool ("the SWM/ETH pool on Base"); nothing else
+      // does.
+      const text = textOf(html).replaceAll(
+        'the SWM/ETH pool on Base',
+        'the SWM/ETH pool'
+      );
+      assert.notInclude(text, 'Base');
+      assert.notInclude(text, 'Uniswap');
+      assert.notInclude(text, 'Liquidity');
+      assert.notInclude(text, '3,761');
+    }
   });
 });

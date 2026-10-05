@@ -543,12 +543,8 @@ function Stats({
       : i18n('icu:SwarmWallet__price--page-usd', {
           amount: formatUsdStat(value),
         });
+  // Owner 2026-10-05 21:0x UTC: no liquidity figure and no network row.
   const rows: Array<[string, string, string]> = [
-    [
-      'liquidity',
-      i18n('icu:SwarmWallet__price--page-stat--liquidity'),
-      usd(reading.liquidityUsd),
-    ],
     [
       'volume',
       i18n('icu:SwarmWallet__price--page-stat--volume'),
@@ -577,11 +573,6 @@ function Stats({
         : i18n('icu:SwarmWallet__price--page-stat--fee-value', {
             fee: String(reading.feePct),
           }),
-    ],
-    [
-      'network',
-      i18n('icu:SwarmWallet__price--page-stat--network'),
-      priceSourceNames([reading.chain])[0] ?? none,
     ],
   ];
   return (

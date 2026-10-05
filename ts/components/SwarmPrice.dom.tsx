@@ -297,7 +297,9 @@ export function PriceCard({
   } else {
     const { reading, dimmed } = shown;
     const meta = [
-      ...priceSourceNames([reading.chain, reading.dex, reading.source]),
+      // Owner 2026-10-05 21:0x UTC: no chain or venue on the display
+      // (more exchanges are coming); the source only.
+      ...priceSourceNames([reading.source]),
       updatedText(i18n, price),
     ];
     body = (

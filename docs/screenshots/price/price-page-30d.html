@@ -1,12 +1,12 @@
 <!doctype html>
-<!-- SWARM Messenger (PD-5/PD-5b, 2026-10-05): the price page, fresh, 30d range.
+<!-- SWARM Messenger 0.1.5 (PD-5, 2026-10-05): the price page, fresh, 30d range (the latest point is the live price: "now").
      Static markup of the app's components rendered with renderToStaticMarkup
      and the real English strings; light theme left, dark theme right. The
      stylesheets are the app's own, built by `pnpm run generate`
      (stylesheets/*.css are not in git). Data: the SWARM price service's
-     answer of 2026-10-05 19:01 UTC (ts/test-node/swarm/fixtures/), with the
-     spec section 6.1 fields it did not send yet filled in for the picture;
-     an 11 132.58 SWM balance and a placeholder address. -->
+     answer of 2026-10-05 19:23 UTC (ts/test-node/swarm/fixtures/), with a
+     30-day daily series filled in for the picture; an 11 132.58 SWM balance
+     and a placeholder address. -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -83,7 +83,7 @@
                   <span
                     data-testid="price-page-usd"
                     class="font-display text-[48px]/14 font-semibold"
-                    >$0.8411</span
+                    >$0.9305</span
                   ><span class="font-swarm-mono type-body-medium">USD</span>
                 </div>
                 <span
@@ -103,13 +103,13 @@
                     data-period="6h"
                     data-direction="up"
                     class="rounded-full bg-affirmative-tint px-2 py-0.5 font-swarm-mono type-body-small text-affirmative"
-                    >▲ ⁨24.6⁩ % ⁨6h⁩</span
+                    >▲ ⁨37.8⁩ % ⁨6h⁩</span
                   ><span
                     data-testid="price-change"
                     data-period="24h"
                     data-direction="up"
                     class="rounded-full bg-affirmative-tint px-2 py-0.5 font-swarm-mono type-body-small text-affirmative"
-                    >▲ ⁨28.8⁩ % ⁨24h⁩</span
+                    >▲ ⁨42.4⁩ % ⁨24h⁩</span
                   >
                 </div>
               </section>
@@ -147,7 +147,7 @@
                     data-testid="price-chart-readout"
                     aria-live="polite"
                     class="font-swarm-mono type-body-small text-secondary"
-                    >$⁨0.8411⁩ · ⁨Oct 5⁩</span
+                    >$⁨0.9305⁩ · now</span
                   >
                 </div>
                 <span class="sr-only">SWM price chart</span
@@ -196,13 +196,13 @@
                     class="stroke-primary"
                   ></line>
                   <path
-                    d="M0,186 L16.14,183.27 L32.28,177.82 L48.41,180.55 L64.55,172.37 L80.69,166.92 L96.83,169.65 L112.97,161.47 L129.1,153.3 L145.24,158.75 L161.38,147.84 L177.52,139.67 L193.66,145.12 L209.79,134.22 L225.93,126.04 L242.07,131.49 L258.21,120.59 L274.34,112.41 L290.48,115.14 L306.62,106.96 L322.76,109.69 L338.9,101.51 L355.03,93.34 L371.17,98.79 L387.31,87.89 L403.45,87.07 L419.59,69.9 L435.72,65.26 L451.86,37.74 L468,14 L468,186 L0,186 Z"
+                    d="M0,186 L15.6,183.61 L31.2,178.84 L46.8,181.23 L62.4,174.06 L78,169.29 L93.6,171.68 L109.2,164.51 L124.8,157.35 L140.4,162.13 L156,152.58 L171.6,145.42 L187.2,150.19 L202.8,140.64 L218.4,133.48 L234,138.26 L249.6,128.71 L265.2,121.54 L280.8,123.93 L296.4,116.77 L312,119.16 L327.6,112 L343.2,104.83 L358.8,109.61 L374.4,100.06 L390,99.34 L405.6,84.3 L421.2,80.24 L436.8,35.36 L452.4,23.67 L468,14 L468,186 L0,186 Z"
                     fill="url(#_R_a_)"
                     stroke="none"
                   ></path>
                   <path
                     data-testid="price-chart-line"
-                    d="M0,186 L16.14,183.27 L32.28,177.82 L48.41,180.55 L64.55,172.37 L80.69,166.92 L96.83,169.65 L112.97,161.47 L129.1,153.3 L145.24,158.75 L161.38,147.84 L177.52,139.67 L193.66,145.12 L209.79,134.22 L225.93,126.04 L242.07,131.49 L258.21,120.59 L274.34,112.41 L290.48,115.14 L306.62,106.96 L322.76,109.69 L338.9,101.51 L355.03,93.34 L371.17,98.79 L387.31,87.89 L403.45,87.07 L419.59,69.9 L435.72,65.26 L451.86,37.74 L468,14"
+                    d="M0,186 L15.6,183.61 L31.2,178.84 L46.8,181.23 L62.4,174.06 L78,169.29 L93.6,171.68 L109.2,164.51 L124.8,157.35 L140.4,162.13 L156,152.58 L171.6,145.42 L187.2,150.19 L202.8,140.64 L218.4,133.48 L234,138.26 L249.6,128.71 L265.2,121.54 L280.8,123.93 L296.4,116.77 L312,119.16 L327.6,112 L343.2,104.83 L358.8,109.61 L374.4,100.06 L390,99.34 L405.6,84.3 L421.2,80.24 L436.8,35.36 L452.4,23.67 L468,14"
                     fill="none"
                     stroke-width="2"
                     stroke-linejoin="round"
@@ -221,7 +221,7 @@
                     y="18"
                     class="fill-(--axo-color-label-primary) font-swarm-mono text-[13px]"
                   >
-                    $0.8411
+                    $0.9305
                   </text>
                   <text
                     data-testid="price-chart-min"
@@ -246,7 +246,7 @@
                   data-testid="price-page-balance-fiat"
                   data-price-dimmed="false"
                   class="block font-swarm-mono type-body-medium text-secondary"
-                  >≈ $⁨9,364.10⁩ USD</span
+                  >≈ $⁨10,358.81⁩ USD</span
                 >
               </section>
               <section
@@ -256,21 +256,12 @@
                 <h2 class="type-title-small text-primary">Pool</h2>
                 <dl class="grid grid-cols-2 gap-x-6 gap-y-3">
                   <div class="flex flex-col gap-0.5">
-                    <dt class="type-body-small text-secondary">Liquidity</dt>
-                    <dd
-                      data-testid="price-stat-liquidity"
-                      class="font-swarm-mono type-body-medium text-primary"
-                    >
-                      $⁨3,770⁩
-                    </dd>
-                  </div>
-                  <div class="flex flex-col gap-0.5">
                     <dt class="type-body-small text-secondary">24 h volume</dt>
                     <dd
                       data-testid="price-stat-volume"
                       class="font-swarm-mono type-body-medium text-primary"
                     >
-                      $⁨328.52⁩
+                      $⁨482.89⁩
                     </dd>
                   </div>
                   <div class="flex flex-col gap-0.5">
@@ -281,7 +272,7 @@
                       data-testid="price-stat-fdv"
                       class="font-swarm-mono type-body-medium text-primary"
                     >
-                      $⁨8,411⁩
+                      $⁨9,305⁩
                     </dd>
                   </div>
                   <div class="flex flex-col gap-0.5">
@@ -292,7 +283,7 @@
                       data-testid="price-stat-txns"
                       class="font-swarm-mono type-body-medium text-primary"
                     >
-                      9 / 0
+                      5 / 0
                     </dd>
                   </div>
                   <div class="flex flex-col gap-0.5">
@@ -302,15 +293,6 @@
                       class="font-swarm-mono type-body-medium text-primary"
                     >
                       ⁨0.9⁩ %
-                    </dd>
-                  </div>
-                  <div class="flex flex-col gap-0.5">
-                    <dt class="type-body-small text-secondary">Network</dt>
-                    <dd
-                      data-testid="price-stat-network"
-                      class="font-swarm-mono type-body-medium text-primary"
-                    >
-                      Base
                     </dd>
                   </div>
                 </dl>
@@ -333,7 +315,7 @@
                       class="flex items-center gap-3 rounded-md px-2 py-1.5 text-primary no-underline outline-none hover:bg-primary focus-visible:axo-focus-ring"
                       ><span class="grow type-body-medium">GeckoTerminal</span
                       ><span class="font-swarm-mono type-body-medium"
-                        >$0.8411</span
+                        >$0.9305</span
                       ><span
                         role="img"
                         aria-label="Read by the SWARM price service"
@@ -354,7 +336,7 @@
                       class="flex items-center gap-3 rounded-md px-2 py-1.5 text-primary no-underline outline-none hover:bg-primary focus-visible:axo-focus-ring"
                       ><span class="grow type-body-medium">DexScreener</span
                       ><span class="font-swarm-mono type-body-medium"
-                        >$0.8602</span
+                        >$0.9817</span
                       ><span
                         role="img"
                         aria-label="Read by the SWARM price service"
@@ -520,7 +502,7 @@
                   <span
                     data-testid="price-page-usd"
                     class="font-display text-[48px]/14 font-semibold"
-                    >$0.8411</span
+                    >$0.9305</span
                   ><span class="font-swarm-mono type-body-medium">USD</span>
                 </div>
                 <span
@@ -540,13 +522,13 @@
                     data-period="6h"
                     data-direction="up"
                     class="rounded-full bg-affirmative-tint px-2 py-0.5 font-swarm-mono type-body-small text-affirmative"
-                    >▲ ⁨24.6⁩ % ⁨6h⁩</span
+                    >▲ ⁨37.8⁩ % ⁨6h⁩</span
                   ><span
                     data-testid="price-change"
                     data-period="24h"
                     data-direction="up"
                     class="rounded-full bg-affirmative-tint px-2 py-0.5 font-swarm-mono type-body-small text-affirmative"
-                    >▲ ⁨28.8⁩ % ⁨24h⁩</span
+                    >▲ ⁨42.4⁩ % ⁨24h⁩</span
                   >
                 </div>
               </section>
@@ -584,7 +566,7 @@
                     data-testid="price-chart-readout"
                     aria-live="polite"
                     class="font-swarm-mono type-body-small text-secondary"
-                    >$⁨0.8411⁩ · ⁨Oct 5⁩</span
+                    >$⁨0.9305⁩ · now</span
                   >
                 </div>
                 <span class="sr-only">SWM price chart</span
@@ -633,13 +615,13 @@
                     class="stroke-primary"
                   ></line>
                   <path
-                    d="M0,186 L16.14,183.27 L32.28,177.82 L48.41,180.55 L64.55,172.37 L80.69,166.92 L96.83,169.65 L112.97,161.47 L129.1,153.3 L145.24,158.75 L161.38,147.84 L177.52,139.67 L193.66,145.12 L209.79,134.22 L225.93,126.04 L242.07,131.49 L258.21,120.59 L274.34,112.41 L290.48,115.14 L306.62,106.96 L322.76,109.69 L338.9,101.51 L355.03,93.34 L371.17,98.79 L387.31,87.89 L403.45,87.07 L419.59,69.9 L435.72,65.26 L451.86,37.74 L468,14 L468,186 L0,186 Z"
+                    d="M0,186 L15.6,183.61 L31.2,178.84 L46.8,181.23 L62.4,174.06 L78,169.29 L93.6,171.68 L109.2,164.51 L124.8,157.35 L140.4,162.13 L156,152.58 L171.6,145.42 L187.2,150.19 L202.8,140.64 L218.4,133.48 L234,138.26 L249.6,128.71 L265.2,121.54 L280.8,123.93 L296.4,116.77 L312,119.16 L327.6,112 L343.2,104.83 L358.8,109.61 L374.4,100.06 L390,99.34 L405.6,84.3 L421.2,80.24 L436.8,35.36 L452.4,23.67 L468,14 L468,186 L0,186 Z"
                     fill="url(#_R_a_)"
                     stroke="none"
                   ></path>
                   <path
                     data-testid="price-chart-line"
-                    d="M0,186 L16.14,183.27 L32.28,177.82 L48.41,180.55 L64.55,172.37 L80.69,166.92 L96.83,169.65 L112.97,161.47 L129.1,153.3 L145.24,158.75 L161.38,147.84 L177.52,139.67 L193.66,145.12 L209.79,134.22 L225.93,126.04 L242.07,131.49 L258.21,120.59 L274.34,112.41 L290.48,115.14 L306.62,106.96 L322.76,109.69 L338.9,101.51 L355.03,93.34 L371.17,98.79 L387.31,87.89 L403.45,87.07 L419.59,69.9 L435.72,65.26 L451.86,37.74 L468,14"
+                    d="M0,186 L15.6,183.61 L31.2,178.84 L46.8,181.23 L62.4,174.06 L78,169.29 L93.6,171.68 L109.2,164.51 L124.8,157.35 L140.4,162.13 L156,152.58 L171.6,145.42 L187.2,150.19 L202.8,140.64 L218.4,133.48 L234,138.26 L249.6,128.71 L265.2,121.54 L280.8,123.93 L296.4,116.77 L312,119.16 L327.6,112 L343.2,104.83 L358.8,109.61 L374.4,100.06 L390,99.34 L405.6,84.3 L421.2,80.24 L436.8,35.36 L452.4,23.67 L468,14"
                     fill="none"
                     stroke-width="2"
                     stroke-linejoin="round"
@@ -658,7 +640,7 @@
                     y="18"
                     class="fill-(--axo-color-label-primary) font-swarm-mono text-[13px]"
                   >
-                    $0.8411
+                    $0.9305
                   </text>
                   <text
                     data-testid="price-chart-min"
@@ -683,7 +665,7 @@
                   data-testid="price-page-balance-fiat"
                   data-price-dimmed="false"
                   class="block font-swarm-mono type-body-medium text-secondary"
-                  >≈ $⁨9,364.10⁩ USD</span
+                  >≈ $⁨10,358.81⁩ USD</span
                 >
               </section>
               <section
@@ -693,21 +675,12 @@
                 <h2 class="type-title-small text-primary">Pool</h2>
                 <dl class="grid grid-cols-2 gap-x-6 gap-y-3">
                   <div class="flex flex-col gap-0.5">
-                    <dt class="type-body-small text-secondary">Liquidity</dt>
-                    <dd
-                      data-testid="price-stat-liquidity"
-                      class="font-swarm-mono type-body-medium text-primary"
-                    >
-                      $⁨3,770⁩
-                    </dd>
-                  </div>
-                  <div class="flex flex-col gap-0.5">
                     <dt class="type-body-small text-secondary">24 h volume</dt>
                     <dd
                       data-testid="price-stat-volume"
                       class="font-swarm-mono type-body-medium text-primary"
                     >
-                      $⁨328.52⁩
+                      $⁨482.89⁩
                     </dd>
                   </div>
                   <div class="flex flex-col gap-0.5">
@@ -718,7 +691,7 @@
                       data-testid="price-stat-fdv"
                       class="font-swarm-mono type-body-medium text-primary"
                     >
-                      $⁨8,411⁩
+                      $⁨9,305⁩
                     </dd>
                   </div>
                   <div class="flex flex-col gap-0.5">
@@ -729,7 +702,7 @@
                       data-testid="price-stat-txns"
                       class="font-swarm-mono type-body-medium text-primary"
                     >
-                      9 / 0
+                      5 / 0
                     </dd>
                   </div>
                   <div class="flex flex-col gap-0.5">
@@ -739,15 +712,6 @@
                       class="font-swarm-mono type-body-medium text-primary"
                     >
                       ⁨0.9⁩ %
-                    </dd>
-                  </div>
-                  <div class="flex flex-col gap-0.5">
-                    <dt class="type-body-small text-secondary">Network</dt>
-                    <dd
-                      data-testid="price-stat-network"
-                      class="font-swarm-mono type-body-medium text-primary"
-                    >
-                      Base
                     </dd>
                   </div>
                 </dl>
@@ -770,7 +734,7 @@
                       class="flex items-center gap-3 rounded-md px-2 py-1.5 text-primary no-underline outline-none hover:bg-primary focus-visible:axo-focus-ring"
                       ><span class="grow type-body-medium">GeckoTerminal</span
                       ><span class="font-swarm-mono type-body-medium"
-                        >$0.8411</span
+                        >$0.9305</span
                       ><span
                         role="img"
                         aria-label="Read by the SWARM price service"
@@ -791,7 +755,7 @@
                       class="flex items-center gap-3 rounded-md px-2 py-1.5 text-primary no-underline outline-none hover:bg-primary focus-visible:axo-focus-ring"
                       ><span class="grow type-body-medium">DexScreener</span
                       ><span class="font-swarm-mono type-body-medium"
-                        >$0.8602</span
+                        >$0.9817</span
                       ><span
                         role="img"
                         aria-label="Read by the SWARM price service"
