@@ -78,6 +78,28 @@ export function readingFromRelayDocument(
     source: relay.source ?? null,
     generatedUnix: relay.generated_unix,
     relayStale: relay.stale,
+    // SWARM addition (PD-5b): the price page's fields, null when absent.
+    priceEth: relay.price_eth ?? null,
+    changePct1h: relay.change_pct?.h1 ?? null,
+    changePct6h: relay.change_pct?.h6 ?? null,
+    hourlyFromUnix: relay.hourly_from_unix ?? null,
+    dailyUsd: relay.daily_usd ?? [],
+    dailyFromUnix: relay.daily_from_unix ?? null,
+    transactions24h: relay.transactions_24h ?? null,
+    liquidityUsd: relay.liquidity_usd ?? null,
+    volume24hUsd: relay.volume_24h_usd ?? null,
+    fdvUsd: relay.fdv_usd ?? null,
+    feePct: relay.pool?.fee_pct ?? null,
+    poolCreatedUnix: relay.pool?.created_unix ?? null,
+    poolId: relay.pool?.id ?? null,
+    tokenAddress: relay.pool?.token ?? null,
+    geckoterminalUrl: relay.pool?.geckoterminal_url ?? null,
+    sources: (relay.sources ?? []).map(source => ({
+      id: source.id,
+      ok: source.ok,
+      priceUsd: source.price_usd ?? null,
+      fetchedUnix: source.fetched_unix ?? null,
+    })),
   };
 }
 

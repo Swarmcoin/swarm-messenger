@@ -12666,16 +12666,16 @@
     "description": "SWARM (PD-5): the SWM price in the Wallet tab. What a balance or an amount being sent is worth at the current SWM price. amount is already formatted with two decimals, e.g. 9,364.10."
   },
   "icu:SwarmWallet__price--change--up": {
-    "messageformat": "▲ {change} % 24h",
-    "description": "SWARM (PD-5): the SWM price in the Wallet tab. The price rose over 24 hours. change is the size of the change with one decimal, without a sign, e.g. 36.7."
+    "messageformat": "▲ {change} % {period}",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab and on the price page. The price rose over the period (period is 1h, 6h or 24h, not translated). change is the size of the change with one decimal, without a sign, e.g. 36.7."
   },
   "icu:SwarmWallet__price--change--down": {
-    "messageformat": "▼ {change} % 24h",
-    "description": "SWARM (PD-5): the SWM price in the Wallet tab. The price fell over 24 hours. change is the size of the change with one decimal, without a sign, e.g. 3.2."
+    "messageformat": "▼ {change} % {period}",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab and on the price page. The price fell over the period (period is 1h, 6h or 24h, not translated). change is the size of the change with one decimal, without a sign, e.g. 3.2."
   },
   "icu:SwarmWallet__price--change--flat": {
-    "messageformat": "{change} % 24h",
-    "description": "SWARM (PD-5): the SWM price in the Wallet tab. The price did not change over 24 hours (0.0)."
+    "messageformat": "{change} % {period}",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab and on the price page. The price did not change over the period (0.0; period is 1h, 6h or 24h, not translated)."
   },
   "icu:SwarmWallet__price--updated--seconds": {
     "messageformat": "updated {seconds, number} s ago",
@@ -12705,9 +12705,9 @@
     "messageformat": "Indicative price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote.",
     "description": "SWARM (PD-5): the SWM price in the Wallet tab. Tooltip of the info sign on the price card."
   },
-  "icu:SwarmWallet__price--open-pool": {
-    "messageformat": "Open the SWM/ETH pool on DexScreener",
-    "description": "SWARM (PD-5): the SWM price in the Wallet tab. Accessible label of the price card, which opens the pool's page in the browser."
+  "icu:SwarmWallet__price--open-page": {
+    "messageformat": "Open the SWM price page",
+    "description": "SWARM (PD-5b): accessible label of the price card in the Wallet tab, which opens the price page."
   },
   "icu:SwarmWallet__price--sparkline": {
     "messageformat": "SWM price over the last 48 hours",
@@ -12720,6 +12720,130 @@
   "icu:SwarmWallet__price--setting--help": {
     "messageformat": "The price comes from the SWARM price service (wallet.swarm.green), which reads the SWM/ETH pool on Base from GeckoTerminal and DexScreener. Your addresses and balances are never sent. Switch this off and the wallet makes no price requests.",
     "description": "SWARM (PD-5): the SWM price in the Wallet tab. Help text under the switch 'Show SWM price (USD)'. Names the one place the app asks for the price."
+  },
+  "icu:SwarmWallet__price--page-title": {
+    "messageformat": "SWM price",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Title of the page."
+  },
+  "icu:SwarmWallet__price--page-back": {
+    "messageformat": "Back",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Button at the top left of the page that returns to the wallet."
+  },
+  "icu:SwarmWallet__price--page-eth": {
+    "messageformat": "{price} ETH",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. The SWM price in ETH, under the USD price. price is a decimal number, e.g. 0.000196."
+  },
+  "icu:SwarmWallet__price--page-ranges": {
+    "messageformat": "Chart range",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Accessible label of the group of buttons 24h, 48h and 30d above the chart."
+  },
+  "icu:SwarmWallet__price--page-range--24h": {
+    "messageformat": "24h",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Chart range button: the last 24 hours, hourly."
+  },
+  "icu:SwarmWallet__price--page-range--48h": {
+    "messageformat": "48h",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Chart range button: the last 48 hours, hourly."
+  },
+  "icu:SwarmWallet__price--page-range--30d": {
+    "messageformat": "30d",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Chart range button: the last 30 days, daily."
+  },
+  "icu:SwarmWallet__price--page-chart": {
+    "messageformat": "SWM price chart",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Accessible description of the chart."
+  },
+  "icu:SwarmWallet__price--page-chart--empty": {
+    "messageformat": "No price history for this range yet.",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Shown in place of the chart when the price service sent no values for the chosen range."
+  },
+  "icu:SwarmWallet__price--page-readout": {
+    "messageformat": "${price} · {time}",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Above the chart: the value under the pointer (or the latest) and its time. price is already formatted, e.g. 0.8411."
+  },
+  "icu:SwarmWallet__price--page-readout--no-time": {
+    "messageformat": "${price}",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Above the chart, when the time of the value is not known."
+  },
+  "icu:SwarmWallet__price--page-balance": {
+    "messageformat": "Your balance",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Row label: the wallet's whole balance, confirmed and pending."
+  },
+  "icu:SwarmWallet__price--page-stats": {
+    "messageformat": "Pool",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Heading of the market figures of the SWM/ETH pool."
+  },
+  "icu:SwarmWallet__price--page-stat--liquidity": {
+    "messageformat": "Liquidity",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Market figure: the pool's liquidity in USD."
+  },
+  "icu:SwarmWallet__price--page-stat--volume": {
+    "messageformat": "24 h volume",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Market figure: traded volume in USD over 24 hours."
+  },
+  "icu:SwarmWallet__price--page-stat--fdv": {
+    "messageformat": "Fully diluted value",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Market figure: price times the whole supply, in USD."
+  },
+  "icu:SwarmWallet__price--page-stat--txns": {
+    "messageformat": "Buys / sells 24 h",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Market figure: number of buys and sells in the pool over 24 hours."
+  },
+  "icu:SwarmWallet__price--page-stat--txns-value": {
+    "messageformat": "{buys, number} / {sells, number}",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Value of 'Buys / sells 24 h', e.g. 9 / 0."
+  },
+  "icu:SwarmWallet__price--page-stat--fee": {
+    "messageformat": "Pool fee",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Market figure: the pool's trading fee."
+  },
+  "icu:SwarmWallet__price--page-stat--fee-value": {
+    "messageformat": "{fee} %",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Value of 'Pool fee', e.g. 0.9 %."
+  },
+  "icu:SwarmWallet__price--page-stat--network": {
+    "messageformat": "Network",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Market figure: the chain the pool is on, e.g. Base."
+  },
+  "icu:SwarmWallet__price--page-usd": {
+    "messageformat": "${amount}",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. A market figure in US dollars, e.g. $3,770. amount is already formatted."
+  },
+  "icu:SwarmWallet__price--page-none": {
+    "messageformat": "—",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Shown for a figure the price service did not send."
+  },
+  "icu:SwarmWallet__price--page-sources": {
+    "messageformat": "Sources",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Heading of the list of price sources and contract ids."
+  },
+  "icu:SwarmWallet__price--page-source--ok": {
+    "messageformat": "Read by the SWARM price service",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Accessible label of the check mark beside a source the price service read successfully."
+  },
+  "icu:SwarmWallet__price--page-source--failed": {
+    "messageformat": "Not read at the last attempt",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Accessible label of the dash beside a source the price service could not read."
+  },
+  "icu:SwarmWallet__price--page-source--open": {
+    "messageformat": "Open {source} in the browser",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Accessible label of a source row, which opens the source's page for the pool. source is GeckoTerminal or DexScreener."
+  },
+  "icu:SwarmWallet__price--page-pool": {
+    "messageformat": "Pool",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Row label: the id of the SWM/ETH pool, shortened."
+  },
+  "icu:SwarmWallet__price--page-token": {
+    "messageformat": "Token",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Row label: the SWM token contract on Base, shortened."
+  },
+  "icu:SwarmWallet__price--page-copy": {
+    "messageformat": "Copy",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Button that copies the full pool id or token contract."
+  },
+  "icu:SwarmWallet__price--page-copied": {
+    "messageformat": "Copied",
+    "description": "SWARM (PD-5b): the SWM price page, a view of the Wallet tab. Shown on the copy button for two seconds after copying."
   },
   "icu:SwarmChat__notice--label": {
     "messageformat": "SWARM payment",

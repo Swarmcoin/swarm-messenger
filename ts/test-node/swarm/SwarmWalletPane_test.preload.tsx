@@ -17,7 +17,12 @@ import {
   SwarmWalletPane,
   refusalText,
 } from '../../components/SwarmWalletPane.dom.tsx';
-import type { SwarmWalletPaneProps } from '../../components/SwarmWalletPane.dom.tsx';
+import type {
+  SwarmWalletPaneProps,
+  SwarmWalletViewType,
+} from '../../components/SwarmWalletPane.dom.tsx';
+import { SwarmPricePage } from '../../components/SwarmPricePage.dom.tsx';
+import type { SwarmPricePageProps } from '../../components/SwarmPricePage.dom.tsx';
 import { FiatAmount, PriceCard } from '../../components/SwarmPrice.dom.tsx';
 import type {
   SwarmPriceReadingType,
@@ -68,7 +73,8 @@ const AXO_MESSAGES: AxoIntl.Messages = {
 
 function render(
   walletState: SwarmWalletStateType | undefined,
-  priceState?: SwarmPriceStateType
+  priceState?: SwarmPriceStateType,
+  initialView?: SwarmWalletViewType
 ): string {
   const props: SwarmWalletPaneProps = {
     i18n,
@@ -99,6 +105,7 @@ function render(
     onRevealRecoveryPhrase: async () => ({ ok: true }),
     price: priceState,
     onSetPriceEnabled: () => undefined,
+    initialView,
   };
   return renderToStaticMarkup(
     <AxoProvider
@@ -394,6 +401,34 @@ const READING: SwarmPriceReadingType = {
   source: 'geckoterminal',
   generatedUnix: 1791223633,
   relayStale: false,
+  priceEth: '0.000195976',
+  changePct1h: 0,
+  changePct6h: 28.75,
+  hourlyFromUnix: 1791050400,
+  dailyUsd: [
+    0.2, 0.21, 0.25, 0.24, 0.3, 0.31, 0.33, 0.36, 0.35, 0.41, 0.44, 0.43, 0.47,
+    0.5, 0.52, 0.5, 0.55, 0.58, 0.6, 0.57, 0.62, 0.64, 0.66, 0.65, 0.7, 0.72,
+    0.75, 0.78, 0.8, 0.8411,
+  ],
+  dailyFromUnix: 1788652800,
+  transactions24h: { buys: 9, sells: 0 },
+  liquidityUsd: 3761.34,
+  volume24hUsd: 378.11,
+  fdvUsd: 8411.43,
+  feePct: 0.9,
+  poolCreatedUnix: 1790900000,
+  poolId: POOL,
+  tokenAddress: '0xf904C14d21bEF5b8a5345a666C77C9cc2A24043B',
+  geckoterminalUrl: `https://www.geckoterminal.com/base/pools/${POOL}`,
+  sources: [
+    {
+      id: 'geckoterminal',
+      ok: true,
+      priceUsd: '0.84114343',
+      fetchedUnix: 1791223633,
+    },
+    { id: 'dexscreener', ok: false, priceUsd: null, fetchedUnix: null },
+  ],
 };
 
 function price(overrides: Partial<SwarmPriceStateType>): SwarmPriceStateType {
@@ -441,13 +476,14 @@ describe('SWARM wallet: the SWM price in the Wallet pane (PD-5)', () => {
       'Base · Uniswap v4 · GeckoTerminal · updated 12 s ago'
     );
 
-    // The card opens the pool page in the system browser.
+    // SWARM change (PD-5b): the card opens the price page; the listing
+    // links are on the page, not on the card.
     assert.match(
       html,
-      new RegExp(
-        `<a data-testid="price-card"[^>]*href="https://dexscreener.com/base/${POOL}" target="_blank" rel="noreferrer"`
-      )
+      /<button type="button" data-testid="price-card" data-price-status="fresh" aria-label="Open the SWM price page"/
     );
+    assert.notInclude(html, 'dexscreener.com');
+    assert.include(html, 'data-wallet-view="wallet"');
     assert.include(
       html,
       'title="Indicative price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote."'
@@ -507,8 +543,11 @@ describe('SWARM wallet: the SWM price in the Wallet pane (PD-5)', () => {
     assert.include(textOf(html), 'Price unavailable');
     assert.notInclude(html, 'data-testid="balance-fiat"');
     assert.notInclude(html, 'data-testid="price-usd"');
-    // Not a link without a reading.
-    assert.include(html, '<section data-testid="price-card"');
+    // The page can still be opened: it says the same.
+    assert.include(
+      html,
+      'data-testid="price-card" data-price-status="unavailable"'
+    );
   });
 
   it('says it is reading before the first price', () => {
@@ -584,13 +623,12 @@ describe('SWARM wallet: the SWM price in the Wallet pane (PD-5)', () => {
     assert.notInclude(none, 'data-testid="price-sparkline"');
   });
 
-  it('is not a link without a DexScreener page', () => {
-    const html = render(
-      state({}),
-      price({ reading: { ...READING, dexscreenerUrl: null } })
+  it('is a plain card where no page can be opened', () => {
+    const html = renderToStaticMarkup(
+      <PriceCard i18n={i18n} price={price({})} />
     );
     assert.include(html, '<section data-testid="price-card"');
-    assert.notInclude(html, 'dexscreener.com');
+    assert.notInclude(html, '<button');
   });
 
   it('counts minutes after the first one', () => {
@@ -617,5 +655,268 @@ describe('SWARM wallet: the SWM price in the Wallet pane (PD-5)', () => {
       ),
       ''
     );
+  });
+});
+
+// SWARM addition (PD-5b, 2026-10-05): the price page. ---------------------------
+
+function renderPage(overrides: Partial<SwarmPricePageProps> = {}): string {
+  return renderToStaticMarkup(
+    <AxoProvider
+      resolvedAppLocale={{
+        tag: 'en' as AxoIntl.AppLocaleTag,
+        direction: 'ltr',
+      }}
+      systemPreferredLanguages={new Set()}
+      messages={AXO_MESSAGES}
+    >
+      <SwarmPricePage
+        i18n={i18n}
+        price={price({})}
+        balanceZat={1_113_258_000_000n}
+        onBack={() => undefined}
+        onSetPriceEnabled={() => undefined}
+        onCopy={() => undefined}
+        {...overrides}
+      />
+    </AxoProvider>
+  );
+}
+
+describe('SWARM wallet: the SWM price page (PD-5b)', () => {
+  it('is a view of the Wallet tab, with Back', () => {
+    const html = render(state({ balance: BALANCE }), price({}), 'price');
+    assert.include(html, 'data-wallet-view="price"');
+    assert.include(html, 'data-testid="price-page"');
+    assert.include(textOf(html), '‹ Back');
+    // The wallet's own cards are not drawn under the page.
+    assert.notInclude(html, 'data-testid="send-form"');
+    assert.notInclude(html, 'data-testid="recovery-phrase"');
+  });
+
+  it('shows everything for a fresh price', () => {
+    const html = renderPage();
+    const text = textOf(html);
+    // Header.
+    assert.include(text, 'SWM price');
+    assert.include(
+      html,
+      'data-testid="price-page-freshness" data-freshness="fresh"'
+    );
+    assert.include(text, 'updated 12 s ago');
+    // Price block: USD, ETH, three chips.
+    assert.include(text, '$0.8411');
+    assert.include(text, '0.000196 ETH');
+    assert.include(html, 'data-period="1h" data-direction="flat"');
+    assert.include(html, 'data-period="6h" data-direction="up"');
+    assert.include(html, 'data-period="24h" data-direction="up"');
+    assert.include(text, '0.0 % 1h');
+    assert.include(text, '▲ 28.8 % 6h');
+    assert.include(text, '▲ 36.7 % 24h');
+    // Chart: 24h first, the latest value labelled, a readout.
+    assert.include(html, 'data-testid="price-chart" data-range="24h"');
+    assert.include(html, 'data-testid="price-chart-line"');
+    assert.include(html, 'data-testid="price-chart-latest"');
+    assert.match(text, /\$0\.8411 · \w{3} \d{1,2} \d{2}:\d{2}/);
+    // Balance.
+    assert.include(text, 'Your balance');
+    assert.include(text, '132.58000000 SWM');
+    assert.include(text, '≈ $9,364.10 USD');
+    // Stats.
+    assert.match(html, /data-testid="price-stat-liquidity"[^>]*>\$3,761</);
+    assert.match(html, /data-testid="price-stat-volume"[^>]*>\$378.11</);
+    assert.match(html, /data-testid="price-stat-fdv"[^>]*>\$8,411</);
+    assert.match(html, /data-testid="price-stat-txns"[^>]*>9 \/ 0</);
+    assert.match(html, /data-testid="price-stat-fee"[^>]*>0.9 %</);
+    assert.match(html, /data-testid="price-stat-network"[^>]*>Base</);
+    // Sources: links on the fixed hosts only; a failed one greyed with a dash.
+    assert.match(
+      html,
+      new RegExp(
+        `<a href="https://www.geckoterminal.com/base/pools/${POOL}" target="_blank" rel="noreferrer" aria-label="Open GeckoTerminal in the browser"`
+      )
+    );
+    assert.match(
+      html,
+      new RegExp(
+        `<a href="https://dexscreener.com/base/${POOL}" target="_blank" rel="noreferrer" aria-label="Open DexScreener in the browser"`
+      )
+    );
+    assert.include(
+      html,
+      'data-testid="price-source-geckoterminal" data-source-ok="true"'
+    );
+    assert.include(
+      html,
+      'data-testid="price-source-dexscreener" data-source-ok="false"'
+    );
+    assert.include(html, 'aria-label="Not read at the last attempt"');
+    const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map(match => match[1]);
+    for (const href of hrefs) {
+      assert.match(
+        href ?? '',
+        /^https:\/\/(dexscreener\.com|www\.geckoterminal\.com)\//,
+        'every link stays on the fixed hosts'
+      );
+    }
+    // Pool and token, shortened, with Copy.
+    assert.include(text, '0xf1e0…4599');
+    assert.include(text, '0xf904…043B');
+    assert.include(html, `title="${POOL}"`);
+    assert.include(text, 'Copy');
+    // The note and the shared switch.
+    assert.include(text, 'Indicative price from the SWM/ETH pool on Base.');
+    assert.include(text, 'Show SWM price (USD)');
+    assert.include(html, 'aria-checked="true"');
+    // No inline styles in what this page draws itself (the switch is the
+    // app's own component, Radix underneath).
+    assert.notInclude(renderPage({ onSetPriceEnabled: undefined }), 'style=');
+  });
+
+  it('switches the chart range: 24h, 48h and 30d draw different series', () => {
+    // 48 hourly values that are not a straight line, so 24h and 48h differ.
+    const hourly = Array.from(
+      { length: 48 },
+      (_, index) => 0.5 + (index % 7) * 0.01 + index * 0.003
+    );
+    const withHourly = price({ reading: { ...READING, sparklineUsd: hourly } });
+    const lines = (['24h', '48h', '30d'] as const).map(range => {
+      const html = renderPage({ price: withHourly, initialRange: range });
+      assert.include(html, `data-testid="price-chart" data-range="${range}"`);
+      assert.include(
+        html,
+        `data-testid="price-range-${range}" aria-pressed="true"`
+      );
+      return /data-testid="price-chart-line" d="([^"]+)"/.exec(html)?.[1];
+    });
+    assert.lengthOf(new Set(lines), 3);
+    // 30d reads out a day, without a clock time.
+    const thirty = renderPage({ initialRange: '30d' });
+    assert.match(textOf(thirty), /\$0\.8411 · \w{3} \d{1,2}(?! \d{2}:)/);
+  });
+
+  it('reads out the value and time under the pointer', () => {
+    const html = renderPage({ initialRange: '48h', initialHoverIndex: 0 });
+    assert.include(html, 'data-testid="price-chart-hover"');
+    assert.match(textOf(html), /\$0\.5259 · \w{3} \d{1,2} \d{2}:\d{2}/);
+  });
+
+  it('disables a range without data, and opens on one with data', () => {
+    const html = renderPage({
+      price: price({
+        reading: { ...READING, dailyUsd: [], dailyFromUnix: null },
+      }),
+      initialRange: '30d',
+    });
+    assert.match(
+      html,
+      /data-testid="price-range-30d" aria-pressed="false" disabled=""/
+    );
+    assert.include(html, 'data-testid="price-chart" data-range="24h"');
+  });
+
+  it('says so when no range has data', () => {
+    const html = renderPage({
+      price: price({
+        reading: { ...READING, sparklineUsd: [], dailyUsd: [] },
+      }),
+    });
+    assert.include(textOf(html), 'No price history for this range yet.');
+    assert.notInclude(html, 'data-testid="price-chart-line"');
+  });
+
+  it('labels the lowest and highest values unless the latest says it', () => {
+    const html = renderPage({ initialRange: '48h' });
+    // Rising series: the latest is the highest, the lowest is labelled.
+    assert.include(html, 'data-testid="price-chart-min"');
+    assert.notInclude(html, 'data-testid="price-chart-max"');
+    const peak = renderPage({
+      price: price({
+        reading: { ...READING, sparklineUsd: [0.5, 0.9, 0.7, 0.6] },
+      }),
+      initialRange: '48h',
+    });
+    assert.include(peak, 'data-testid="price-chart-max"');
+    assert.include(peak, 'data-testid="price-chart-min"');
+  });
+
+  it('shows dashes for figures the service did not send', () => {
+    const html = renderPage({
+      price: price({
+        reading: {
+          ...READING,
+          priceEth: null,
+          changePct1h: null,
+          changePct6h: null,
+          transactions24h: null,
+          liquidityUsd: null,
+          feePct: null,
+          sources: [],
+          poolId: null,
+          tokenAddress: null,
+          geckoterminalUrl: null,
+        },
+      }),
+    });
+    assert.notInclude(html, 'data-testid="price-page-eth"');
+    assert.notInclude(html, 'data-period="1h"');
+    assert.match(html, /data-testid="price-stat-liquidity"[^>]*>—</);
+    assert.match(html, /data-testid="price-stat-txns"[^>]*>—</);
+    assert.notInclude(html, 'geckoterminal.com');
+    assert.notInclude(html, 'data-testid="price-page-pool"');
+    assert.notInclude(html, 'data-testid="price-page-token"');
+  });
+
+  it('shows only the note and the switch when the switch is off', () => {
+    const html = renderPage({
+      price: price({ status: 'off', enabled: false, ...NO_READING }),
+    });
+    assert.include(html, 'data-testid="price-page-note"');
+    assert.include(html, 'aria-checked="false"');
+    for (const part of [
+      'price-page-price',
+      'price-chart',
+      'price-page-balance',
+      'price-page-stats',
+      'price-page-sources',
+      'price-page-freshness',
+    ]) {
+      assert.notInclude(html, `data-testid="${part}"`, part);
+    }
+    assert.notInclude(textOf(html), '$');
+  });
+
+  it('says when the price is unavailable, and keeps the switch', () => {
+    const html = renderPage({
+      price: price({ status: 'unavailable', ...NO_READING }),
+    });
+    assert.include(textOf(html), 'Price unavailable');
+    assert.include(html, 'data-testid="price-page-note"');
+    assert.notInclude(html, 'data-testid="price-chart"');
+  });
+
+  it('greys an ageing price and says when it was read', () => {
+    const html = renderPage({
+      price: price({ status: 'ageing', ageSeconds: 9 * 60 }),
+    });
+    assert.include(html, 'data-freshness="ageing"');
+    assert.match(textOf(html), /as of \d{1,2}:\d{2}/);
+    assert.match(html, /class="flex items-baseline gap-2 text-disabled"/);
+  });
+
+  it('has no page off SWARM Mainnet, nor before the wallet is ready', () => {
+    const testnet = render(
+      state({ balance: BALANCE }),
+      price({ status: 'not-mainnet', ...NO_READING }),
+      'price'
+    );
+    assert.include(testnet, 'data-wallet-view="wallet"');
+    assert.notInclude(testnet, 'data-testid="price-page"');
+    const opening = render(
+      state({ status: 'opening', balance: null }),
+      price({}),
+      'price'
+    );
+    assert.notInclude(opening, 'data-testid="price-page"');
   });
 });

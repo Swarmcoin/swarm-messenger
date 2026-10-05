@@ -406,7 +406,69 @@ export function isDexscreenerPoolUrl(value: string): boolean {
   );
 }
 
+/** A short lowercase id such as `base`, `uniswap-v4` or `geckoterminal`. */
+const SlugSchema = z.string().regex(/^[a-z0-9-]{1,32}$/);
+
 const PercentSchema = z.number().min(-1_000_000).max(1_000_000);
+
+/**
+ * SWARM addition (PD-5b): whether a URL is a pool page on GeckoTerminal:
+ * https, exactly www.geckoterminal.com, `/<network>/pools/<id>`, nothing else.
+ */
+export function isGeckoterminalPoolUrl(value: string): boolean {
+  if (value.length > 256) {
+    return false;
+  }
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return false;
+  }
+  return (
+    url.protocol === 'https:' &&
+    url.origin === 'https://www.geckoterminal.com' &&
+    url.port === '' &&
+    url.username === '' &&
+    url.password === '' &&
+    url.search === '' &&
+    url.hash === '' &&
+    /^\/[a-z0-9-]{1,32}\/pools\/[A-Za-z0-9]{1,80}$/.test(url.pathname)
+  );
+}
+
+/** SWARM addition (PD-5b): a pool id as Uniswap v4 writes it, 32 bytes. */
+export const PoolIdSchema = z.string().regex(/^0x[0-9a-fA-F]{64}$/);
+
+/** SWARM addition (PD-5b): a token contract on Base, 20 bytes. */
+export const TokenAddressSchema = z.string().regex(/^0x[0-9a-fA-F]{40}$/);
+
+/** At most this many daily closes are drawn (the service sends up to 30). */
+export const SWARM_PRICE_DAILY_MAX = 60;
+
+const UsdAmountSchema = z.number().nonnegative().max(1e15);
+const UnixSchema = z.number().int().positive();
+
+/** One aggregator as the service last read it (`sources[]`). */
+export const SwarmPriceSourceSchema = z.object({
+  id: SlugSchema,
+  ok: z.boolean(),
+  priceUsd: DecimalPriceSchema.nullable(),
+  fetchedUnix: UnixSchema.nullable(),
+});
+export type SwarmPriceSourceType = z.infer<typeof SwarmPriceSourceSchema>;
+
+const RelaySourceSchema = z.object({
+  id: SlugSchema,
+  ok: z.boolean(),
+  price_usd: DecimalPriceSchema.nullable().optional(),
+  fetched_unix: UnixSchema.nullable().optional(),
+});
+
+const TransactionsSchema = z.object({
+  buys: z.number().int().nonnegative(),
+  sells: z.number().int().nonnegative(),
+});
 
 /**
  * `schema`, or undefined when the value is missing or does not fit: for the
@@ -418,9 +480,6 @@ function droppedIfInvalid<T extends z.ZodType>(schema: T) {
     return parsed.success ? parsed.data : undefined;
   });
 }
-
-/** A short lowercase id such as `base`, `uniswap-v4` or `geckoterminal`. */
-const SlugSchema = z.string().regex(/^[a-z0-9-]{1,32}$/);
 
 /**
  * The price service's document, as far as a wallet reads it. Unknown fields are
@@ -452,10 +511,31 @@ export const SwarmPriceRelaySchema = z.object({
       dexscreener_url: droppedIfInvalid(
         z.string().refine(isDexscreenerPoolUrl)
       ),
+      // SWARM addition (PD-5b, spec section 6.1): optional, and each one
+      // that does not fit costs only itself.
+      geckoterminal_url: droppedIfInvalid(
+        z.string().refine(isGeckoterminalPoolUrl)
+      ),
+      id: droppedIfInvalid(PoolIdSchema),
+      token: droppedIfInvalid(TokenAddressSchema),
+      fee_pct: droppedIfInvalid(z.number().nonnegative().max(100)),
+      created_unix: droppedIfInvalid(UnixSchema),
     })
     .optional(),
   generated_unix: z.number().int().positive(),
   stale: z.boolean(),
+  // SWARM addition (PD-5b, spec section 6.1): the price page's fields.
+  price_eth: droppedIfInvalid(DecimalPriceSchema),
+  hourly_from_unix: droppedIfInvalid(UnixSchema),
+  daily_usd: droppedIfInvalid(
+    z.array(z.number().nonnegative()).max(SWARM_PRICE_DAILY_MAX)
+  ),
+  daily_from_unix: droppedIfInvalid(UnixSchema),
+  transactions_24h: droppedIfInvalid(TransactionsSchema),
+  liquidity_usd: droppedIfInvalid(UsdAmountSchema),
+  volume_24h_usd: droppedIfInvalid(UsdAmountSchema),
+  fdv_usd: droppedIfInvalid(UsdAmountSchema),
+  sources: droppedIfInvalid(z.array(RelaySourceSchema).max(8)),
 });
 export type SwarmPriceRelayType = z.infer<typeof SwarmPriceRelaySchema>;
 
@@ -478,6 +558,32 @@ export const SwarmPriceReadingSchema = z.object({
   generatedUnix: z.number().int().positive(),
   /** The service itself says its sources have failed for a while. */
   relayStale: z.boolean(),
+  // SWARM addition (PD-5b): what the price page shows. Null when the service
+  // did not send it (or sent something that did not fit).
+  /** The price in ETH, as a decimal string. */
+  priceEth: DecimalPriceSchema.nullable(),
+  changePct1h: PercentSchema.nullable(),
+  changePct6h: PercentSchema.nullable(),
+  /** The hour of the first `sparklineUsd` value, Unix seconds. */
+  hourlyFromUnix: UnixSchema.nullable(),
+  /** Daily closes in USD, oldest first; empty when the service sent none. */
+  dailyUsd: z.array(z.number().nonnegative()).max(SWARM_PRICE_DAILY_MAX),
+  /** The day of the first `dailyUsd` value, Unix seconds. */
+  dailyFromUnix: UnixSchema.nullable(),
+  transactions24h: TransactionsSchema.nullable(),
+  liquidityUsd: UsdAmountSchema.nullable(),
+  volume24hUsd: UsdAmountSchema.nullable(),
+  fdvUsd: UsdAmountSchema.nullable(),
+  /** The pool's fee in percent, e.g. 0.9. */
+  feePct: z.number().nonnegative().max(100).nullable(),
+  poolCreatedUnix: UnixSchema.nullable(),
+  poolId: PoolIdSchema.nullable(),
+  /** The SWM token contract on Base. */
+  tokenAddress: TokenAddressSchema.nullable(),
+  /** The pool's page on GeckoTerminal, or null. */
+  geckoterminalUrl: z.string().refine(isGeckoterminalPoolUrl).nullable(),
+  /** Each aggregator as the service last read it. */
+  sources: z.array(SwarmPriceSourceSchema).max(8),
 });
 export type SwarmPriceReadingType = z.infer<typeof SwarmPriceReadingSchema>;
 

@@ -91,7 +91,9 @@ export function FiatAmount({
   );
 }
 
-function freshnessDotClass(status: SwarmPriceStateType['status']): string {
+export function freshnessDotClass(
+  status: SwarmPriceStateType['status']
+): string {
   switch (status) {
     case 'fresh':
       return tw('bg-(--axo-color-brand-primary)');
@@ -102,7 +104,7 @@ function freshnessDotClass(status: SwarmPriceStateType['status']): string {
   }
 }
 
-function formatClock(i18n: LocalizerType, epochMs: number): string {
+export function formatClock(i18n: LocalizerType, epochMs: number): string {
   try {
     return new Intl.DateTimeFormat(i18n.getLocale(), {
       hour: '2-digit',
@@ -113,7 +115,10 @@ function formatClock(i18n: LocalizerType, epochMs: number): string {
   }
 }
 
-function updatedText(i18n: LocalizerType, price: SwarmPriceStateType): string {
+export function updatedText(
+  i18n: LocalizerType,
+  price: SwarmPriceStateType
+): string {
   const { ageSeconds, fetchedAt, status } = price;
   if (status !== 'fresh' && fetchedAt != null) {
     return i18n('icu:SwarmWallet__price--as-of', {
@@ -129,12 +134,15 @@ function updatedText(i18n: LocalizerType, price: SwarmPriceStateType): string {
   });
 }
 
-function ChangeChip({
+export function ChangeChip({
   i18n,
   percent,
+  period = '24h',
 }: {
   i18n: LocalizerType;
   percent: number;
+  /** Which change: the card shows 24h, the page all three. */
+  period?: '1h' | '6h' | '24h';
 }): JSX.Element {
   const change = formatPriceChange(percent);
   let text: string;
@@ -143,24 +151,28 @@ function ChangeChip({
     case 'up':
       text = i18n('icu:SwarmWallet__price--change--up', {
         change: change.text,
+        period,
       });
       colour = tw('bg-affirmative-tint text-affirmative');
       break;
     case 'down':
       text = i18n('icu:SwarmWallet__price--change--down', {
         change: change.text,
+        period,
       });
       colour = tw('bg-destructive-tint text-destructive');
       break;
     default:
       text = i18n('icu:SwarmWallet__price--change--flat', {
         change: change.text,
+        period,
       });
       colour = tw('bg-secondary text-secondary');
   }
   return (
     <span
       data-testid="price-change"
+      data-period={period}
       data-direction={change.direction}
       className={tw(
         'rounded-full px-2 py-0.5 font-swarm-mono type-body-small',
@@ -223,9 +235,15 @@ function Sparkline({
 export function PriceCard({
   i18n,
   price,
+  onOpenPage,
 }: {
   i18n: LocalizerType;
   price: SwarmPriceStateType | undefined;
+  /**
+   * SWARM change (PD-5b): the card opens the price page; the listing links
+   * moved there.
+   */
+  onOpenPage?: () => void;
 }): JSX.Element | null {
   if (
     price == null ||
@@ -327,24 +345,22 @@ export function PriceCard({
   const cardClass = tw(
     'flex flex-col gap-3 rounded-lg bg-surface-secondary p-4 text-start text-primary'
   );
-  const url = shown?.reading.dexscreenerUrl;
-  if (url != null) {
+  if (onOpenPage != null) {
     return (
-      <a
+      <button
+        type="button"
         data-testid="price-card"
         data-price-status={price.status}
-        href={url}
-        target="_blank"
-        rel="noreferrer"
-        aria-label={i18n('icu:SwarmWallet__price--open-pool')}
+        aria-label={i18n('icu:SwarmWallet__price--open-page')}
+        onClick={onOpenPage}
         className={tw(
           cardClass,
-          'no-underline outline-none hover:bg-surface-tertiary focus-visible:axo-focus-ring'
+          'w-full outline-none hover:bg-surface-tertiary focus-visible:axo-focus-ring'
         )}
       >
         {labelRow}
         {body}
-      </a>
+      </button>
     );
   }
   return (

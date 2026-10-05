@@ -74,7 +74,18 @@ export function formatUsdCents(cents: bigint): string {
  * "0.001235"). Rounded half-up on the decimal digits; null for a non-price.
  */
 export function formatUsdPrice(priceUsd: string): string | null {
-  const units = priceUnitsFromDecimal(priceUsd);
+  return formatDecimalPrice(priceUsd, 4);
+}
+
+/**
+ * A decimal price with `significant` significant digits below 1, two
+ * decimals from 1 up ("0.000196" for an ETH price with three). Half-up.
+ */
+export function formatDecimalPrice(
+  price: string,
+  significant: number
+): string | null {
+  const units = priceUnitsFromDecimal(price);
   if (units == null) {
     return null;
   }
@@ -83,14 +94,14 @@ export function formatUsdPrice(priceUsd: string): string | null {
   }
   const digits = units.toString().padStart(PRICE_DECIMALS, '0');
   const firstSignificant = digits.search(/[1-9]/);
-  let decimals = Math.min(firstSignificant + 4, PRICE_DECIMALS);
+  let decimals = Math.min(firstSignificant + significant, PRICE_DECIMALS);
   let rounded = roundToDecimals(units, decimals);
   if (rounded >= 10n ** BigInt(decimals)) {
-    // 0.99996 rounds to 1: shown the way 1 USD and more is shown.
+    // 0.99996 rounds to 1: shown the way 1 and more is shown.
     return formatUsdCents(roundToDecimals(units, 2));
   }
-  if (rounded.toString().length > 4 && decimals > 1) {
-    // 0.0099996 rounds up into the next decade: keep four digits.
+  if (rounded.toString().length > significant && decimals > 1) {
+    // 0.0099996 rounds up into the next decade: keep the digit count.
     rounded /= 10n;
     decimals -= 1;
   }
@@ -206,4 +217,130 @@ export function sparklinePaths(
   const line = `M${points.join(' L')}`;
   const area = `${line} L${round(width)},${height} L0,${height} Z`;
   return { line, area };
+}
+
+// The price page (PD-5b) ------------------------------------------------------
+
+/**
+ * A market figure in USD for the page's stats ("3,761" from 1 000 up, "378.11"
+ * below). From the service's numbers: a display, not an amount anyone holds.
+ */
+export function formatUsdStat(value: number): string {
+  const cents = BigInt(Math.round(Math.max(0, value) * 100));
+  if (cents >= 100_000n) {
+    return groupThousands((cents + 50n) / 100n);
+  }
+  return formatUsdCents(cents);
+}
+
+/** "0xf1e0…4599": the first six and the last four characters. */
+export function shortenHex(value: string): string {
+  return value.length <= 12 ? value : `${value.slice(0, 6)}…${value.slice(-4)}`;
+}
+
+export const PRICE_CHART_RANGES = ['24h', '48h', '30d'] as const;
+export type PriceChartRangeType = (typeof PRICE_CHART_RANGES)[number];
+
+export type PriceChartSeriesType = Readonly<{
+  values: ReadonlyArray<number>;
+  /** The time of the first value, Unix seconds, or null when not known. */
+  fromUnix: number | null;
+  stepSeconds: number;
+}>;
+
+/**
+ * What a range of the page's chart draws: `24h` the last 24 hourly closes,
+ * `48h` all of them, `30d` the daily closes. Null when the range has fewer
+ * than two points (its button is then disabled).
+ */
+export function priceChartSeries(
+  reading: Readonly<{
+    sparklineUsd: ReadonlyArray<number>;
+    hourlyFromUnix: number | null;
+    dailyUsd: ReadonlyArray<number>;
+    dailyFromUnix: number | null;
+  }>,
+  range: PriceChartRangeType
+): PriceChartSeriesType | null {
+  let series: PriceChartSeriesType;
+  if (range === '30d') {
+    series = {
+      values: reading.dailyUsd,
+      fromUnix: reading.dailyFromUnix,
+      stepSeconds: 24 * 3600,
+    };
+  } else {
+    const hourly = reading.sparklineUsd;
+    const skip = range === '24h' ? Math.max(0, hourly.length - 24) : 0;
+    series = {
+      values: hourly.slice(skip),
+      fromUnix:
+        reading.hourlyFromUnix == null
+          ? null
+          : reading.hourlyFromUnix + skip * 3600,
+      stepSeconds: 3600,
+    };
+  }
+  return series.values.length >= 2 ? series : null;
+}
+
+export type PriceChartPointType = Readonly<{ x: number; y: number }>;
+
+export type PriceChartGeometryType = Readonly<{
+  points: ReadonlyArray<PriceChartPointType>;
+  line: string;
+  area: string;
+  minIndex: number;
+  maxIndex: number;
+}>;
+
+/**
+ * Where each value sits in a plot `width` wide from x = 0 and between
+ * `top` and `bottom`; the line and the area under it down to `bottom`.
+ */
+export function priceChartGeometry(
+  values: ReadonlyArray<number>,
+  { width, top, bottom }: { width: number; top: number; bottom: number }
+): PriceChartGeometryType | null {
+  if (values.length < 2) {
+    return null;
+  }
+  let minIndex = 0;
+  let maxIndex = 0;
+  values.forEach((value, index) => {
+    if (value < (values[minIndex] ?? value)) {
+      minIndex = index;
+    }
+    if (value > (values[maxIndex] ?? value)) {
+      maxIndex = index;
+    }
+  });
+  const min = values[minIndex] ?? 0;
+  const span = (values[maxIndex] ?? 0) - min;
+  const step = width / (values.length - 1);
+  const round = (n: number) => Math.round(n * 100) / 100;
+  const points = values.map((value, index) => ({
+    x: round(index * step),
+    y: round(
+      span === 0
+        ? (top + bottom) / 2
+        : top + (1 - (value - min) / span) * (bottom - top)
+    ),
+  }));
+  const line = `M${points.map(({ x, y }) => `${x},${y}`).join(' L')}`;
+  const area = `${line} L${round(width)},${bottom} L0,${bottom} Z`;
+  return { points, line, area, minIndex, maxIndex };
+}
+
+/** The value nearest to `x` in a plot `width` wide with `count` values. */
+export function priceChartIndexAt(
+  x: number,
+  width: number,
+  count: number
+): number {
+  if (count < 2 || width <= 0) {
+    return 0;
+  }
+  const index = Math.round((x / width) * (count - 1));
+  return Math.min(count - 1, Math.max(0, index));
 }

@@ -10,6 +10,9 @@
 // stays; at most one request a minute, and none while nobody asks, while the
 // switch is off or off SWARM Mainnet; the freshness words by the clock.
 
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { assert } from 'chai';
 
 import {
@@ -24,6 +27,37 @@ import type {
   PriceFetchType,
   SwarmPriceTrackerOptionsType,
 } from '../../util/swarm/swarmPriceRelay.std.ts';
+import { SwarmPriceRelaySchema } from '../../types/SwarmWallet.std.ts';
+
+/**
+ * The live service's answer, read once on 2026-10-05 at 19:01:37 UTC
+ * (GET https://wallet.swarm.green/api/price/swm, 200) and saved; the tests
+ * never fetch it.
+ */
+const LIVE_BODY = readFileSync(
+  join(import.meta.dirname, 'fixtures', 'swarmPriceLive-2026-10-05T1901Z.json'),
+  'utf8'
+);
+
+/** What the page fields are when the service sent none of them. */
+const NO_PAGE_FIELDS = {
+  priceEth: null,
+  changePct1h: null,
+  changePct6h: null,
+  hourlyFromUnix: null,
+  dailyUsd: [],
+  dailyFromUnix: null,
+  transactions24h: null,
+  liquidityUsd: null,
+  volume24hUsd: null,
+  fdvUsd: null,
+  feePct: null,
+  poolCreatedUnix: null,
+  poolId: null,
+  tokenAddress: null,
+  geckoterminalUrl: null,
+  sources: [],
+};
 
 const POOL =
   '0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599';
@@ -138,8 +172,157 @@ describe('SWARM price: the price service read (PD-5)', () => {
           source: 'geckoterminal',
           generatedUnix: 1791223633,
           relayStale: false,
+          priceEth: '0.000195976',
+          changePct1h: 0,
+          changePct6h: 28.75,
+          hourlyFromUnix: null,
+          dailyUsd: [],
+          dailyFromUnix: null,
+          transactions24h: null,
+          liquidityUsd: 3761.34,
+          volume24hUsd: 378.11,
+          fdvUsd: 8411.43,
+          feePct: null,
+          poolCreatedUnix: null,
+          poolId: POOL,
+          tokenAddress: '0xf904C14d21bEF5b8a5345a666C77C9cc2A24043B',
+          geckoterminalUrl: `https://www.geckoterminal.com/base/pools/${POOL}`,
+          sources: [
+            {
+              id: 'geckoterminal',
+              ok: true,
+              priceUsd: '0.84114343',
+              fetchedUnix: 1791223633,
+            },
+            {
+              id: 'dexscreener',
+              ok: true,
+              priceUsd: '0.8602',
+              fetchedUnix: 1791223633,
+            },
+          ],
         },
       });
+    });
+
+    it('reads the price page fields of spec section 6.1', () => {
+      const reading = readingFromRelayDocument({
+        ...fixture(),
+        hourly_from_unix: 1791050400,
+        daily_usd: [0.31, 0.42, 0.5259, 0.8411],
+        daily_from_unix: 1790985600,
+        transactions_24h: { buys: 9, sells: 0 },
+        pool: {
+          ...(fixture().pool as object),
+          fee_pct: 0.9,
+          created_unix: 1790900000,
+        },
+      });
+      assert.strictEqual(reading?.hourlyFromUnix, 1791050400);
+      assert.deepEqual(reading?.dailyUsd, [0.31, 0.42, 0.5259, 0.8411]);
+      assert.strictEqual(reading?.dailyFromUnix, 1790985600);
+      assert.deepEqual(reading?.transactions24h, { buys: 9, sells: 0 });
+      assert.strictEqual(reading?.feePct, 0.9);
+      assert.strictEqual(reading?.poolCreatedUnix, 1790900000);
+    });
+
+    it('drops a page field that does not fit, and keeps the price', () => {
+      const reading = readingFromRelayDocument({
+        ...fixture(),
+        price_eth: 1.9e-4,
+        daily_usd: ['0.31'],
+        daily_from_unix: -1,
+        transactions_24h: { buys: -1, sells: 0 },
+        liquidity_usd: 'a lot',
+        sources: [{ id: 'Gecko Terminal!', ok: true }],
+        pool: {
+          ...(fixture().pool as object),
+          id: '0xf1e0…4599',
+          token: 'swm1notacontract',
+          fee_pct: 101,
+          geckoterminal_url:
+            'https://geckoterminal.com.evil.example/base/pools/x',
+        },
+      });
+      assert.strictEqual(reading?.priceUsd, '0.84114343');
+      assert.deepEqual(
+        {
+          priceEth: reading?.priceEth,
+          dailyUsd: reading?.dailyUsd,
+          dailyFromUnix: reading?.dailyFromUnix,
+          transactions24h: reading?.transactions24h,
+          liquidityUsd: reading?.liquidityUsd,
+          sources: reading?.sources,
+          poolId: reading?.poolId,
+          tokenAddress: reading?.tokenAddress,
+          feePct: reading?.feePct,
+          geckoterminalUrl: reading?.geckoterminalUrl,
+        },
+        {
+          priceEth: null,
+          dailyUsd: [],
+          dailyFromUnix: null,
+          transactions24h: null,
+          liquidityUsd: null,
+          sources: [],
+          poolId: null,
+          tokenAddress: null,
+          feePct: null,
+          geckoterminalUrl: null,
+        }
+      );
+      // The DexScreener link of the same pool is unaffected.
+      assert.strictEqual(
+        reading?.dexscreenerUrl,
+        `https://dexscreener.com/base/${POOL}`
+      );
+    });
+
+    it('reads the live service’s answer of 2026-10-05 (saved)', async () => {
+      const document: unknown = JSON.parse(LIVE_BODY);
+      assert.isTrue(SwarmPriceRelaySchema.safeParse(document).success);
+      const { fetch } = fakeFetch(async () => jsonResponse(LIVE_BODY));
+      const result = await fetchPriceRelay({ fetch });
+      assert.isTrue(result.ok);
+      if (!result.ok) {
+        return;
+      }
+      const { reading } = result;
+      assert.strictEqual(reading.priceUsd, '0.84114343498587');
+      assert.strictEqual(reading.priceEth, '0.000195976178807639');
+      assert.strictEqual(reading.changePct24h, 28.75);
+      assert.strictEqual(reading.changePct6h, 24.56);
+      assert.strictEqual(reading.changePct1h, 0);
+      assert.lengthOf(reading.sparklineUsd, 48);
+      assert.strictEqual(reading.liquidityUsd, 3770.24);
+      assert.strictEqual(reading.volume24hUsd, 328.52);
+      assert.strictEqual(reading.fdvUsd, 8411.43);
+      assert.strictEqual(reading.poolId, POOL);
+      assert.strictEqual(
+        reading.tokenAddress,
+        '0xf904C14d21bEF5b8a5345a666C77C9cc2A24043B'
+      );
+      assert.strictEqual(
+        reading.geckoterminalUrl,
+        `https://www.geckoterminal.com/base/pools/${POOL}`
+      );
+      assert.strictEqual(
+        reading.dexscreenerUrl,
+        `https://dexscreener.com/base/${POOL}`
+      );
+      assert.deepEqual(
+        reading.sources.map(({ id, ok }) => [id, ok]),
+        [
+          ['geckoterminal', true],
+          ['dexscreener', true],
+        ]
+      );
+      // Not in the service's answer yet on that day (spec section 6.1).
+      assert.deepEqual(reading.dailyUsd, []);
+      assert.isNull(reading.hourlyFromUnix);
+      assert.isNull(reading.transactions24h);
+      assert.isNull(reading.feePct);
+      assert.isFalse(reading.relayStale);
     });
 
     it('keeps the price but drops a pool link that is not DexScreener', () => {
@@ -181,6 +364,7 @@ describe('SWARM price: the price service read (PD-5)', () => {
         source: null,
         generatedUnix: 1791223633,
         relayStale: true,
+        ...NO_PAGE_FIELDS,
       });
     });
 

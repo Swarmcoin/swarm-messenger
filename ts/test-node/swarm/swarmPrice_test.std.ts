@@ -12,6 +12,12 @@ import { assert } from 'chai';
 
 import {
   classifyPriceFreshness,
+  formatDecimalPrice,
+  formatUsdStat,
+  priceChartGeometry,
+  priceChartIndexAt,
+  priceChartSeries,
+  shortenHex,
   fiatCentsForZatoshi,
   formatPriceChange,
   formatUsdCents,
@@ -23,6 +29,7 @@ import {
 import {
   DecimalPriceSchema,
   isDexscreenerPoolUrl,
+  isGeckoterminalPoolUrl,
 } from '../../types/SwarmWallet.std.ts';
 
 const POOL =
@@ -231,6 +238,119 @@ describe('SWARM price: amounts and words (PD-5)', () => {
         'not a url',
       ]) {
         assert.isFalse(isDexscreenerPoolUrl(bad), bad);
+      }
+    });
+  });
+
+  // SWARM addition (PD-5b): the price page. ---------------------------------
+
+  describe('the price page', () => {
+    it('writes the ETH price with three significant digits', () => {
+      assert.strictEqual(
+        formatDecimalPrice('0.000195976178807639', 3),
+        '0.000196'
+      );
+      assert.strictEqual(formatDecimalPrice('0.5', 3), '0.500');
+      assert.strictEqual(formatDecimalPrice('2.345', 3), '2.35');
+      assert.isNull(formatDecimalPrice('x', 3));
+    });
+
+    it('writes market figures in whole dollars from 1 000 up', () => {
+      assert.strictEqual(formatUsdStat(3770.24), '3,770');
+      assert.strictEqual(formatUsdStat(8411.5), '8,412');
+      assert.strictEqual(formatUsdStat(999.994), '999.99');
+      assert.strictEqual(formatUsdStat(328.52), '328.52');
+      assert.strictEqual(formatUsdStat(0), '0.00');
+      assert.strictEqual(formatUsdStat(-5), '0.00');
+    });
+
+    it('shortens a pool id and a contract', () => {
+      assert.strictEqual(shortenHex(POOL), '0xf1e0…4599');
+      assert.strictEqual(
+        shortenHex('0xf904C14d21bEF5b8a5345a666C77C9cc2A24043B'),
+        '0xf904…043B'
+      );
+      assert.strictEqual(shortenHex('0x1234'), '0x1234');
+    });
+
+    it('cuts the chart ranges from the hourly and daily series', () => {
+      const hourly = Array.from({ length: 48 }, (_, index) => index + 1);
+      const reading = {
+        sparklineUsd: hourly,
+        hourlyFromUnix: 1_000_000,
+        dailyUsd: [1, 2, 3],
+        dailyFromUnix: 2_000_000,
+      };
+      const day = priceChartSeries(reading, '24h');
+      assert.deepEqual(day?.values, hourly.slice(24));
+      assert.strictEqual(day?.fromUnix, 1_000_000 + 24 * 3600);
+      assert.strictEqual(day?.stepSeconds, 3600);
+      assert.deepEqual(priceChartSeries(reading, '48h')?.values, hourly);
+      assert.strictEqual(priceChartSeries(reading, '48h')?.fromUnix, 1_000_000);
+      assert.deepEqual(priceChartSeries(reading, '30d'), {
+        values: [1, 2, 3],
+        fromUnix: 2_000_000,
+        stepSeconds: 86_400,
+      });
+      // Fewer than two points: no range.
+      assert.isNull(priceChartSeries({ ...reading, dailyUsd: [1] }, '30d'));
+      assert.isNull(
+        priceChartSeries(
+          { ...reading, sparklineUsd: [], hourlyFromUnix: null },
+          '24h'
+        )
+      );
+      // Without a start time, values only.
+      assert.isNull(
+        priceChartSeries({ ...reading, hourlyFromUnix: null }, '24h')?.fromUnix
+      );
+    });
+
+    it('places the chart points and finds the extremes', () => {
+      const geometry = priceChartGeometry([2, 1, 3], {
+        width: 100,
+        top: 10,
+        bottom: 50,
+      });
+      assert.deepEqual(geometry?.points, [
+        { x: 0, y: 30 },
+        { x: 50, y: 50 },
+        { x: 100, y: 10 },
+      ]);
+      assert.strictEqual(geometry?.minIndex, 1);
+      assert.strictEqual(geometry?.maxIndex, 2);
+      assert.strictEqual(geometry?.line, 'M0,30 L50,50 L100,10');
+      assert.strictEqual(
+        geometry?.area,
+        'M0,30 L50,50 L100,10 L100,50 L0,50 Z'
+      );
+      assert.isNull(priceChartGeometry([1], { width: 1, top: 0, bottom: 1 }));
+    });
+
+    it('finds the value under the pointer', () => {
+      assert.strictEqual(priceChartIndexAt(0, 100, 5), 0);
+      assert.strictEqual(priceChartIndexAt(49, 100, 5), 2);
+      assert.strictEqual(priceChartIndexAt(100, 100, 5), 4);
+      assert.strictEqual(priceChartIndexAt(400, 100, 5), 4);
+      assert.strictEqual(priceChartIndexAt(-20, 100, 5), 0);
+      assert.strictEqual(priceChartIndexAt(50, 100, 1), 0);
+    });
+
+    it('links GeckoTerminal only to its pool pages', () => {
+      assert.isTrue(
+        isGeckoterminalPoolUrl(
+          `https://www.geckoterminal.com/base/pools/${POOL}`
+        )
+      );
+      for (const bad of [
+        `https://geckoterminal.com/base/pools/${POOL}`,
+        `http://www.geckoterminal.com/base/pools/${POOL}`,
+        `https://www.geckoterminal.com.evil.example/base/pools/${POOL}`,
+        `https://www.geckoterminal.com/base/pools/${POOL}?x=1`,
+        `https://www.geckoterminal.com/base/tokens/${POOL}`,
+        `https://dexscreener.com/base/${POOL}`,
+      ]) {
+        assert.isFalse(isGeckoterminalPoolUrl(bad), bad);
       }
     });
   });

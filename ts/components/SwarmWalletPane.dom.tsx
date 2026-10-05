@@ -16,7 +16,7 @@
 // names the amount, the fee and the address, sends. Since M3 wave 2 that flow
 // is SwarmSendFlow.dom.tsx, shared with "Pay with SWARM" in a chat.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { JSX, ReactNode } from 'react';
 
 import { tw } from '../axo/tw.dom.tsx';
@@ -24,6 +24,7 @@ import { AxoButton } from '../axo/AxoButton.dom.tsx';
 import { QrCode } from './QrCode.dom.tsx';
 import { Amount, SwarmSendFlow } from './SwarmSendFlow.dom.tsx';
 import { FiatAmount, PriceCard, PriceSetting } from './SwarmPrice.dom.tsx';
+import { SwarmPricePage } from './SwarmPricePage.dom.tsx';
 import {
   formatZatoshiAsSwm,
   zatoshiFromString,
@@ -86,20 +87,75 @@ export type SwarmWalletPaneProps = Readonly<{
    */
   price?: SwarmPriceStateType;
   onSetPriceEnabled?: (enabled: boolean) => void;
+  /**
+   * SWARM addition (PD-5b): which view the pane opens with, the wallet (the
+   * default) or the price page. For pictures and tests; the card and Back
+   * switch between them.
+   */
+  initialView?: SwarmWalletViewType;
 }>;
 
+/** SWARM addition (PD-5b): the Wallet tab's two views. */
+export type SwarmWalletViewType = 'wallet' | 'price';
+
 export function SwarmWalletPane(props: SwarmWalletPaneProps): JSX.Element {
-  const { i18n, state } = props;
+  const { i18n, state, price } = props;
+  const [view, setView] = useState<SwarmWalletViewType>(
+    props.initialView ?? 'wallet'
+  );
+  const scroller = useRef<HTMLDivElement>(null);
+
+  // A new view starts at its top.
+  const openView = (next: SwarmWalletViewType) => {
+    scroller.current?.scrollTo?.({ top: 0 });
+    setView(next);
+  };
+
+  // The price page exists only for a ready wallet on SWARM Mainnet.
+  const showPricePage =
+    view === 'price' &&
+    state?.status === 'ready' &&
+    price != null &&
+    price.status !== 'not-mainnet';
+
+  if (showPricePage) {
+    return (
+      <div
+        ref={scroller}
+        data-testid="SwarmWalletPane"
+        data-wallet-status={state.status}
+        data-wallet-view="price"
+        className={tw('flex size-full flex-col overflow-y-auto')}
+      >
+        <div className={tw('mx-auto flex w-full max-w-160 flex-col gap-6 p-6')}>
+          <SwarmPricePage
+            i18n={i18n}
+            price={price}
+            balanceZat={
+              state.balance == null
+                ? null
+                : zatoshiFromString(state.balance.totalZat)
+            }
+            onBack={() => openView('wallet')}
+            onSetPriceEnabled={props.onSetPriceEnabled}
+            onCopy={props.onCopyAddress}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
+      ref={scroller}
       data-testid="SwarmWalletPane"
       data-wallet-status={state?.status ?? 'loading'}
+      data-wallet-view="wallet"
       className={tw('flex size-full flex-col overflow-y-auto')}
     >
       <div className={tw('mx-auto flex w-full max-w-160 flex-col gap-6 p-6')}>
         <Header i18n={i18n} state={state} />
-        <Body {...props} />
+        <Body {...props} onOpenPricePage={() => openView('price')} />
         {state?.canSwitchNetwork === true ? (
           <DeveloperNetwork
             i18n={i18n}
@@ -112,7 +168,9 @@ export function SwarmWalletPane(props: SwarmWalletPaneProps): JSX.Element {
   );
 }
 
-function Body(props: SwarmWalletPaneProps): JSX.Element {
+function Body(
+  props: SwarmWalletPaneProps & { onOpenPricePage: () => void }
+): JSX.Element {
   const { i18n, state } = props;
 
   if (state == null) {
@@ -152,7 +210,13 @@ function Body(props: SwarmWalletPaneProps): JSX.Element {
         </section>
       );
     case 'ready':
-      return <Ready {...props} state={state} />;
+      return (
+        <Ready
+          {...props}
+          state={state}
+          onOpenPricePage={props.onOpenPricePage}
+        />
+      );
     default:
       return (
         <Notice testId="error">
@@ -381,7 +445,10 @@ function RestoreForm({
 // Ready -------------------------------------------------------------------------
 
 function Ready(
-  props: SwarmWalletPaneProps & { state: SwarmWalletStateType }
+  props: SwarmWalletPaneProps & {
+    state: SwarmWalletStateType;
+    onOpenPricePage: () => void;
+  }
 ): JSX.Element {
   const { i18n, state } = props;
   return (
@@ -403,7 +470,11 @@ function Ready(
         ) : null}
       </Card>
       {/* SWARM addition (PD-5): the SWM price, from the SWARM price service. */}
-      <PriceCard i18n={i18n} price={props.price} />
+      <PriceCard
+        i18n={i18n}
+        price={props.price}
+        onOpenPage={props.onOpenPricePage}
+      />
       {state.address != null ? (
         <Receive
           i18n={i18n}
