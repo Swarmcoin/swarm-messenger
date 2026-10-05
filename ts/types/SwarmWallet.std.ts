@@ -29,6 +29,10 @@ export const SWARM_WALLET_CHANNEL = {
   // SWARM addition (B6, 2026-09-29): opens the recovery phrase window. The
   // words never come back on this channel; see SwarmRecoveryPhrase.std.ts.
   revealRecoveryPhrase: 'swarm-wallet:reveal-recovery-phrase',
+  // SWARM addition (PD-5, 2026-10-05): the SWM price from the SWARM price
+  // service, read by the main process. See SwarmPrice* below.
+  priceGet: 'swarm-wallet:price-get',
+  priceSetEnabled: 'swarm-wallet:price-set-enabled',
 } as const;
 
 /** A count of zatoshi (1 SWM = 100 000 000), as a decimal string. */
@@ -353,3 +357,165 @@ export type RevealRecoveryPhraseResultType = z.infer<
 export function explorerTransactionUrl(explorer: string, txid: string): string {
   return `${explorer}transactions/${txid}`;
 }
+
+// SWARM addition (PD-5, 2026-10-05): the SWM price ----------------------------
+//
+// The main process reads one JSON document from the SWARM price service
+// (specs/PRICE-DISPLAY.md section 2.1, `schema: "swarm-price/1"`) and hands the
+// pane what it needs to draw the price, never more. The renderer sends nothing
+// but "show me" and the on/off switch: no address, no balance.
+
+/**
+ * A price in USD as a decimal string, never a float: "0.84114343". At most
+ * twelve whole digits and eighteen decimals; zero is not a price.
+ */
+export const DecimalPriceSchema = z
+  .string()
+  .max(32)
+  .regex(/^(0|[1-9][0-9]{0,11})(\.[0-9]{1,18})?$/)
+  .refine(value => /[1-9]/.test(value), { message: 'not a positive price' });
+
+/** The most hourly closes the pane draws (the service sends up to 48). */
+export const SWARM_PRICE_SPARKLINE_MAX = 168;
+
+/**
+ * Whether a URL is a pool page on DexScreener: https, exactly the host
+ * dexscreener.com, no credentials, no port, no query and no fragment. The
+ * price card opens it in the system browser, so nothing else is accepted.
+ */
+export function isDexscreenerPoolUrl(value: string): boolean {
+  if (value.length > 256) {
+    return false;
+  }
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return false;
+  }
+  return (
+    url.protocol === 'https:' &&
+    url.hostname === 'dexscreener.com' &&
+    url.port === '' &&
+    url.username === '' &&
+    url.password === '' &&
+    url.search === '' &&
+    url.hash === '' &&
+    url.origin === 'https://dexscreener.com' &&
+    /^\/[a-z0-9-]{1,32}\/[A-Za-z0-9]{1,80}$/.test(url.pathname)
+  );
+}
+
+const PercentSchema = z.number().min(-1_000_000).max(1_000_000);
+
+/**
+ * `schema`, or undefined when the value is missing or does not fit: for the
+ * fields whose failure should cost only themselves, not the whole document.
+ */
+function droppedIfInvalid<T extends z.ZodType>(schema: T) {
+  return z.unknown().transform(value => {
+    const parsed = schema.safeParse(value);
+    return parsed.success ? parsed.data : undefined;
+  });
+}
+
+/** A short lowercase id such as `base`, `uniswap-v4` or `geckoterminal`. */
+const SlugSchema = z.string().regex(/^[a-z0-9-]{1,32}$/);
+
+/**
+ * The price service's document, as far as a wallet reads it. Unknown fields are
+ * dropped. A DexScreener URL that is not a DexScreener pool page is dropped
+ * too (the card is then not a link); everything else that is wrong refuses the
+ * whole document, and the last good reading stays.
+ */
+export const SwarmPriceRelaySchema = z.object({
+  schema: z.literal('swarm-price/1'),
+  symbol: z.literal('SWM'),
+  quote: z.literal('USD'),
+  price_usd: DecimalPriceSchema,
+  change_pct: z
+    .object({
+      h1: PercentSchema.nullable().optional(),
+      h6: PercentSchema.nullable().optional(),
+      h24: PercentSchema.nullable().optional(),
+    })
+    .optional(),
+  source: droppedIfInvalid(SlugSchema),
+  sparkline_usd: z
+    .array(z.number().nonnegative())
+    .max(SWARM_PRICE_SPARKLINE_MAX)
+    .optional(),
+  pool: z
+    .object({
+      chain: droppedIfInvalid(SlugSchema),
+      dex: droppedIfInvalid(SlugSchema),
+      dexscreener_url: droppedIfInvalid(
+        z.string().refine(isDexscreenerPoolUrl)
+      ),
+    })
+    .optional(),
+  generated_unix: z.number().int().positive(),
+  stale: z.boolean(),
+});
+export type SwarmPriceRelayType = z.infer<typeof SwarmPriceRelaySchema>;
+
+/** One reading of the price, as the pane is given it. */
+export const SwarmPriceReadingSchema = z.object({
+  priceUsd: DecimalPriceSchema,
+  /** The 24-hour change in percent, as the service reports it. */
+  changePct24h: PercentSchema.nullable(),
+  /** Hourly closes in USD, oldest first; empty when the service sent none. */
+  sparklineUsd: z
+    .array(z.number().nonnegative())
+    .max(SWARM_PRICE_SPARKLINE_MAX),
+  /** The pool's page on DexScreener, or null. */
+  dexscreenerUrl: z.string().refine(isDexscreenerPoolUrl).nullable(),
+  chain: SlugSchema.nullable(),
+  dex: SlugSchema.nullable(),
+  /** Which aggregator the service took the price from. */
+  source: SlugSchema.nullable(),
+  /** When the service made the document, Unix seconds. */
+  generatedUnix: z.number().int().positive(),
+  /** The service itself says its sources have failed for a while. */
+  relayStale: z.boolean(),
+});
+export type SwarmPriceReadingType = z.infer<typeof SwarmPriceReadingSchema>;
+
+export const SwarmPriceStatusSchema = z.enum([
+  /** "Show SWM price (USD)" is off: no requests, nothing shown. */
+  'off',
+  /** The wallet is not on SWARM Mainnet: no requests, nothing shown. */
+  'not-mainnet',
+  /** On, and no reading yet. */
+  'waiting',
+  /** Read less than 5 minutes ago. */
+  'fresh',
+  /** Read 5 to 30 minutes ago, or kept from the last run: "as of hh:mm". */
+  'ageing',
+  /** Read more than 30 minutes ago, or the service says it is stale. */
+  'stale',
+  /** No good reading for 60 minutes: "price unavailable". */
+  'unavailable',
+]);
+export type SwarmPriceStatusType = z.infer<typeof SwarmPriceStatusSchema>;
+
+/** What `swarm-wallet:price-get` and `price-set-enabled` answer. */
+export const SwarmPriceStateSchema = z.object({
+  status: SwarmPriceStatusSchema,
+  /** The switch, default on. */
+  enabled: z.boolean(),
+  /** The reading to show; null when off, not mainnet, waiting or unavailable. */
+  reading: SwarmPriceReadingSchema.nullable(),
+  /** When this computer received the reading, epoch milliseconds. */
+  fetchedAt: z.number().int().nonnegative().nullable(),
+  /** Seconds since then, counted by the main process when it answered. */
+  ageSeconds: z.number().int().nonnegative().nullable(),
+});
+export type SwarmPriceStateType = z.infer<typeof SwarmPriceStateSchema>;
+
+/** `swarm-wallet:price-get` takes nothing. */
+export const PriceGetRequestSchema = z.object({}).strict();
+
+export const PriceSetEnabledRequestSchema = z
+  .object({ enabled: z.boolean() })
+  .strict();

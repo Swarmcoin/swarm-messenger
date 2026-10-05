@@ -12653,6 +12653,74 @@
     "messageformat": "SWARM Messenger recovery phrase. This file is NOT encrypted: anyone who reads these 24 words owns the account and the money in its wallet.",
     "description": "SWARM (B6): recovery phrase export. The first line of the saved recovery phrase file, written after a # sign. Plain text, one line."
   },
+  "icu:SwarmWallet__price--title": {
+    "messageformat": "SWM price",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. Label of the price card. Shown in capitals by the app's style."
+  },
+  "icu:SwarmWallet__price--usd": {
+    "messageformat": "USD",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. The currency after the big price figure in the price card."
+  },
+  "icu:SwarmWallet__price--fiat": {
+    "messageformat": "≈ ${amount} USD",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. What a balance or an amount being sent is worth at the current SWM price. amount is already formatted with two decimals, e.g. 9,364.10."
+  },
+  "icu:SwarmWallet__price--change--up": {
+    "messageformat": "▲ {change} % 24h",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. The price rose over 24 hours. change is the size of the change with one decimal, without a sign, e.g. 36.7."
+  },
+  "icu:SwarmWallet__price--change--down": {
+    "messageformat": "▼ {change} % 24h",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. The price fell over 24 hours. change is the size of the change with one decimal, without a sign, e.g. 3.2."
+  },
+  "icu:SwarmWallet__price--change--flat": {
+    "messageformat": "{change} % 24h",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. The price did not change over 24 hours (0.0)."
+  },
+  "icu:SwarmWallet__price--updated--seconds": {
+    "messageformat": "updated {seconds, number} s ago",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. End of the price card's source line: how long ago the price was read. seconds is a number."
+  },
+  "icu:SwarmWallet__price--updated--minutes": {
+    "messageformat": "updated {minutes, number} min ago",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. End of the price card's source line: how long ago the price was read. minutes is a number."
+  },
+  "icu:SwarmWallet__price--as-of": {
+    "messageformat": "as of {time}",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. Shown when the price is between 5 and 30 minutes old or older. time is the hour and minute it was read, e.g. 18:21."
+  },
+  "icu:SwarmWallet__price--stale": {
+    "messageformat": "Price not current",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. Shown beside a greyed price that is more than 30 minutes old, or that the price service says it could not refresh."
+  },
+  "icu:SwarmWallet__price--unavailable": {
+    "messageformat": "Price unavailable",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. Shown in the price card when no price has been read for an hour."
+  },
+  "icu:SwarmWallet__price--waiting": {
+    "messageformat": "Reading the price…",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. Shown in the price card before the first price arrives."
+  },
+  "icu:SwarmWallet__price--info": {
+    "messageformat": "Indicative price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote.",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. Tooltip of the info sign on the price card."
+  },
+  "icu:SwarmWallet__price--open-pool": {
+    "messageformat": "Open the SWM/ETH pool on DexScreener",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. Accessible label of the price card, which opens the pool's page in the browser."
+  },
+  "icu:SwarmWallet__price--sparkline": {
+    "messageformat": "SWM price over the last 48 hours",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. Accessible description of the small price chart."
+  },
+  "icu:SwarmWallet__price--setting": {
+    "messageformat": "Show SWM price (USD)",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. Switch at the bottom of the Wallet tab. On by default."
+  },
+  "icu:SwarmWallet__price--setting--help": {
+    "messageformat": "The price comes from the SWARM price service (wallet.swarm.green), which reads the SWM/ETH pool on Base from GeckoTerminal and DexScreener. Your addresses and balances are never sent. Switch this off and the wallet makes no price requests.",
+    "description": "SWARM (PD-5): the SWM price in the Wallet tab. Help text under the switch 'Show SWM price (USD)'. Names the one place the app asks for the price."
+  },
   "icu:SwarmChat__notice--label": {
     "messageformat": "SWARM payment",
     "description": "SWARM (M3 wave 2): a chat-list preview, a notification or a quote of a SWARM payment notice. No amount on purpose."

@@ -22,6 +22,7 @@ import {
   QuoteSendResultSchema,
   RevealRecoveryPhraseResultSchema,
   SWARM_WALLET_CHANNEL,
+  SwarmPriceStateSchema,
   SwarmWalletProblemSchema,
   SwarmWalletStateSchema,
 } from '../types/SwarmWallet.std.ts';
@@ -32,6 +33,7 @@ import type {
   NewAddressResultType,
   QuoteSendResultType,
   RevealRecoveryPhraseResultType,
+  SwarmPriceStateType,
   SwarmWalletNetworkIdType,
   SwarmWalletProblemType,
   SwarmWalletStateType,
@@ -214,4 +216,30 @@ export async function revealSwarmRecoveryPhrase(): Promise<RevealRecoveryPhraseR
     SWARM_WALLET_CHANNEL.revealRecoveryPhrase
   );
   return parseUnknown(RevealRecoveryPhraseResultSchema, answer);
+}
+
+// SWARM addition (PD-5, 2026-10-05): the SWM price ----------------------------
+
+/**
+ * The SWM price as the main process holds it. Asking is all this sends: the
+ * main process decides whether a minute has passed and reads the SWARM price
+ * service itself (one GET, no address, no balance).
+ */
+export async function getSwarmPrice(): Promise<SwarmPriceStateType> {
+  const answer: unknown = await ipcRenderer.invoke(
+    SWARM_WALLET_CHANNEL.priceGet,
+    {}
+  );
+  return parseUnknown(SwarmPriceStateSchema, answer);
+}
+
+/** "Show SWM price (USD)". Off: the app makes no price requests. */
+export async function setSwarmPriceEnabled(
+  enabled: boolean
+): Promise<SwarmPriceStateType> {
+  const answer: unknown = await ipcRenderer.invoke(
+    SWARM_WALLET_CHANNEL.priceSetEnabled,
+    { enabled }
+  );
+  return parseUnknown(SwarmPriceStateSchema, answer);
 }

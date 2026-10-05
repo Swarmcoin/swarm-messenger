@@ -18,7 +18,12 @@ import {
   refusalText,
 } from '../../components/SwarmWalletPane.dom.tsx';
 import type { SwarmWalletPaneProps } from '../../components/SwarmWalletPane.dom.tsx';
-import type { SwarmWalletStateType } from '../../types/SwarmWallet.std.ts';
+import { FiatAmount, PriceCard } from '../../components/SwarmPrice.dom.tsx';
+import type {
+  SwarmPriceReadingType,
+  SwarmPriceStateType,
+  SwarmWalletStateType,
+} from '../../types/SwarmWallet.std.ts';
 import { bech32mAddress } from '../../test-helpers/swarmAddresses.std.ts';
 
 const ADDRESS = bech32mAddress('swm', 11);
@@ -61,7 +66,10 @@ const AXO_MESSAGES: AxoIntl.Messages = {
   'AxoContactName.InSystemContactsLabel': 'This person is in your contacts.',
 };
 
-function render(walletState: SwarmWalletStateType | undefined): string {
+function render(
+  walletState: SwarmWalletStateType | undefined,
+  priceState?: SwarmPriceStateType
+): string {
   const props: SwarmWalletPaneProps = {
     i18n,
     state: walletState,
@@ -89,6 +97,8 @@ function render(walletState: SwarmWalletStateType | undefined): string {
     onSetNetwork: () => undefined,
     onCopyAddress: () => undefined,
     onRevealRecoveryPhrase: async () => ({ ok: true }),
+    price: priceState,
+    onSetPriceEnabled: () => undefined,
   };
   return renderToStaticMarkup(
     <AxoProvider
@@ -365,5 +375,247 @@ describe('SWARM wallet: the Wallet pane', () => {
         '8 decimal places'
       );
     });
+  });
+});
+
+// SWARM addition (PD-5, 2026-10-05): the SWM price. ---------------------------
+
+const POOL =
+  '0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599';
+
+/** The spec's fixture (section 2.1), as the main process hands it on. */
+const READING: SwarmPriceReadingType = {
+  priceUsd: '0.84114343',
+  changePct24h: 36.72,
+  sparklineUsd: [0.5259, 0.573, 0.6361, 0.6533, 0.7537, 0.8411],
+  dexscreenerUrl: `https://dexscreener.com/base/${POOL}`,
+  chain: 'base',
+  dex: 'uniswap-v4',
+  source: 'geckoterminal',
+  generatedUnix: 1791223633,
+  relayStale: false,
+};
+
+function price(overrides: Partial<SwarmPriceStateType>): SwarmPriceStateType {
+  return {
+    status: 'fresh',
+    enabled: true,
+    reading: READING,
+    fetchedAt: 1_791_223_633_000,
+    ageSeconds: 12,
+    ...overrides,
+  };
+}
+
+const NO_READING = { reading: null, fetchedAt: null, ageSeconds: null };
+
+/** 11 132.58 SWM: $9,364.10 at the fixture's price. */
+const BALANCE = {
+  confirmedZat: '1113258000000',
+  pendingZat: '0',
+  totalZat: '1113258000000',
+};
+
+function textOf(html: string): string {
+  return html.replace(/<[^>]+>/g, '');
+}
+
+describe('SWARM wallet: the SWM price in the Wallet pane (PD-5)', () => {
+  it('shows a fresh price: card, change, sparkline, source, link', () => {
+    const html = render(state({ balance: BALANCE }), price({}));
+    const text = textOf(html);
+
+    assert.include(html, 'data-testid="price-card"');
+    assert.include(html, 'data-price-status="fresh"');
+    assert.include(html, 'data-freshness="fresh"');
+    assert.include(text, 'SWM price');
+    assert.include(html, 'data-testid="price-usd"');
+    assert.include(text, '$0.8411');
+    assert.include(text, 'USD');
+    assert.include(html, 'data-direction="up"');
+    assert.include(text, '▲ 36.7 % 24h');
+    assert.include(html, 'data-testid="price-sparkline"');
+    assert.match(html, /<path d="M0,[0-9.]+ L56,/);
+    assert.include(
+      text,
+      'Base · Uniswap v4 · GeckoTerminal · updated 12 s ago'
+    );
+
+    // The card opens the pool page in the system browser.
+    assert.match(
+      html,
+      new RegExp(
+        `<a data-testid="price-card"[^>]*href="https://dexscreener.com/base/${POOL}" target="_blank" rel="noreferrer"`
+      )
+    );
+    assert.include(
+      html,
+      'title="Indicative price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote."'
+    );
+
+    // Under the balance: what it is worth, not greyed.
+    assert.match(
+      html,
+      /data-testid="balance-fiat" data-price-dimmed="false"[^>]*>≈ \$9,364.10 USD</
+    );
+    // The switch, on, with what it asks for and from where.
+    assert.include(html, 'data-testid="price-setting"');
+    assert.include(text, 'Show SWM price (USD)');
+    assert.include(text, 'wallet.swarm.green');
+    assert.include(text, 'Your addresses and balances are never sent.');
+    assert.include(html, 'aria-checked="true"');
+    // No inline styles in the price card (the main window's CSP).
+    assert.notInclude(
+      renderToStaticMarkup(<PriceCard i18n={i18n} price={price({})} />),
+      'style='
+    );
+  });
+
+  it('greys an ageing price and says when it was read', () => {
+    const html = render(
+      state({ balance: BALANCE }),
+      price({ status: 'ageing', ageSeconds: 7 * 60 })
+    );
+    const text = textOf(html);
+    assert.include(html, 'data-price-status="ageing"');
+    assert.include(html, 'data-freshness="ageing"');
+    assert.match(text, /as of \d{1,2}:\d{2}/);
+    assert.notInclude(text, 'updated');
+    assert.include(text, '$0.8411');
+    assert.match(
+      html,
+      /data-testid="balance-fiat" data-price-dimmed="true" class="[^"]*text-disabled/
+    );
+    assert.notInclude(text, 'Price not current');
+  });
+
+  it('says a stale price is not current', () => {
+    const html = render(
+      state({ balance: BALANCE }),
+      price({ status: 'stale', ageSeconds: 40 * 60 })
+    );
+    assert.include(html, 'data-freshness="stale"');
+    assert.include(textOf(html), 'Price not current');
+    assert.include(html, 'data-price-dimmed="true"');
+  });
+
+  it('says "price unavailable" after an hour, and values nothing', () => {
+    const html = render(
+      state({ balance: BALANCE }),
+      price({ status: 'unavailable', ...NO_READING })
+    );
+    assert.include(textOf(html), 'Price unavailable');
+    assert.notInclude(html, 'data-testid="balance-fiat"');
+    assert.notInclude(html, 'data-testid="price-usd"');
+    // Not a link without a reading.
+    assert.include(html, '<section data-testid="price-card"');
+  });
+
+  it('says it is reading before the first price', () => {
+    const html = render(
+      state({ balance: BALANCE }),
+      price({ status: 'waiting', ...NO_READING })
+    );
+    assert.include(textOf(html), 'Reading the price…');
+    assert.notInclude(html, 'data-testid="balance-fiat"');
+  });
+
+  it('shows nothing but the switch, off, when the switch is off', () => {
+    const html = render(
+      state({ balance: BALANCE }),
+      price({ status: 'off', enabled: false, ...NO_READING })
+    );
+    assert.notInclude(html, 'data-testid="price-card"');
+    assert.notInclude(html, 'data-testid="balance-fiat"');
+    assert.notInclude(textOf(html), '≈ $');
+    assert.include(html, 'data-testid="price-setting"');
+    assert.include(html, 'aria-checked="false"');
+  });
+
+  it('shows no price and no switch off SWARM Mainnet', () => {
+    const html = render(
+      state({ balance: BALANCE }),
+      price({ status: 'not-mainnet', ...NO_READING })
+    );
+    assert.notInclude(html, 'data-testid="price-card"');
+    assert.notInclude(html, 'data-testid="price-setting"');
+    assert.notInclude(textOf(html), '≈ $');
+  });
+
+  it('draws the pane as before when the price has not answered yet', () => {
+    const html = render(state({ balance: BALANCE }));
+    assert.notInclude(html, 'data-testid="price-card"');
+    assert.notInclude(html, 'data-testid="price-setting"');
+    assert.include(html, 'data-testid="send-form"');
+  });
+
+  it('values the last known balance while offline', () => {
+    const html = render(
+      state({ status: 'offline', problem: 'offline', balance: BALANCE }),
+      price({ status: 'ageing', ageSeconds: 6 * 60 })
+    );
+    assert.include(textOf(html), 'Last known balance');
+    assert.include(textOf(html), '≈ $9,364.10 USD');
+    assert.include(html, 'data-price-dimmed="true"');
+  });
+
+  it('a falling price is red, a flat one neutral, a missing one absent', () => {
+    const down = render(
+      state({}),
+      price({ reading: { ...READING, changePct24h: -3.24 } })
+    );
+    assert.include(down, 'data-direction="down"');
+    assert.include(textOf(down), '▼ 3.2 % 24h');
+    assert.match(down, /data-direction="down" class="[^"]*text-destructive/);
+
+    const flat = render(
+      state({}),
+      price({ reading: { ...READING, changePct24h: 0.01 } })
+    );
+    assert.include(flat, 'data-direction="flat"');
+    assert.include(textOf(flat), '0.0 % 24h');
+    assert.notInclude(textOf(flat), '▲');
+
+    const none = render(
+      state({}),
+      price({ reading: { ...READING, changePct24h: null, sparklineUsd: [] } })
+    );
+    assert.notInclude(none, 'data-testid="price-change"');
+    assert.notInclude(none, 'data-testid="price-sparkline"');
+  });
+
+  it('is not a link without a DexScreener page', () => {
+    const html = render(
+      state({}),
+      price({ reading: { ...READING, dexscreenerUrl: null } })
+    );
+    assert.include(html, '<section data-testid="price-card"');
+    assert.notInclude(html, 'dexscreener.com');
+  });
+
+  it('counts minutes after the first one', () => {
+    const html = render(state({}), price({ ageSeconds: 125 }));
+    assert.include(textOf(html), 'updated 2 min ago');
+  });
+
+  it('the send form’s helper values a typed amount', () => {
+    // The send form keeps what is typed in its own state; the line under the
+    // amount is this component, given the parsed zatoshi.
+    const html = renderToStaticMarkup(
+      <FiatAmount
+        i18n={i18n}
+        testId="send-fiat"
+        zatoshi={22_303_000_000n}
+        price={price({})}
+      />
+    );
+    assert.include(html, '≈ $187.60 USD');
+    assert.include(html, 'data-testid="send-fiat"');
+    assert.strictEqual(
+      renderToStaticMarkup(
+        <FiatAmount i18n={i18n} zatoshi={1n} price={undefined} />
+      ),
+      ''
+    );
   });
 });

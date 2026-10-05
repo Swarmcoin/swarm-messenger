@@ -30,6 +30,8 @@ import {
   GetStateRequestSchema,
   NewAddressRequestSchema,
   OpenWithPhraseRequestSchema,
+  PriceGetRequestSchema,
+  PriceSetEnabledRequestSchema,
   QuoteSendRequestSchema,
   SetNetworkRequestSchema,
 } from '../../types/SwarmWallet.std.ts';
@@ -353,6 +355,54 @@ export function parseSetNetworkRequest(
 ): SwarmWalletNetworkIdType | undefined {
   const parsed = SetNetworkRequestSchema.safeParse(input);
   return parsed.success ? parsed.data.network : undefined;
+}
+
+// The sender gate ------------------------------------------------------------------
+
+/** What the gate reads from an IPC event (Electron's IpcMainInvokeEvent). */
+export type IpcSenderLikeType = Readonly<{
+  sender: unknown;
+  senderFrame: unknown;
+}>;
+
+/** What the gate reads from the main window (Electron's BrowserWindow). */
+export type MainWindowLikeType = Readonly<{
+  isDestroyed: () => boolean;
+  webContents: Readonly<{ mainFrame: unknown }>;
+}>;
+
+/**
+ * Whether an IPC call comes from the main window's top frame, the only caller
+ * the wallet service answers. Every other window (About, debug log, PDF
+ * viewer, permissions, screen share, the recovery phrase window) and every
+ * subframe is refused. Pure, so the rule is tested without Electron.
+ */
+export function isMainWindowSender(
+  event: IpcSenderLikeType,
+  mainWindow: MainWindowLikeType | undefined
+): boolean {
+  if (mainWindow == null || mainWindow.isDestroyed()) {
+    return false;
+  }
+  const { webContents } = mainWindow;
+  return (
+    event.sender === webContents && event.senderFrame === webContents.mainFrame
+  );
+}
+
+// The SWM price (PD-5) ---------------------------------------------------------------
+
+/** `swarm-wallet:price-get` carries nothing; anything else is refused. */
+export function parsePriceGetRequest(input: unknown): boolean {
+  return PriceGetRequestSchema.safeParse(input ?? {}).success;
+}
+
+/** The switch's new position, or undefined for a malformed request. */
+export function parsePriceSetEnabledRequest(
+  input: unknown
+): boolean | undefined {
+  const parsed = PriceSetEnabledRequestSchema.safeParse(input);
+  return parsed.success ? parsed.data.enabled : undefined;
 }
 
 // Payments inside a chat (M3 wave 2) ---------------------------------------------

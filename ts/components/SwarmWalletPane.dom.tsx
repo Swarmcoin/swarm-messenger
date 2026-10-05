@@ -23,6 +23,7 @@ import { tw } from '../axo/tw.dom.tsx';
 import { AxoButton } from '../axo/AxoButton.dom.tsx';
 import { QrCode } from './QrCode.dom.tsx';
 import { Amount, SwarmSendFlow } from './SwarmSendFlow.dom.tsx';
+import { FiatAmount, PriceCard, PriceSetting } from './SwarmPrice.dom.tsx';
 import {
   formatZatoshiAsSwm,
   zatoshiFromString,
@@ -37,6 +38,7 @@ import type {
   ConfirmSendResultType,
   QuoteSendResultType,
   RevealRecoveryPhraseResultType,
+  SwarmPriceStateType,
   SwarmWalletNetworkIdType,
   SwarmWalletProblemType,
   SwarmWalletStateType,
@@ -78,6 +80,12 @@ export type SwarmWalletPaneProps = Readonly<{
    * recovery phrase in a window of its own. The answer never holds the words.
    */
   onRevealRecoveryPhrase: () => Promise<RevealRecoveryPhraseResultType>;
+  /**
+   * SWARM addition (PD-5, 2026-10-05): the SWM price as the main process
+   * holds it, undefined until it has answered; and the switch that stops it.
+   */
+  price?: SwarmPriceStateType;
+  onSetPriceEnabled?: (enabled: boolean) => void;
 }>;
 
 export function SwarmWalletPane(props: SwarmWalletPaneProps): JSX.Element {
@@ -255,6 +263,7 @@ function problemText(i18n: LocalizerType, state: SwarmWalletStateType): string {
 function Offline({
   i18n,
   state,
+  price,
   onRetry,
   onRevealRecoveryPhrase,
 }: SwarmWalletPaneProps & { state: SwarmWalletStateType }): JSX.Element {
@@ -275,7 +284,7 @@ function Offline({
       </div>
       {state.balance != null ? (
         <Card title={i18n('icu:SwarmWallet__offline--last-known')}>
-          <BalanceRows i18n={i18n} state={state} />
+          <BalanceRows i18n={i18n} state={state} price={price} />
         </Card>
       ) : null}
       {/* SWARM addition (B6): the words are in the wallet file, not on the
@@ -386,13 +395,15 @@ function Ready(
         </p>
       ) : null}
       <Card title={i18n('icu:SwarmWallet__balance--title')}>
-        <BalanceRows i18n={i18n} state={state} />
+        <BalanceRows i18n={i18n} state={state} price={props.price} />
         {state.encryptedAtRest === false ? (
           <p className={tw('type-body-small text-destructive')}>
             {i18n('icu:SwarmWallet__not-encrypted')}
           </p>
         ) : null}
       </Card>
+      {/* SWARM addition (PD-5): the SWM price, from the SWARM price service. */}
+      <PriceCard i18n={i18n} price={props.price} />
       {state.address != null ? (
         <Receive
           i18n={i18n}
@@ -407,11 +418,17 @@ function Ready(
         onQuote={props.onQuote}
         onConfirm={props.onConfirm}
         onCancelQuote={props.onCancelQuote}
+        price={props.price}
       />
       <History i18n={i18n} state={state} labels={props.transactionLabels} />
       <RecoveryPhrase
         i18n={i18n}
         onRevealRecoveryPhrase={props.onRevealRecoveryPhrase}
+      />
+      <PriceSetting
+        i18n={i18n}
+        price={props.price}
+        onSetPriceEnabled={props.onSetPriceEnabled}
       />
     </div>
   );
@@ -507,36 +524,48 @@ function Card({
 function BalanceRows({
   i18n,
   state,
+  price,
 }: {
   i18n: LocalizerType;
   state: SwarmWalletStateType;
+  price: SwarmPriceStateType | undefined;
 }): JSX.Element | null {
   if (state.balance == null) {
     return null;
   }
   return (
-    <dl className={tw('grid grid-cols-[auto_1fr] gap-x-6 gap-y-1')}>
-      <dt className={tw('type-body-medium text-secondary')}>
-        {i18n('icu:SwarmWallet__balance--confirmed')}
-      </dt>
-      <dd className={tw('type-title-medium')}>
-        <Amount
-          i18n={i18n}
-          testId="balance-confirmed"
-          zatoshi={zatoshiFromString(state.balance.confirmedZat)}
-        />
-      </dd>
-      <dt className={tw('type-body-medium text-secondary')}>
-        {i18n('icu:SwarmWallet__balance--pending')}
-      </dt>
-      <dd className={tw('type-body-medium')}>
-        <Amount
-          i18n={i18n}
-          testId="balance-pending"
-          zatoshi={zatoshiFromString(state.balance.pendingZat)}
-        />
-      </dd>
-    </dl>
+    <>
+      <dl className={tw('grid grid-cols-[auto_1fr] gap-x-6 gap-y-1')}>
+        <dt className={tw('type-body-medium text-secondary')}>
+          {i18n('icu:SwarmWallet__balance--confirmed')}
+        </dt>
+        <dd className={tw('type-title-medium')}>
+          <Amount
+            i18n={i18n}
+            testId="balance-confirmed"
+            zatoshi={zatoshiFromString(state.balance.confirmedZat)}
+          />
+        </dd>
+        <dt className={tw('type-body-medium text-secondary')}>
+          {i18n('icu:SwarmWallet__balance--pending')}
+        </dt>
+        <dd className={tw('type-body-medium')}>
+          <Amount
+            i18n={i18n}
+            testId="balance-pending"
+            zatoshi={zatoshiFromString(state.balance.pendingZat)}
+          />
+        </dd>
+      </dl>
+      {/* SWARM addition (PD-5): what the whole balance, confirmed and
+          pending, is worth at the current SWM price. */}
+      <FiatAmount
+        i18n={i18n}
+        testId="balance-fiat"
+        zatoshi={zatoshiFromString(state.balance.totalZat)}
+        price={price}
+      />
+    </>
   );
 }
 

@@ -34,7 +34,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { Worker } from 'node:worker_threads';
 
-import { app, ipcMain, safeStorage } from 'electron';
+import { app, ipcMain, net, safeStorage } from 'electron';
 import type { BrowserWindow, IpcMainInvokeEvent } from 'electron';
 
 import config from './config.main.ts';
@@ -53,6 +53,7 @@ import {
   classifyWalletFailure,
   describeNetwork,
   isInsufficientFunds,
+  isMainWindowSender,
   isNetworkFailure,
   memoHashFor,
   parseCheckAddressRequest,
@@ -61,6 +62,8 @@ import {
   parseGetStateRequest,
   parseNewAddressRequest,
   parseOpenWithPhraseRequest,
+  parsePriceGetRequest,
+  parsePriceSetEnabledRequest,
   parseServerOverride,
   parseSetNetworkRequest,
   redactForLog,
@@ -80,6 +83,7 @@ import type {
   QuoteSendResultType,
   SendQuoteType,
   SendRefusalKindType,
+  SwarmPriceStateType,
   SwarmWalletNetworkIdType,
   SwarmWalletProblemType,
   SwarmWalletStateType,
@@ -91,6 +95,7 @@ import {
   messageOf,
 } from '../ts/workers/swarmWalletProtocol.std.ts';
 import { waitForRecoveryPhrase } from '../ts/util/swarm/recoveryPhraseRead.std.ts';
+import { SwarmPriceTracker } from '../ts/util/swarm/swarmPriceRelay.std.ts';
 import type { RecoveryPhraseReadResultType } from '../ts/util/swarm/recoveryPhraseRead.std.ts';
 import type {
   CodedErrorType,
@@ -127,6 +132,10 @@ const NEW_PHRASE_BIRTHDAY_MARGIN = 100;
 
 const KEY_CONFIG_NAME = 'swarmWalletEncryptedKey';
 const NETWORK_SETTING_NAME = 'swarm-wallet-network';
+// SWARM addition (PD-5, 2026-10-05): "Show SWM price (USD)" (default on) and
+// the last good price reading, in config.json.
+const SHOW_PRICE_CONFIG_NAME = 'swarmShowPrice';
+const KEPT_PRICE_CONFIG_NAME = 'swarmPriceLast';
 
 type PendingCallType = {
   resolve: (value: unknown) => void;
@@ -240,6 +249,9 @@ export class SwarmWalletService {
 
   #timer: NodeJS.Timeout | undefined;
 
+  /** SWARM addition (PD-5): the SWM price, read only while the pane asks. */
+  readonly #price: SwarmPriceTracker;
+
   private constructor({
     userDataPath,
     getMainWindow,
@@ -287,6 +299,28 @@ export class SwarmWalletService {
     );
     this.#handle(SWARM_WALLET_CHANNEL.findTransaction, payload =>
       this.#findTransaction(payload)
+    );
+
+    // SWARM addition (PD-5, 2026-10-05): the SWM price, behind the same
+    // sender gate. The renderer sends nothing but "show me" and the switch;
+    // the URL, the cadence and the network check are all decided here.
+    this.#price = new SwarmPriceTracker({
+      // Chromium's network stack, so the system proxy applies as it does to
+      // the rest of the app. No redirects, no cookies (see the tracker).
+      fetch: (url, init) => net.fetch(url, init),
+      now: () => Date.now(),
+      isEnabled: () => userConfig.get(SHOW_PRICE_CONFIG_NAME) !== false,
+      saveEnabled: enabled => userConfig.set(SHOW_PRICE_CONFIG_NAME, enabled),
+      isMainnet: () => this.#network === 'mainnet',
+      loadKept: () => userConfig.get(KEPT_PRICE_CONFIG_NAME),
+      saveKept: kept => userConfig.set(KEPT_PRICE_CONFIG_NAME, kept),
+      log: message => log.info(message),
+    });
+    this.#handle(SWARM_WALLET_CHANNEL.priceGet, payload =>
+      this.#priceGet(payload)
+    );
+    this.#handle(SWARM_WALLET_CHANNEL.priceSetEnabled, payload =>
+      this.#priceSetEnabled(payload)
     );
 
     log.info(
@@ -444,14 +478,26 @@ export class SwarmWalletService {
    * gets no wallet surface at all.
    */
   #isMainWindow(event: IpcMainInvokeEvent): boolean {
-    const mainWindow = this.#getMainWindow();
-    if (mainWindow == null || mainWindow.isDestroyed()) {
-      return false;
+    // SWARM change (PD-5): the rule moved, unchanged, into a pure function
+    // (ts/util/swarm/walletIpc.node.ts) so that it is tested.
+    return isMainWindowSender(event, this.#getMainWindow());
+  }
+
+  // The SWM price (PD-5) -----------------------------------------------------------
+
+  async #priceGet(payload: unknown): Promise<SwarmPriceStateType> {
+    if (!parsePriceGetRequest(payload)) {
+      throw new Error('Invalid request');
     }
-    return (
-      event.sender === mainWindow.webContents &&
-      event.senderFrame === mainWindow.webContents.mainFrame
-    );
+    return this.#price.get();
+  }
+
+  async #priceSetEnabled(payload: unknown): Promise<SwarmPriceStateType> {
+    const enabled = parsePriceSetEnabledRequest(payload);
+    if (enabled == null) {
+      throw new Error('Invalid request');
+    }
+    return this.#price.setEnabled(enabled);
   }
 
   async #getState(payload: unknown): Promise<SwarmWalletStateType> {

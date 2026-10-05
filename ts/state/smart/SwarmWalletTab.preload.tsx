@@ -20,14 +20,17 @@ import { drop } from '../../util/drop.std.ts';
 import {
   cancelSwarmWalletSend,
   confirmSwarmWalletSend,
+  getSwarmPrice,
   getSwarmWalletState,
   openSwarmWalletWithPhrase,
   quoteSwarmWalletSend,
   refreshSwarmWallet,
   revealSwarmRecoveryPhrase,
+  setSwarmPriceEnabled,
   setSwarmWalletNetwork,
 } from '../../services/swarmWallet.preload.ts';
 import type {
+  SwarmPriceStateType,
   SwarmWalletNetworkIdType,
   SwarmWalletProblemType,
   SwarmWalletStateType,
@@ -76,6 +79,9 @@ export const SmartSwarmWalletTab = memo(
   function SmartSwarmWalletTab(): JSX.Element {
     const i18n = useSelector(getIntl);
     const [state, setState] = useState<SwarmWalletStateType | undefined>();
+    // SWARM addition (PD-5, 2026-10-05): the SWM price. Asked for with the
+    // state; the main process reads the price service at most once a minute.
+    const [price, setPrice] = useState<SwarmPriceStateType | undefined>();
 
     const load = useCallback(async () => {
       try {
@@ -83,6 +89,11 @@ export const SmartSwarmWalletTab = memo(
       } catch (error) {
         // Categories only: no address, no amount.
         log.warn('could not read the wallet state', Errors.toLogFormat(error));
+      }
+      try {
+        setPrice(await getSwarmPrice());
+      } catch (error) {
+        log.warn('could not read the SWM price', Errors.toLogFormat(error));
       }
     }, []);
 
@@ -141,6 +152,18 @@ export const SmartSwarmWalletTab = memo(
       drop(cancelSwarmWalletSend());
     }, []);
 
+    const onSetPriceEnabled = useCallback((enabled: boolean) => {
+      drop(
+        (async () => {
+          try {
+            setPrice(await setSwarmPriceEnabled(enabled));
+          } catch (error) {
+            log.warn('price switch failed', Errors.toLogFormat(error));
+          }
+        })()
+      );
+    }, []);
+
     const onCopyAddress = useCallback((address: string) => {
       drop(navigator.clipboard.writeText(address));
     }, []);
@@ -161,6 +184,9 @@ export const SmartSwarmWalletTab = memo(
         transactionLabels={labels}
         // SWARM addition (B6, 2026-09-29): "Recovery phrase".
         onRevealRecoveryPhrase={revealSwarmRecoveryPhrase}
+        // SWARM addition (PD-5, 2026-10-05): the SWM price.
+        price={price}
+        onSetPriceEnabled={onSetPriceEnabled}
       />
     );
   }

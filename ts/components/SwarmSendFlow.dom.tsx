@@ -31,7 +31,9 @@ import type {
   QuoteSendResultType,
   SendQuoteType,
   SendRefusalType,
+  SwarmPriceStateType,
 } from '../types/SwarmWallet.std.ts';
+import { FiatAmount } from './SwarmPrice.dom.tsx';
 
 export type SwarmSentType = Readonly<{
   quote: SendQuoteType;
@@ -62,6 +64,11 @@ export type SwarmSendFlowProps = Readonly<{
   onSent?: (sent: SwarmSentType) => void;
   /** "Done" on the result screen; without it the form comes back. */
   onDone?: () => void;
+  /**
+   * SWARM addition (PD-5, 2026-10-05): the SWM price, for "≈ $… USD" under
+   * the amount as it is typed. Without it, no such line.
+   */
+  price?: SwarmPriceStateType;
 }>;
 
 type SendStepType =
@@ -82,6 +89,7 @@ export function SwarmSendFlow({
   onCancelQuote,
   onSent,
   onDone,
+  price,
 }: SwarmSendFlowProps): JSX.Element {
   const [typedTo, setTo] = useState('');
   const [amount, setAmount] = useState('');
@@ -90,6 +98,8 @@ export function SwarmSendFlow({
   const [refusal, setRefusal] = useState<string | null>(null);
 
   const to = fixedTo?.address ?? typedTo;
+  // SWARM addition (PD-5): the amount as typed, exactly, for its USD value.
+  const typedAmount = parseSwmAmount(amount);
 
   const review = useCallback(async () => {
     setRefusal(null);
@@ -357,6 +367,14 @@ export function SwarmSendFlow({
           value={amount}
           onChange={event => setAmount(event.target.value)}
         />
+        {typedAmount.ok ? (
+          <FiatAmount
+            i18n={i18n}
+            testId="send-fiat"
+            zatoshi={typedAmount.zatoshi}
+            price={price}
+          />
+        ) : null}
       </label>
       <label className={tw('flex flex-col gap-1')}>
         <span className={tw('type-body-small text-secondary')}>
