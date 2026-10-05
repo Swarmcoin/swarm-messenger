@@ -1,15 +1,16 @@
 <!doctype html>
-<!-- SWARM Messenger, Wallet pane with the SWM price (PD-5, 2026-10-05): state "off".
-     Static markup of ts/components/SwarmWalletPane.dom.tsx rendered with
-     renderToStaticMarkup and the real English strings; light theme left, dark
-     theme right. The stylesheets are the app's own, built by
-     `pnpm run generate` (stylesheets/*.css are not in git). Fixture data:
-     the spec's reading (specs/PRICE-DISPLAY.md 2.1), an 11 132.58 SWM balance
-     and a placeholder address. -->
+<!-- SWARM Messenger (PD-5/PD-5b, 2026-10-05): the Wallet tab, price "off".
+     Static markup of the app's components rendered with renderToStaticMarkup
+     and the real English strings; light theme left, dark theme right. The
+     stylesheets are the app's own, built by `pnpm run generate`
+     (stylesheets/*.css are not in git). Data: the SWARM price service's
+     answer of 2026-10-05 19:01 UTC (ts/test-node/swarm/fixtures/), with the
+     spec section 6.1 fields it did not send yet filled in for the picture;
+     an 11 132.58 SWM balance and a placeholder address. -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Wallet pane price: off</title>
+    <title>wallet-pane-price-off</title>
     <link rel="stylesheet" href="../../../stylesheets/manifest.css" />
     <link rel="stylesheet" href="../../../stylesheets/tailwind.css" />
     <style>
@@ -39,6 +40,7 @@
         <div
           data-testid="SwarmWalletPane"
           data-wallet-status="ready"
+          data-wallet-view="wallet"
           class="flex size-full flex-col overflow-y-auto"
         >
           <div class="mx-auto flex w-full max-w-160 flex-col gap-6 p-6">
@@ -262,6 +264,7 @@
         <div
           data-testid="SwarmWalletPane"
           data-wallet-status="ready"
+          data-wallet-view="wallet"
           class="flex size-full flex-col overflow-y-auto"
         >
           <div class="mx-auto flex w-full max-w-160 flex-col gap-6 p-6">

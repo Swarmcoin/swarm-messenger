@@ -1,15 +1,16 @@
 <!doctype html>
-<!-- SWARM Messenger, Wallet pane with the SWM price (PD-5, 2026-10-05): state "ageing".
-     Static markup of ts/components/SwarmWalletPane.dom.tsx rendered with
-     renderToStaticMarkup and the real English strings; light theme left, dark
-     theme right. The stylesheets are the app's own, built by
-     `pnpm run generate` (stylesheets/*.css are not in git). Fixture data:
-     the spec's reading (specs/PRICE-DISPLAY.md 2.1), an 11 132.58 SWM balance
-     and a placeholder address. -->
+<!-- SWARM Messenger (PD-5/PD-5b, 2026-10-05): the Wallet tab, price "ageing".
+     Static markup of the app's components rendered with renderToStaticMarkup
+     and the real English strings; light theme left, dark theme right. The
+     stylesheets are the app's own, built by `pnpm run generate`
+     (stylesheets/*.css are not in git). Data: the SWARM price service's
+     answer of 2026-10-05 19:01 UTC (ts/test-node/swarm/fixtures/), with the
+     spec section 6.1 fields it did not send yet filled in for the picture;
+     an 11 132.58 SWM balance and a placeholder address. -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Wallet pane price: ageing</title>
+    <title>wallet-pane-price-ageing</title>
     <link rel="stylesheet" href="../../../stylesheets/manifest.css" />
     <link rel="stylesheet" href="../../../stylesheets/tailwind.css" />
     <style>
@@ -39,6 +40,7 @@
         <div
           data-testid="SwarmWalletPane"
           data-wallet-status="ready"
+          data-wallet-view="wallet"
           class="flex size-full flex-col overflow-y-auto"
         >
           <div class="mx-auto flex w-full max-w-160 flex-col gap-6 p-6">
@@ -84,15 +86,14 @@
                   >≈ $⁨9,364.10⁩ USD</span
                 >
               </section>
-              <a
+              <button
+                type="button"
                 data-testid="price-card"
                 data-price-status="ageing"
-                href="https://dexscreener.com/base/0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Open the SWM/ETH pool on DexScreener"
-                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4 text-start text-primary no-underline outline-none hover:bg-surface-tertiary focus-visible:axo-focus-ring"
-                ><div class="flex items-center gap-2">
+                aria-label="Open the SWM price page"
+                class="flex w-full flex-col gap-3 rounded-lg bg-surface-secondary p-4 text-start text-primary outline-none hover:bg-surface-tertiary focus-visible:axo-focus-ring"
+              >
+                <div class="flex items-center gap-2">
                   <span
                     class="font-swarm-mono type-caption tracking-[0.12em] text-secondary uppercase"
                     >SWM price</span
@@ -122,9 +123,10 @@
                     ></span
                   ><span
                     data-testid="price-change"
+                    data-period="24h"
                     data-direction="down"
                     class="rounded-full bg-destructive-tint px-2 py-0.5 font-swarm-mono type-body-small text-destructive"
-                    >▼ ⁨3.2⁩ % 24h</span
+                    >▼ ⁨3.2⁩ % ⁨24h⁩</span
                   >
                 </div>
                 <svg
@@ -150,12 +152,12 @@
                     </linearGradient>
                   </defs>
                   <path
-                    d="M0,46 L18.67,43.86 L37.33,45.41 L56,39.43 L74.67,36.9 L93.33,34.23 L112,30.62 L130.67,31.64 L149.33,28.22 L168,25.86 L186.67,20.23 L205.33,14.2 L224,16.14 L242.67,10.38 L261.33,7.42 L280,2 L280,48 L0,48 Z"
+                    d="M0,46 L5.96,46 L11.91,46 L17.87,46 L23.83,46 L29.79,46 L35.74,46 L41.7,46 L47.66,46 L53.62,46 L59.57,46 L65.53,46 L71.49,46 L77.45,46 L83.4,46 L89.36,46 L95.32,46 L101.28,46 L107.23,46 L113.19,46 L119.15,46 L125.11,46 L131.06,35.64 L137.02,35.64 L142.98,35.64 L148.94,35.64 L154.89,35.64 L160.85,35.64 L166.81,35.64 L172.77,35.64 L178.72,35.64 L184.68,35.64 L190.64,35.64 L196.6,35.64 L202.55,35.64 L208.51,35.64 L214.47,35.64 L220.43,35.64 L226.38,35.64 L232.34,35.64 L238.3,32.82 L244.26,32.82 L250.21,16.36 L256.17,16.36 L262.13,2 L268.09,2 L274.04,2 L280,2 L280,48 L0,48 Z"
                     fill="url(#_R_ke_)"
                     stroke="none"
                   ></path>
                   <path
-                    d="M0,46 L18.67,43.86 L37.33,45.41 L56,39.43 L74.67,36.9 L93.33,34.23 L112,30.62 L130.67,31.64 L149.33,28.22 L168,25.86 L186.67,20.23 L205.33,14.2 L224,16.14 L242.67,10.38 L261.33,7.42 L280,2"
+                    d="M0,46 L5.96,46 L11.91,46 L17.87,46 L23.83,46 L29.79,46 L35.74,46 L41.7,46 L47.66,46 L53.62,46 L59.57,46 L65.53,46 L71.49,46 L77.45,46 L83.4,46 L89.36,46 L95.32,46 L101.28,46 L107.23,46 L113.19,46 L119.15,46 L125.11,46 L131.06,35.64 L137.02,35.64 L142.98,35.64 L148.94,35.64 L154.89,35.64 L160.85,35.64 L166.81,35.64 L172.77,35.64 L178.72,35.64 L184.68,35.64 L190.64,35.64 L196.6,35.64 L202.55,35.64 L208.51,35.64 L214.47,35.64 L220.43,35.64 L226.38,35.64 L232.34,35.64 L238.3,32.82 L244.26,32.82 L250.21,16.36 L256.17,16.36 L262.13,2 L268.09,2 L274.04,2 L280,2"
                     fill="none"
                     stroke-width="1.5"
                     stroke-linejoin="round"
@@ -168,9 +170,9 @@
                   data-testid="price-meta"
                   class="font-swarm-mono type-caption text-secondary"
                 >
-                  Base · Uniswap v4 · GeckoTerminal · as of ⁨06:21 PM⁩
-                </p></a
-              >
+                  Base · Uniswap v4 · GeckoTerminal · as of ⁨07:01 PM⁩
+                </p>
+              </button>
               <section
                 class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
               >
@@ -356,6 +358,7 @@
         <div
           data-testid="SwarmWalletPane"
           data-wallet-status="ready"
+          data-wallet-view="wallet"
           class="flex size-full flex-col overflow-y-auto"
         >
           <div class="mx-auto flex w-full max-w-160 flex-col gap-6 p-6">
@@ -401,15 +404,14 @@
                   >≈ $⁨9,364.10⁩ USD</span
                 >
               </section>
-              <a
+              <button
+                type="button"
                 data-testid="price-card"
                 data-price-status="ageing"
-                href="https://dexscreener.com/base/0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Open the SWM/ETH pool on DexScreener"
-                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4 text-start text-primary no-underline outline-none hover:bg-surface-tertiary focus-visible:axo-focus-ring"
-                ><div class="flex items-center gap-2">
+                aria-label="Open the SWM price page"
+                class="flex w-full flex-col gap-3 rounded-lg bg-surface-secondary p-4 text-start text-primary outline-none hover:bg-surface-tertiary focus-visible:axo-focus-ring"
+              >
+                <div class="flex items-center gap-2">
                   <span
                     class="font-swarm-mono type-caption tracking-[0.12em] text-secondary uppercase"
                     >SWM price</span
@@ -439,9 +441,10 @@
                     ></span
                   ><span
                     data-testid="price-change"
+                    data-period="24h"
                     data-direction="down"
                     class="rounded-full bg-destructive-tint px-2 py-0.5 font-swarm-mono type-body-small text-destructive"
-                    >▼ ⁨3.2⁩ % 24h</span
+                    >▼ ⁨3.2⁩ % ⁨24h⁩</span
                   >
                 </div>
                 <svg
@@ -467,12 +470,12 @@
                     </linearGradient>
                   </defs>
                   <path
-                    d="M0,46 L18.67,43.86 L37.33,45.41 L56,39.43 L74.67,36.9 L93.33,34.23 L112,30.62 L130.67,31.64 L149.33,28.22 L168,25.86 L186.67,20.23 L205.33,14.2 L224,16.14 L242.67,10.38 L261.33,7.42 L280,2 L280,48 L0,48 Z"
+                    d="M0,46 L5.96,46 L11.91,46 L17.87,46 L23.83,46 L29.79,46 L35.74,46 L41.7,46 L47.66,46 L53.62,46 L59.57,46 L65.53,46 L71.49,46 L77.45,46 L83.4,46 L89.36,46 L95.32,46 L101.28,46 L107.23,46 L113.19,46 L119.15,46 L125.11,46 L131.06,35.64 L137.02,35.64 L142.98,35.64 L148.94,35.64 L154.89,35.64 L160.85,35.64 L166.81,35.64 L172.77,35.64 L178.72,35.64 L184.68,35.64 L190.64,35.64 L196.6,35.64 L202.55,35.64 L208.51,35.64 L214.47,35.64 L220.43,35.64 L226.38,35.64 L232.34,35.64 L238.3,32.82 L244.26,32.82 L250.21,16.36 L256.17,16.36 L262.13,2 L268.09,2 L274.04,2 L280,2 L280,48 L0,48 Z"
                     fill="url(#_R_ke_)"
                     stroke="none"
                   ></path>
                   <path
-                    d="M0,46 L18.67,43.86 L37.33,45.41 L56,39.43 L74.67,36.9 L93.33,34.23 L112,30.62 L130.67,31.64 L149.33,28.22 L168,25.86 L186.67,20.23 L205.33,14.2 L224,16.14 L242.67,10.38 L261.33,7.42 L280,2"
+                    d="M0,46 L5.96,46 L11.91,46 L17.87,46 L23.83,46 L29.79,46 L35.74,46 L41.7,46 L47.66,46 L53.62,46 L59.57,46 L65.53,46 L71.49,46 L77.45,46 L83.4,46 L89.36,46 L95.32,46 L101.28,46 L107.23,46 L113.19,46 L119.15,46 L125.11,46 L131.06,35.64 L137.02,35.64 L142.98,35.64 L148.94,35.64 L154.89,35.64 L160.85,35.64 L166.81,35.64 L172.77,35.64 L178.72,35.64 L184.68,35.64 L190.64,35.64 L196.6,35.64 L202.55,35.64 L208.51,35.64 L214.47,35.64 L220.43,35.64 L226.38,35.64 L232.34,35.64 L238.3,32.82 L244.26,32.82 L250.21,16.36 L256.17,16.36 L262.13,2 L268.09,2 L274.04,2 L280,2"
                     fill="none"
                     stroke-width="1.5"
                     stroke-linejoin="round"
@@ -485,9 +488,9 @@
                   data-testid="price-meta"
                   class="font-swarm-mono type-caption text-secondary"
                 >
-                  Base · Uniswap v4 · GeckoTerminal · as of ⁨06:21 PM⁩
-                </p></a
-              >
+                  Base · Uniswap v4 · GeckoTerminal · as of ⁨07:01 PM⁩
+                </p>
+              </button>
               <section
                 class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
               >

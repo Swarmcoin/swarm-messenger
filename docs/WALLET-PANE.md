@@ -21,7 +21,7 @@ app's main process, opened from the same 24 words the account was created with.
 | Receive      | The `swm1…` address in JetBrains Mono, a **Copy address** button and a QR code, with one sentence saying an address is not secret but links the payments made to it.                                                                                                                                         |
 | Send         | To, amount in SWM, optional memo. **Review payment** asks the wallet for a quote and sends nothing. The confirmation screen names the address, amount, fee and total, warns that a payment cannot be undone, and only its **Send X SWM** button sends. The result shows the txid and a link to the explorer. |
 | Transactions | Newest first: received / sent / unknown (an unknown kind is never shown as income), amount, block or "Not yet in a block", memo, and the txid linked to the explorer.                                                                                                                                        |
-| SWM price    | Since 0.1.5 (PD-5), SWARM Mainnet only: `≈ $… USD` under the balance and under the amount being sent, and a price card (price, 24 h change, 48 h sparkline, source, age) that opens the pool's DexScreener page. "Show SWM price (USD)" at the bottom of the pane switches it off. Section 13.               |
+| SWM price    | Since 0.1.5 (PD-5), SWARM Mainnet only: `≈ $… USD` under the balance and under the amount being sent, and a price card (price, 24 h change, 48 h sparkline, source, age) that opens the price page (section 13.1). "Show SWM price (USD)" at the bottom of the pane switches it off. Section 13.             |
 
 Explorer links: `https://mainnet.explore.swarm.green/transactions/<txid>` on mainnet,
 `https://explore.swarm.green/transactions/<txid>` on testnet. Both checked by hand on 2026-09-27:
@@ -209,7 +209,7 @@ A build without the addon starts and chats normally; the pane says the wallet co
   testnet states, the explorer link scheme, and every refusal sentence. Since 0.1.5 also the price:
   fresh, ageing, stale, unavailable, waiting, off, not mainnet, offline, the change chips, no link
   without a DexScreener page, and the send form's `≈ $` line.
-- `swarmPrice_test.std.ts`, `swarmPriceRelay_test.std.ts`, `swarmPriceIpc_test.node.ts` (0.1.5) -
+- `swarmPrice_test.std.ts`, `swarmPriceRelay_test.node.ts`, `swarmPriceIpc_test.node.ts` (0.1.5) -
   section 13.
 
 Wave 2 (payments inside a chat):
@@ -451,9 +451,10 @@ back with **Pay W2 Alice**.
 ## 13. The SWM price (0.1.5, PD-5)
 
 **Status.** Implemented and tested by node tests on 2026-10-05 (branch `price-display/messenger`).
-Not yet seen in a running app, and not against the live price service, which did not answer yet
-(404 at 18:23 UTC that day); the tests use the fixture of `specs/PRICE-DISPLAY.md` section 2.1.
-Not reviewed.
+Not yet seen in a running app. The price service answered 404 at 18:23 UTC and went live at
+19:00 UTC that day; its answer of 19:01 UTC is saved as a test fixture
+(`ts/test-node/swarm/fixtures/`), and the tests also use the fixture of `specs/PRICE-DISPLAY.md`
+section 2.1. The price page (section 13.1, PD-5b) was added the same evening. Not reviewed.
 
 **Data flow.**
 
@@ -499,9 +500,8 @@ main process
   ageing, grey stale), the price in Sora (four significant digits under 1 USD, two decimals from
   1 USD), `▲`/`▼`/neutral 24 h change, a 48 h sparkline (inline SVG, brand stroke 1.5 px, gradient
   fill, classes only), `Base · Uniswap v4 · GeckoTerminal · updated 12 s ago`, an ⓘ with "Indicative
-  price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote." It is
-  an `<a target="_blank">` to the DexScreener page, opened in the system browser by the main
-  window's window-open handler (no confirmation dialog: the app has none for external links).
+  price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote." Since
+  PD-5b it is a button that opens the price page (section 13.1); the listing links moved there.
 - **SWARM Mainnet only.** On the testnet (developer builds) there is no request, no card and no
   switch.
 
@@ -510,14 +510,14 @@ to the SWARM price service at `wallet.swarm.green`. Nothing about the wallet goe
 address, no balance, no identifier, no cookie; the request is the same for every user. The service
 sees the computer's IP address and the time, as any web server does. "Show SWM price (USD)" at the
 bottom of the Wallet pane (default on; `config.json` `swarmShowPrice`) stops every price request;
-nothing is asked of GeckoTerminal or DexScreener directly. Opening the card shows DexScreener, in the
-browser, that this pool was looked at - only on a click. Logs carry categories only ("price: the
+nothing is asked of GeckoTerminal or DexScreener directly. Opening a source row on the price page
+shows GeckoTerminal or DexScreener, in the browser, that this pool was looked at - only on a click. Logs carry categories only ("price: the
 price service gave nothing usable (schema); keeping the last reading"), never a price, an address or
 an amount.
 
 **Tests.** `swarmPrice_test.std.ts` (exact fiat value incl. the spec's examples, half-up, values a
 float cannot hold; price formats; change; freshness boundaries; sparkline; pool URLs),
-`swarmPriceRelay_test.std.ts` (fake fetch: the request's shape, the fixture, malformed JSON, wrong
+`swarmPriceRelay_test.node.ts` (fake fetch: the request's shape, the fixture, malformed JSON, wrong
 schema/symbol/quote/price, wrong content type, error statuses, 64 KiB declared and streamed, the
 deadline, network failure; the tracker with a fake clock: one request per minute under a 3 s poll,
 none without asks, none when off or not on mainnet, failures keep the reading and age it, the
@@ -525,6 +525,50 @@ service's stale flag, the disk throttle, a kept reading, an answer after the swi
 `swarmPriceIpc_test.node.ts` (the sender gate, the payloads, that every channel goes through
 `#handle` and the URL is in one main-side file), `SwarmWalletPane_test.preload.tsx`.
 
-**Pictures.** `docs/screenshots/price/wallet-pane-price-{fresh,ageing,off}.html` - the pane's static
-markup with the app's stylesheets (built by `pnpm run generate`), light and dark side by side - and
-PNGs of them from headless Edge. Rendered from fixtures, not from the running app.
+**Pictures.** `docs/screenshots/price/wallet-pane-price-{fresh,ageing,off}.html` and
+`price-page-{fresh,30d,off}.html` - static markup of the components with the app's stylesheets
+(built by `pnpm run generate`), light and dark side by side - and PNGs of them from headless Edge.
+Rendered from the saved live answer (with the section 6.1 fields it did not send yet filled in for
+the picture), not from the running app.
+
+### 13.1 The price page (PD-5b)
+
+Owner order 2026-10-05 (`specs/PRICE-DISPLAY.md` section 6): a page just for the price. In this app
+it is a second view of the Wallet tab (`ts/components/SwarmPricePage.dom.tsx`). The pane keeps
+`wallet` | `price`; the price card is a button that opens the page, **‹ Back** returns, and each view
+starts at its top. The page exists only for a ready wallet on SWARM Mainnet; anywhere else the pane
+shows the wallet. It reads the same `swarm-wallet:price-get` answer as the card - no new channel,
+no new request, the same once-a-minute cadence.
+
+Top to bottom:
+
+| Part         | What                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Header       | Back, `SWM price`, the freshness dot, `updated 12 s ago` / `as of hh:mm`.                                                                                                                                                                                                                                                                                                                                       |
+| Price        | The price in Sora 600, 48 px, `USD`; the price in ETH (three significant digits, `0.000196 ETH`); chips `1h`, `6h`, `24h` (▲ green / ▼ red / neutral). Greyed when ageing or stale.                                                                                                                                                                                                                             |
+| Chart        | Inline SVG, classes only: range buttons `24h` (last 24 hourly closes) · `48h` (all) · `30d` (daily closes); a range without two values is disabled. Three faint guides, gradient fill, the latest value at the line's end, the lowest and highest labelled unless the latest says it. Moving the pointer shows that value and its time above the chart (otherwise the latest); the chart itself takes no focus. |
+| Your balance | The whole balance (confirmed and pending) and `≈ $… USD`.                                                                                                                                                                                                                                                                                                                                                       |
+| Pool         | Liquidity, 24 h volume, fully diluted value, buys / sells 24 h, pool fee, network; `—` for a figure the service did not send.                                                                                                                                                                                                                                                                                   |
+| Sources      | GeckoTerminal and DexScreener, each with the price the service last read from it and ✓, or greyed with `—`; each row a link to the pool's page on `www.geckoterminal.com` / `dexscreener.com` (main-side schema holds the URLs to those hosts). Pool id and token contract shortened (`0xf1e0…4599`, `0xf904…043B`) with **Copy**, as the Receive card copies an address.                                       |
+| Note         | "Indicative price … Not a quote." and the same "Show SWM price (USD)" switch as at the bottom of the wallet view.                                                                                                                                                                                                                                                                                               |
+
+With the switch off the page shows only the note and the switch. Waiting or unavailable: one line
+saying so, the note and the switch.
+
+**Schema.** The service's optional section 6.1 fields are accepted and handed on in the reading:
+`price_eth` (decimal string), `change_pct.h1`/`h6`, `hourly_from_unix`, `daily_usd` (up to 60
+numbers), `daily_from_unix`, `transactions_24h` (`{ buys, sells }`), `liquidity_usd`,
+`volume_24h_usd`, `fdv_usd`, `sources[]` (`id`, `ok`, `price_usd`, `fetched_unix`), `pool.id`
+(32-byte hex), `pool.token` (20-byte hex), `pool.fee_pct`, `pool.created_unix`,
+`pool.geckoterminal_url` (only a pool page on `https://www.geckoterminal.com`). Each one that does
+not fit is dropped alone; the price stays. The live answer of 2026-10-05 19:01 UTC did not carry
+`daily_usd`, `hourly_from_unix`, `transactions_24h` or `pool.fee_pct` yet: the 30d button is then
+disabled, the readout shows values without times, and those figures show `—`.
+
+**Tests.** `SwarmWalletPane_test.preload.tsx` (the view and Back; everything for a fresh price;
+the range switch drawing three different series; the pointer readout; a range without data
+disabled; no data at all; extreme labels; missing figures; links only on the fixed hosts; off;
+unavailable; ageing; no page off mainnet or before the wallet is ready), `swarmPriceRelay_test.node.ts`
+(the section 6.1 fields, a field that does not fit dropped alone, the saved live answer),
+`swarmPrice_test.std.ts` (ETH format, market figures, shortened ids, range series, chart geometry,
+pointer index, GeckoTerminal URLs).

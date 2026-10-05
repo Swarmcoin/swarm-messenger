@@ -851,8 +851,7 @@ shows it on SWARM Mainnet, from the SWARM price service only.
 
 **What a person sees.** Under the balance, `≈ $9,364.10 USD`; a price card
 below the balance with the price, the 24-hour change, a 48-hour line, where the
-price comes from and how old it is, which opens the pool's page on DexScreener
-in the browser; `≈ $… USD` under the amount while a payment is typed; and at the
+price comes from and how old it is, which opens the price page (below); `≈ $… USD` under the amount while a payment is typed; and at the
 bottom of the tab "Show SWM price (USD)" with one paragraph on what it asks for
 and from where. A price older than 5 minutes is greyed and says "as of hh:mm";
 after an hour without a good reading it says "Price unavailable".
@@ -867,14 +866,32 @@ after an hour without a good reading it says "Price unavailable".
 | Renderer (`ts/services/swarmWallet.preload.ts`, `ts/state/smart/SwarmWalletTab.preload.tsx`)  | `getSwarmPrice`, `setSwarmPriceEnabled` (zod-parsed); asked with the wallet state every 3 s while the tab is shown.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | Pane (`ts/components/SwarmPrice.dom.tsx`, `SwarmWalletPane.dom.tsx`, `SwarmSendFlow.dom.tsx`) | The card, the `≈ $` lines (bigint from zatoshi and the decimal price, half-up to the cent; `ts/util/swarm/swarmPrice.std.ts`) and the switch. Light and dark through the app's tokens; the sparkline is inline SVG styled by classes.                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | Strings                                                                                       | `icu:SwarmWallet__price--*` (17), English only (other languages fall back to English).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Tests                                                                                         | `swarmPrice_test.std.ts`, `swarmPriceRelay_test.std.ts`, `swarmPriceIpc_test.node.ts`, `SwarmWalletPane_test.preload.tsx`: `test-node:swarm` 336 → 402 passing.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Tests                                                                                         | `swarmPrice_test.std.ts`, `swarmPriceRelay_test.node.ts`, `swarmPriceIpc_test.node.ts`, `SwarmWalletPane_test.preload.tsx`: `test-node:swarm` 336 → 402 passing (424 with the price page).                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 Details, the data flow and the privacy paragraph: `docs/WALLET-PANE.md`
 section 13. Pictures from fixtures: `docs/screenshots/price/`.
 
-**Not changed, noted.** The price service was not live yet when this was
-written, so the card has only been seen against the specification's fixture.
-External links open without a confirmation dialog, as every link in the app
+**The price page (PD-5b, same evening).** The owner then asked for a page just
+for the price (`specs/PRICE-DISPLAY.md` section 6). The Wallet tab gained a
+second view, `ts/components/SwarmPricePage.dom.tsx`: the card opens it, Back
+returns. Header with freshness; the price large, in ETH, and its 1h / 6h / 24h
+change; a taller chart with 24h / 48h / 30d ranges, the lowest, highest and
+latest values and a pointer readout; the balance and its USD value; liquidity,
+volume, fully diluted value, buys / sells, pool fee and network; the two sources
+with their readings, each a link to its pool page (the card's DexScreener link
+moved here, GeckoTerminal joined it); pool id and token contract with Copy; the
+note and the same switch. Off: only the note and the switch. The main-side
+schema accepts the service's optional section 6.1 fields and drops any that does
+not fit on its own; no new channel and no new request. 31 more strings
+(`icu:SwarmWallet__price--page-*`; `--open-pool` became `--open-page`; the
+change chips take a period). Tests: page states, ranges, readout, schema, and
+the live service's answer of 19:01 UTC saved as a fixture; `test-node:swarm`
+402 → 424 passing. Details: `docs/WALLET-PANE.md` section 13.1.
+
+**Not changed, noted.** The price service went live at 19:00 UTC that day; the
+card and the page have been seen against its saved answer and the
+specification's fixture, not in the running app. The service did not send the
+daily series, start hours, buys / sells or the pool fee yet. External links open without a confirmation dialog, as every link in the app
 does. No price in the chat's payment dialog ("Pay with SWARM"), only in the
 Wallet tab.
 

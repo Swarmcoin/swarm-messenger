@@ -1,0 +1,933 @@
+<!doctype html>
+<!-- SWARM Messenger (PD-5/PD-5b, 2026-10-05): the price page, fresh, 24h range, pointer on a value.
+     Static markup of the app's components rendered with renderToStaticMarkup
+     and the real English strings; light theme left, dark theme right. The
+     stylesheets are the app's own, built by `pnpm run generate`
+     (stylesheets/*.css are not in git). Data: the SWARM price service's
+     answer of 2026-10-05 19:01 UTC (ts/test-node/swarm/fixtures/), with the
+     spec section 6.1 fields it did not send yet filled in for the picture;
+     an 11 132.58 SWM balance and a placeholder address. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>price-page-fresh</title>
+    <link rel="stylesheet" href="../../../stylesheets/manifest.css" />
+    <link rel="stylesheet" href="../../../stylesheets/tailwind.css" />
+    <style>
+      html,
+      body {
+        height: auto !important;
+        width: auto !important;
+        margin: 0;
+      }
+      .pd5-row {
+        display: flex;
+        gap: 0;
+        align-items: stretch;
+      }
+      .pd5-col {
+        width: 680px;
+        height: auto;
+      }
+      .pd5-col > div {
+        height: auto !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="pd5-row">
+      <div class="pd5-col light-theme bg-surface-primary text-primary">
+        <div class="flex size-full flex-col">
+          <div class="mx-auto flex w-full max-w-160 flex-col gap-6 p-6">
+            <div
+              data-testid="price-page"
+              data-price-status="fresh"
+              class="flex flex-col gap-6"
+            >
+              <header class="flex flex-col gap-3">
+                <div>
+                  <button
+                    type="button"
+                    class="relative inline-flex max-w-full min-w-12 items-center-safe justify-center-safe rounded-full bg-primary px-2 py-1 type-body-small font-medium text-primary focus-visible:axo-focus-ring not-aria-disabled:active:bg-primary-pressed data-[axo-discouraged=true]:text-disabled forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:focus:border-[Highlight] forced-colors:aria-disabled:text-[GrayText] forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]"
+                  >
+                    <span
+                      class="flex shrink grow items-center-safe justify-center-safe gap-1 overflow-hidden"
+                      ><span class="min-w-0 shrink grow truncate"
+                        >‹ Back</span
+                      ></span
+                    >
+                  </button>
+                </div>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <h1 class="type-title-large text-primary">SWM price</h1>
+                  <span class="flex items-center gap-2"
+                    ><span
+                      data-testid="price-page-freshness"
+                      data-freshness="fresh"
+                      aria-hidden="true"
+                      class="size-2 rounded-full bg-(--axo-color-brand-primary)"
+                    ></span
+                    ><span
+                      data-testid="price-page-updated"
+                      class="font-swarm-mono type-caption text-secondary"
+                      >updated 12 s ago</span
+                    ></span
+                  >
+                </div>
+              </header>
+              <section
+                data-testid="price-page-price"
+                class="flex flex-col gap-2"
+              >
+                <div class="flex items-baseline gap-2 text-primary">
+                  <span
+                    data-testid="price-page-usd"
+                    class="font-display text-[48px]/14 font-semibold"
+                    >$0.8411</span
+                  ><span class="font-swarm-mono type-body-medium">USD</span>
+                </div>
+                <span
+                  data-testid="price-page-eth"
+                  class="font-swarm-mono type-body-small text-secondary"
+                  >⁨0.000196⁩ ETH</span
+                >
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    data-testid="price-change"
+                    data-period="1h"
+                    data-direction="flat"
+                    class="rounded-full bg-secondary px-2 py-0.5 font-swarm-mono type-body-small text-secondary"
+                    >⁨0.0⁩ % ⁨1h⁩</span
+                  ><span
+                    data-testid="price-change"
+                    data-period="6h"
+                    data-direction="up"
+                    class="rounded-full bg-affirmative-tint px-2 py-0.5 font-swarm-mono type-body-small text-affirmative"
+                    >▲ ⁨24.6⁩ % ⁨6h⁩</span
+                  ><span
+                    data-testid="price-change"
+                    data-period="24h"
+                    data-direction="up"
+                    class="rounded-full bg-affirmative-tint px-2 py-0.5 font-swarm-mono type-body-small text-affirmative"
+                    >▲ ⁨28.8⁩ % ⁨24h⁩</span
+                  >
+                </div>
+              </section>
+              <section
+                data-testid="price-chart"
+                data-range="24h"
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div role="group" aria-label="Chart range" class="flex gap-1">
+                    <button
+                      type="button"
+                      data-testid="price-range-24h"
+                      aria-pressed="true"
+                      class="rounded-full bg-secondary px-3 py-1 font-swarm-mono type-body-small text-primary outline-none focus-visible:axo-focus-ring disabled:text-disabled"
+                    >
+                      24h</button
+                    ><button
+                      type="button"
+                      data-testid="price-range-48h"
+                      aria-pressed="false"
+                      class="rounded-full px-3 py-1 font-swarm-mono type-body-small text-secondary outline-none focus-visible:axo-focus-ring enabled:hover:bg-primary disabled:text-disabled"
+                    >
+                      48h</button
+                    ><button
+                      type="button"
+                      data-testid="price-range-30d"
+                      aria-pressed="false"
+                      class="rounded-full px-3 py-1 font-swarm-mono type-body-small text-secondary outline-none focus-visible:axo-focus-ring enabled:hover:bg-primary disabled:text-disabled"
+                    >
+                      30d
+                    </button>
+                  </div>
+                  <span
+                    data-testid="price-chart-readout"
+                    aria-live="polite"
+                    class="font-swarm-mono type-body-small text-secondary"
+                    >$⁨0.6361⁩ · ⁨Oct 5 11:00 AM⁩</span
+                  >
+                </div>
+                <span class="sr-only">SWM price chart</span
+                ><svg
+                  data-testid="price-chart-svg"
+                  aria-hidden="true"
+                  viewBox="0 0 560 200"
+                  class="h-auto w-full text-(--axo-color-brand-primary)"
+                >
+                  <defs>
+                    <linearGradient id="_R_a_" x1="0" y1="0" x2="0" y2="1">
+                      <stop
+                        offset="0"
+                        stop-color="currentColor"
+                        stop-opacity="0.3"
+                      ></stop>
+                      <stop
+                        offset="1"
+                        stop-color="currentColor"
+                        stop-opacity="0"
+                      ></stop>
+                    </linearGradient>
+                  </defs>
+                  <line
+                    x1="0"
+                    x2="468"
+                    y1="14"
+                    y2="14"
+                    stroke-width="1"
+                    class="stroke-primary"
+                  ></line>
+                  <line
+                    x1="0"
+                    x2="468"
+                    y1="100"
+                    y2="100"
+                    stroke-width="1"
+                    class="stroke-primary"
+                  ></line>
+                  <line
+                    x1="0"
+                    x2="468"
+                    y1="186"
+                    y2="186"
+                    stroke-width="1"
+                    class="stroke-primary"
+                  ></line>
+                  <path
+                    d="M0,186 L20.35,186 L40.7,186 L61.04,186 L81.39,186 L101.74,186 L122.09,186 L142.43,186 L162.78,186 L183.13,186 L203.48,186 L223.83,186 L244.17,186 L264.52,186 L284.87,186 L305.22,186 L325.57,171.59 L345.91,171.59 L366.26,87.4 L386.61,87.4 L406.96,14 L427.3,14 L447.65,14 L468,14 L468,186 L0,186 Z"
+                    fill="url(#_R_a_)"
+                    stroke="none"
+                  ></path>
+                  <path
+                    data-testid="price-chart-line"
+                    d="M0,186 L20.35,186 L40.7,186 L61.04,186 L81.39,186 L101.74,186 L122.09,186 L142.43,186 L162.78,186 L183.13,186 L203.48,186 L223.83,186 L244.17,186 L264.52,186 L284.87,186 L305.22,186 L325.57,171.59 L345.91,171.59 L366.26,87.4 L386.61,87.4 L406.96,14 L427.3,14 L447.65,14 L468,14"
+                    fill="none"
+                    stroke-width="2"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                    class="stroke-(--axo-color-brand-primary)"
+                  ></path>
+                  <line
+                    data-testid="price-chart-hover"
+                    x1="305.22"
+                    x2="305.22"
+                    y1="14"
+                    y2="186"
+                    stroke-width="1"
+                    class="stroke-tertiary"
+                  ></line>
+                  <circle
+                    cx="305.22"
+                    cy="186"
+                    r="4"
+                    class="fill-(--axo-color-brand-primary)"
+                  ></circle>
+                  <text
+                    data-testid="price-chart-latest"
+                    x="478"
+                    y="18"
+                    class="fill-(--axo-color-label-primary) font-swarm-mono text-[13px]"
+                  >
+                    $0.8411
+                  </text>
+                  <text
+                    data-testid="price-chart-min"
+                    x="478"
+                    y="190"
+                    class="fill-(--axo-color-label-secondary) font-swarm-mono text-[12px]"
+                  >
+                    $0.6361
+                  </text>
+                </svg>
+              </section>
+              <section
+                data-testid="price-page-balance"
+                class="flex flex-col gap-1 gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <h2 class="type-title-small text-primary">Your balance</h2>
+                <span class="type-title-medium"
+                  ><span class="font-swarm-mono text-primary"
+                    >⁨11 132.58000000⁩ SWM</span
+                  ></span
+                ><span
+                  data-testid="price-page-balance-fiat"
+                  data-price-dimmed="false"
+                  class="block font-swarm-mono type-body-medium text-secondary"
+                  >≈ $⁨9,364.10⁩ USD</span
+                >
+              </section>
+              <section
+                data-testid="price-page-stats"
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <h2 class="type-title-small text-primary">Pool</h2>
+                <dl class="grid grid-cols-2 gap-x-6 gap-y-3">
+                  <div class="flex flex-col gap-0.5">
+                    <dt class="type-body-small text-secondary">Liquidity</dt>
+                    <dd
+                      data-testid="price-stat-liquidity"
+                      class="font-swarm-mono type-body-medium text-primary"
+                    >
+                      $⁨3,770⁩
+                    </dd>
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <dt class="type-body-small text-secondary">24 h volume</dt>
+                    <dd
+                      data-testid="price-stat-volume"
+                      class="font-swarm-mono type-body-medium text-primary"
+                    >
+                      $⁨328.52⁩
+                    </dd>
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <dt class="type-body-small text-secondary">
+                      Fully diluted value
+                    </dt>
+                    <dd
+                      data-testid="price-stat-fdv"
+                      class="font-swarm-mono type-body-medium text-primary"
+                    >
+                      $⁨8,411⁩
+                    </dd>
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <dt class="type-body-small text-secondary">
+                      Buys / sells 24 h
+                    </dt>
+                    <dd
+                      data-testid="price-stat-txns"
+                      class="font-swarm-mono type-body-medium text-primary"
+                    >
+                      9 / 0
+                    </dd>
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <dt class="type-body-small text-secondary">Pool fee</dt>
+                    <dd
+                      data-testid="price-stat-fee"
+                      class="font-swarm-mono type-body-medium text-primary"
+                    >
+                      ⁨0.9⁩ %
+                    </dd>
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <dt class="type-body-small text-secondary">Network</dt>
+                    <dd
+                      data-testid="price-stat-network"
+                      class="font-swarm-mono type-body-medium text-primary"
+                    >
+                      Base
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+              <section
+                data-testid="price-page-sources"
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <h2 class="type-title-small text-primary">Sources</h2>
+                <ul class="flex flex-col gap-1">
+                  <li
+                    data-testid="price-source-geckoterminal"
+                    data-source-ok="true"
+                  >
+                    <a
+                      href="https://www.geckoterminal.com/base/pools/0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599"
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Open ⁨GeckoTerminal⁩ in the browser"
+                      class="flex items-center gap-3 rounded-md px-2 py-1.5 text-primary no-underline outline-none hover:bg-primary focus-visible:axo-focus-ring"
+                      ><span class="grow type-body-medium">GeckoTerminal</span
+                      ><span class="font-swarm-mono type-body-medium"
+                        >$0.8411</span
+                      ><span
+                        role="img"
+                        aria-label="Read by the SWARM price service"
+                        class="w-4 text-center type-body-medium text-affirmative"
+                        >✓</span
+                      ></a
+                    >
+                  </li>
+                  <li
+                    data-testid="price-source-dexscreener"
+                    data-source-ok="true"
+                  >
+                    <a
+                      href="https://dexscreener.com/base/0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599"
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Open ⁨DexScreener⁩ in the browser"
+                      class="flex items-center gap-3 rounded-md px-2 py-1.5 text-primary no-underline outline-none hover:bg-primary focus-visible:axo-focus-ring"
+                      ><span class="grow type-body-medium">DexScreener</span
+                      ><span class="font-swarm-mono type-body-medium"
+                        >$0.8602</span
+                      ><span
+                        role="img"
+                        aria-label="Read by the SWARM price service"
+                        class="w-4 text-center type-body-medium text-affirmative"
+                        >✓</span
+                      ></a
+                    >
+                  </li>
+                </ul>
+                <div
+                  data-testid="price-page-pool"
+                  class="flex items-center gap-3 px-2 text-primary"
+                >
+                  <span class="grow type-body-medium">Pool</span
+                  ><code
+                    title="0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599"
+                    class="font-swarm-mono type-body-small select-text"
+                    >0xf1e0…4599</code
+                  ><button
+                    type="button"
+                    class="relative inline-flex max-w-full min-w-12 items-center-safe justify-center-safe rounded-full bg-primary px-2 py-1 type-body-small font-medium text-primary focus-visible:axo-focus-ring not-aria-disabled:active:bg-primary-pressed data-[axo-discouraged=true]:text-disabled forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:focus:border-[Highlight] forced-colors:aria-disabled:text-[GrayText] forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]"
+                  >
+                    <span
+                      class="flex shrink grow items-center-safe justify-center-safe gap-1 overflow-hidden"
+                      ><span class="min-w-0 shrink grow truncate"
+                        >Copy</span
+                      ></span
+                    >
+                  </button>
+                </div>
+                <div
+                  data-testid="price-page-token"
+                  class="flex items-center gap-3 px-2 text-primary"
+                >
+                  <span class="grow type-body-medium">Token</span
+                  ><code
+                    title="0xf904C14d21bEF5b8a5345a666C77C9cc2A24043B"
+                    class="font-swarm-mono type-body-small select-text"
+                    >0xf904…043B</code
+                  ><button
+                    type="button"
+                    class="relative inline-flex max-w-full min-w-12 items-center-safe justify-center-safe rounded-full bg-primary px-2 py-1 type-body-small font-medium text-primary focus-visible:axo-focus-ring not-aria-disabled:active:bg-primary-pressed data-[axo-discouraged=true]:text-disabled forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:focus:border-[Highlight] forced-colors:aria-disabled:text-[GrayText] forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]"
+                  >
+                    <span
+                      class="flex shrink grow items-center-safe justify-center-safe gap-1 overflow-hidden"
+                      ><span class="min-w-0 shrink grow truncate"
+                        >Copy</span
+                      ></span
+                    >
+                  </button>
+                </div>
+              </section>
+              <section
+                data-testid="price-page-note"
+                class="flex flex-col gap-4"
+              >
+                <p class="type-body-small text-secondary">
+                  Indicative price from the SWM/ETH pool on Base. The pool is
+                  small; small trades move it. Not a quote.
+                </p>
+                <section
+                  data-testid="price-setting"
+                  class="flex flex-col gap-2 rounded-lg bg-surface-secondary p-4"
+                >
+                  <div class="flex items-center gap-3">
+                    <span id="_R_b_" class="grow type-body-medium text-primary"
+                      >Show SWM price (USD)</span
+                    ><button
+                      type="button"
+                      role="switch"
+                      aria-checked="true"
+                      data-state="checked"
+                      value="on"
+                      aria-labelledby="_R_b_"
+                      class="group relative z-0 flex h-[18px] w-8 items-center overflow-hidden rounded-full border border-secondary bg-primary inset-shadow-on-color focus-visible:axo-focus-ring not-data-disabled:active:bg-primary-pressed data-disabled:bg-control"
+                    >
+                      <span
+                        class="absolute inset-y-0 w-5.5 -translate-x-3.5 rounded-s-full bg-accent opacity-0 transition-all duration-200 ease-out-cubic group-not-data-disabled:group-active:bg-accent-pressed group-data-disabled:w-7.5 group-data-disabled:rounded-full group-data-[state=checked]:translate-x-0 group-data-[state=checked]:opacity-100 group-data-disabled:group-data-[state=checked]:opacity-25 rtl:translate-x-3.5 forced-colors:bg-[AccentColor] forced-colors:group-data-disabled:bg-[GrayText]"
+                      ></span
+                      ><span
+                        class="invisible absolute inset-s-0.5 z-0 text-[12px] forced-color-adjust-none forced-colors:visible forced-colors:text-[AccentColorText]"
+                        ><span
+                          aria-hidden="true"
+                          class="font-symbols text-inherit forced-color-adjust-none select-none"
+                          ></span
+                        ></span
+                      ><span
+                        data-state="checked"
+                        class="z-10 block size-4 rounded-full bg-(--axo-color-label-primary-oncolor) shadow-[0.5px_0_0.5px_0.5px,-0.5px_0_0.5px_0.5px] shadow-[#000]/12 transition-all duration-200 ease-out-cubic data-disabled:bg-(--axo-color-label-disabled-oncolor) data-[state=checked]:translate-x-3.5 rtl:data-[state=checked]:-translate-x-3.5 forced-colors:border forced-colors:data-disabled:bg-[ButtonFace]"
+                      ></span></button
+                    ><input
+                      type="checkbox"
+                      aria-hidden="true"
+                      tabindex="-1"
+                      style="
+                        position: absolute;
+                        pointer-events: none;
+                        opacity: 0;
+                        margin: 0;
+                        transform: translateX(-100%);
+                      "
+                      checked=""
+                      value="on"
+                    />
+                  </div>
+                  <p class="type-body-small text-secondary">
+                    The price comes from the SWARM price service
+                    (wallet.swarm.green), which reads the SWM/ETH pool on Base
+                    from GeckoTerminal and DexScreener. Your addresses and
+                    balances are never sent. Switch this off and the wallet
+                    makes no price requests.
+                  </p>
+                </section>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pd5-col dark-theme bg-surface-primary text-primary">
+        <div class="flex size-full flex-col">
+          <div class="mx-auto flex w-full max-w-160 flex-col gap-6 p-6">
+            <div
+              data-testid="price-page"
+              data-price-status="fresh"
+              class="flex flex-col gap-6"
+            >
+              <header class="flex flex-col gap-3">
+                <div>
+                  <button
+                    type="button"
+                    class="relative inline-flex max-w-full min-w-12 items-center-safe justify-center-safe rounded-full bg-primary px-2 py-1 type-body-small font-medium text-primary focus-visible:axo-focus-ring not-aria-disabled:active:bg-primary-pressed data-[axo-discouraged=true]:text-disabled forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:focus:border-[Highlight] forced-colors:aria-disabled:text-[GrayText] forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]"
+                  >
+                    <span
+                      class="flex shrink grow items-center-safe justify-center-safe gap-1 overflow-hidden"
+                      ><span class="min-w-0 shrink grow truncate"
+                        >‹ Back</span
+                      ></span
+                    >
+                  </button>
+                </div>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <h1 class="type-title-large text-primary">SWM price</h1>
+                  <span class="flex items-center gap-2"
+                    ><span
+                      data-testid="price-page-freshness"
+                      data-freshness="fresh"
+                      aria-hidden="true"
+                      class="size-2 rounded-full bg-(--axo-color-brand-primary)"
+                    ></span
+                    ><span
+                      data-testid="price-page-updated"
+                      class="font-swarm-mono type-caption text-secondary"
+                      >updated 12 s ago</span
+                    ></span
+                  >
+                </div>
+              </header>
+              <section
+                data-testid="price-page-price"
+                class="flex flex-col gap-2"
+              >
+                <div class="flex items-baseline gap-2 text-primary">
+                  <span
+                    data-testid="price-page-usd"
+                    class="font-display text-[48px]/14 font-semibold"
+                    >$0.8411</span
+                  ><span class="font-swarm-mono type-body-medium">USD</span>
+                </div>
+                <span
+                  data-testid="price-page-eth"
+                  class="font-swarm-mono type-body-small text-secondary"
+                  >⁨0.000196⁩ ETH</span
+                >
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    data-testid="price-change"
+                    data-period="1h"
+                    data-direction="flat"
+                    class="rounded-full bg-secondary px-2 py-0.5 font-swarm-mono type-body-small text-secondary"
+                    >⁨0.0⁩ % ⁨1h⁩</span
+                  ><span
+                    data-testid="price-change"
+                    data-period="6h"
+                    data-direction="up"
+                    class="rounded-full bg-affirmative-tint px-2 py-0.5 font-swarm-mono type-body-small text-affirmative"
+                    >▲ ⁨24.6⁩ % ⁨6h⁩</span
+                  ><span
+                    data-testid="price-change"
+                    data-period="24h"
+                    data-direction="up"
+                    class="rounded-full bg-affirmative-tint px-2 py-0.5 font-swarm-mono type-body-small text-affirmative"
+                    >▲ ⁨28.8⁩ % ⁨24h⁩</span
+                  >
+                </div>
+              </section>
+              <section
+                data-testid="price-chart"
+                data-range="24h"
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <div role="group" aria-label="Chart range" class="flex gap-1">
+                    <button
+                      type="button"
+                      data-testid="price-range-24h"
+                      aria-pressed="true"
+                      class="rounded-full bg-secondary px-3 py-1 font-swarm-mono type-body-small text-primary outline-none focus-visible:axo-focus-ring disabled:text-disabled"
+                    >
+                      24h</button
+                    ><button
+                      type="button"
+                      data-testid="price-range-48h"
+                      aria-pressed="false"
+                      class="rounded-full px-3 py-1 font-swarm-mono type-body-small text-secondary outline-none focus-visible:axo-focus-ring enabled:hover:bg-primary disabled:text-disabled"
+                    >
+                      48h</button
+                    ><button
+                      type="button"
+                      data-testid="price-range-30d"
+                      aria-pressed="false"
+                      class="rounded-full px-3 py-1 font-swarm-mono type-body-small text-secondary outline-none focus-visible:axo-focus-ring enabled:hover:bg-primary disabled:text-disabled"
+                    >
+                      30d
+                    </button>
+                  </div>
+                  <span
+                    data-testid="price-chart-readout"
+                    aria-live="polite"
+                    class="font-swarm-mono type-body-small text-secondary"
+                    >$⁨0.6361⁩ · ⁨Oct 5 11:00 AM⁩</span
+                  >
+                </div>
+                <span class="sr-only">SWM price chart</span
+                ><svg
+                  data-testid="price-chart-svg"
+                  aria-hidden="true"
+                  viewBox="0 0 560 200"
+                  class="h-auto w-full text-(--axo-color-brand-primary)"
+                >
+                  <defs>
+                    <linearGradient id="_R_a_" x1="0" y1="0" x2="0" y2="1">
+                      <stop
+                        offset="0"
+                        stop-color="currentColor"
+                        stop-opacity="0.3"
+                      ></stop>
+                      <stop
+                        offset="1"
+                        stop-color="currentColor"
+                        stop-opacity="0"
+                      ></stop>
+                    </linearGradient>
+                  </defs>
+                  <line
+                    x1="0"
+                    x2="468"
+                    y1="14"
+                    y2="14"
+                    stroke-width="1"
+                    class="stroke-primary"
+                  ></line>
+                  <line
+                    x1="0"
+                    x2="468"
+                    y1="100"
+                    y2="100"
+                    stroke-width="1"
+                    class="stroke-primary"
+                  ></line>
+                  <line
+                    x1="0"
+                    x2="468"
+                    y1="186"
+                    y2="186"
+                    stroke-width="1"
+                    class="stroke-primary"
+                  ></line>
+                  <path
+                    d="M0,186 L20.35,186 L40.7,186 L61.04,186 L81.39,186 L101.74,186 L122.09,186 L142.43,186 L162.78,186 L183.13,186 L203.48,186 L223.83,186 L244.17,186 L264.52,186 L284.87,186 L305.22,186 L325.57,171.59 L345.91,171.59 L366.26,87.4 L386.61,87.4 L406.96,14 L427.3,14 L447.65,14 L468,14 L468,186 L0,186 Z"
+                    fill="url(#_R_a_)"
+                    stroke="none"
+                  ></path>
+                  <path
+                    data-testid="price-chart-line"
+                    d="M0,186 L20.35,186 L40.7,186 L61.04,186 L81.39,186 L101.74,186 L122.09,186 L142.43,186 L162.78,186 L183.13,186 L203.48,186 L223.83,186 L244.17,186 L264.52,186 L284.87,186 L305.22,186 L325.57,171.59 L345.91,171.59 L366.26,87.4 L386.61,87.4 L406.96,14 L427.3,14 L447.65,14 L468,14"
+                    fill="none"
+                    stroke-width="2"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                    class="stroke-(--axo-color-brand-primary)"
+                  ></path>
+                  <line
+                    data-testid="price-chart-hover"
+                    x1="305.22"
+                    x2="305.22"
+                    y1="14"
+                    y2="186"
+                    stroke-width="1"
+                    class="stroke-tertiary"
+                  ></line>
+                  <circle
+                    cx="305.22"
+                    cy="186"
+                    r="4"
+                    class="fill-(--axo-color-brand-primary)"
+                  ></circle>
+                  <text
+                    data-testid="price-chart-latest"
+                    x="478"
+                    y="18"
+                    class="fill-(--axo-color-label-primary) font-swarm-mono text-[13px]"
+                  >
+                    $0.8411
+                  </text>
+                  <text
+                    data-testid="price-chart-min"
+                    x="478"
+                    y="190"
+                    class="fill-(--axo-color-label-secondary) font-swarm-mono text-[12px]"
+                  >
+                    $0.6361
+                  </text>
+                </svg>
+              </section>
+              <section
+                data-testid="price-page-balance"
+                class="flex flex-col gap-1 gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <h2 class="type-title-small text-primary">Your balance</h2>
+                <span class="type-title-medium"
+                  ><span class="font-swarm-mono text-primary"
+                    >⁨11 132.58000000⁩ SWM</span
+                  ></span
+                ><span
+                  data-testid="price-page-balance-fiat"
+                  data-price-dimmed="false"
+                  class="block font-swarm-mono type-body-medium text-secondary"
+                  >≈ $⁨9,364.10⁩ USD</span
+                >
+              </section>
+              <section
+                data-testid="price-page-stats"
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <h2 class="type-title-small text-primary">Pool</h2>
+                <dl class="grid grid-cols-2 gap-x-6 gap-y-3">
+                  <div class="flex flex-col gap-0.5">
+                    <dt class="type-body-small text-secondary">Liquidity</dt>
+                    <dd
+                      data-testid="price-stat-liquidity"
+                      class="font-swarm-mono type-body-medium text-primary"
+                    >
+                      $⁨3,770⁩
+                    </dd>
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <dt class="type-body-small text-secondary">24 h volume</dt>
+                    <dd
+                      data-testid="price-stat-volume"
+                      class="font-swarm-mono type-body-medium text-primary"
+                    >
+                      $⁨328.52⁩
+                    </dd>
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <dt class="type-body-small text-secondary">
+                      Fully diluted value
+                    </dt>
+                    <dd
+                      data-testid="price-stat-fdv"
+                      class="font-swarm-mono type-body-medium text-primary"
+                    >
+                      $⁨8,411⁩
+                    </dd>
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <dt class="type-body-small text-secondary">
+                      Buys / sells 24 h
+                    </dt>
+                    <dd
+                      data-testid="price-stat-txns"
+                      class="font-swarm-mono type-body-medium text-primary"
+                    >
+                      9 / 0
+                    </dd>
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <dt class="type-body-small text-secondary">Pool fee</dt>
+                    <dd
+                      data-testid="price-stat-fee"
+                      class="font-swarm-mono type-body-medium text-primary"
+                    >
+                      ⁨0.9⁩ %
+                    </dd>
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <dt class="type-body-small text-secondary">Network</dt>
+                    <dd
+                      data-testid="price-stat-network"
+                      class="font-swarm-mono type-body-medium text-primary"
+                    >
+                      Base
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+              <section
+                data-testid="price-page-sources"
+                class="flex flex-col gap-3 rounded-lg bg-surface-secondary p-4"
+              >
+                <h2 class="type-title-small text-primary">Sources</h2>
+                <ul class="flex flex-col gap-1">
+                  <li
+                    data-testid="price-source-geckoterminal"
+                    data-source-ok="true"
+                  >
+                    <a
+                      href="https://www.geckoterminal.com/base/pools/0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599"
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Open ⁨GeckoTerminal⁩ in the browser"
+                      class="flex items-center gap-3 rounded-md px-2 py-1.5 text-primary no-underline outline-none hover:bg-primary focus-visible:axo-focus-ring"
+                      ><span class="grow type-body-medium">GeckoTerminal</span
+                      ><span class="font-swarm-mono type-body-medium"
+                        >$0.8411</span
+                      ><span
+                        role="img"
+                        aria-label="Read by the SWARM price service"
+                        class="w-4 text-center type-body-medium text-affirmative"
+                        >✓</span
+                      ></a
+                    >
+                  </li>
+                  <li
+                    data-testid="price-source-dexscreener"
+                    data-source-ok="true"
+                  >
+                    <a
+                      href="https://dexscreener.com/base/0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599"
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Open ⁨DexScreener⁩ in the browser"
+                      class="flex items-center gap-3 rounded-md px-2 py-1.5 text-primary no-underline outline-none hover:bg-primary focus-visible:axo-focus-ring"
+                      ><span class="grow type-body-medium">DexScreener</span
+                      ><span class="font-swarm-mono type-body-medium"
+                        >$0.8602</span
+                      ><span
+                        role="img"
+                        aria-label="Read by the SWARM price service"
+                        class="w-4 text-center type-body-medium text-affirmative"
+                        >✓</span
+                      ></a
+                    >
+                  </li>
+                </ul>
+                <div
+                  data-testid="price-page-pool"
+                  class="flex items-center gap-3 px-2 text-primary"
+                >
+                  <span class="grow type-body-medium">Pool</span
+                  ><code
+                    title="0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599"
+                    class="font-swarm-mono type-body-small select-text"
+                    >0xf1e0…4599</code
+                  ><button
+                    type="button"
+                    class="relative inline-flex max-w-full min-w-12 items-center-safe justify-center-safe rounded-full bg-primary px-2 py-1 type-body-small font-medium text-primary focus-visible:axo-focus-ring not-aria-disabled:active:bg-primary-pressed data-[axo-discouraged=true]:text-disabled forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:focus:border-[Highlight] forced-colors:aria-disabled:text-[GrayText] forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]"
+                  >
+                    <span
+                      class="flex shrink grow items-center-safe justify-center-safe gap-1 overflow-hidden"
+                      ><span class="min-w-0 shrink grow truncate"
+                        >Copy</span
+                      ></span
+                    >
+                  </button>
+                </div>
+                <div
+                  data-testid="price-page-token"
+                  class="flex items-center gap-3 px-2 text-primary"
+                >
+                  <span class="grow type-body-medium">Token</span
+                  ><code
+                    title="0xf904C14d21bEF5b8a5345a666C77C9cc2A24043B"
+                    class="font-swarm-mono type-body-small select-text"
+                    >0xf904…043B</code
+                  ><button
+                    type="button"
+                    class="relative inline-flex max-w-full min-w-12 items-center-safe justify-center-safe rounded-full bg-primary px-2 py-1 type-body-small font-medium text-primary focus-visible:axo-focus-ring not-aria-disabled:active:bg-primary-pressed data-[axo-discouraged=true]:text-disabled forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:focus:border-[Highlight] forced-colors:aria-disabled:text-[GrayText] forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]"
+                  >
+                    <span
+                      class="flex shrink grow items-center-safe justify-center-safe gap-1 overflow-hidden"
+                      ><span class="min-w-0 shrink grow truncate"
+                        >Copy</span
+                      ></span
+                    >
+                  </button>
+                </div>
+              </section>
+              <section
+                data-testid="price-page-note"
+                class="flex flex-col gap-4"
+              >
+                <p class="type-body-small text-secondary">
+                  Indicative price from the SWM/ETH pool on Base. The pool is
+                  small; small trades move it. Not a quote.
+                </p>
+                <section
+                  data-testid="price-setting"
+                  class="flex flex-col gap-2 rounded-lg bg-surface-secondary p-4"
+                >
+                  <div class="flex items-center gap-3">
+                    <span id="_R_b_" class="grow type-body-medium text-primary"
+                      >Show SWM price (USD)</span
+                    ><button
+                      type="button"
+                      role="switch"
+                      aria-checked="true"
+                      data-state="checked"
+                      value="on"
+                      aria-labelledby="_R_b_"
+                      class="group relative z-0 flex h-[18px] w-8 items-center overflow-hidden rounded-full border border-secondary bg-primary inset-shadow-on-color focus-visible:axo-focus-ring not-data-disabled:active:bg-primary-pressed data-disabled:bg-control"
+                    >
+                      <span
+                        class="absolute inset-y-0 w-5.5 -translate-x-3.5 rounded-s-full bg-accent opacity-0 transition-all duration-200 ease-out-cubic group-not-data-disabled:group-active:bg-accent-pressed group-data-disabled:w-7.5 group-data-disabled:rounded-full group-data-[state=checked]:translate-x-0 group-data-[state=checked]:opacity-100 group-data-disabled:group-data-[state=checked]:opacity-25 rtl:translate-x-3.5 forced-colors:bg-[AccentColor] forced-colors:group-data-disabled:bg-[GrayText]"
+                      ></span
+                      ><span
+                        class="invisible absolute inset-s-0.5 z-0 text-[12px] forced-color-adjust-none forced-colors:visible forced-colors:text-[AccentColorText]"
+                        ><span
+                          aria-hidden="true"
+                          class="font-symbols text-inherit forced-color-adjust-none select-none"
+                          ></span
+                        ></span
+                      ><span
+                        data-state="checked"
+                        class="z-10 block size-4 rounded-full bg-(--axo-color-label-primary-oncolor) shadow-[0.5px_0_0.5px_0.5px,-0.5px_0_0.5px_0.5px] shadow-[#000]/12 transition-all duration-200 ease-out-cubic data-disabled:bg-(--axo-color-label-disabled-oncolor) data-[state=checked]:translate-x-3.5 rtl:data-[state=checked]:-translate-x-3.5 forced-colors:border forced-colors:data-disabled:bg-[ButtonFace]"
+                      ></span></button
+                    ><input
+                      type="checkbox"
+                      aria-hidden="true"
+                      tabindex="-1"
+                      style="
+                        position: absolute;
+                        pointer-events: none;
+                        opacity: 0;
+                        margin: 0;
+                        transform: translateX(-100%);
+                      "
+                      checked=""
+                      value="on"
+                    />
+                  </div>
+                  <p class="type-body-small text-secondary">
+                    The price comes from the SWARM price service
+                    (wallet.swarm.green), which reads the SWM/ETH pool on Base
+                    from GeckoTerminal and DexScreener. Your addresses and
+                    balances are never sent. Switch this off and the wallet
+                    makes no price requests.
+                  </p>
+                </section>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

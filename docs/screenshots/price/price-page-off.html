@@ -1,0 +1,223 @@
+<!doctype html>
+<!-- SWARM Messenger (PD-5/PD-5b, 2026-10-05): the price page with "Show SWM price (USD)" off.
+     Static markup of the app's components rendered with renderToStaticMarkup
+     and the real English strings; light theme left, dark theme right. The
+     stylesheets are the app's own, built by `pnpm run generate`
+     (stylesheets/*.css are not in git). Data: the SWARM price service's
+     answer of 2026-10-05 19:01 UTC (ts/test-node/swarm/fixtures/), with the
+     spec section 6.1 fields it did not send yet filled in for the picture;
+     an 11 132.58 SWM balance and a placeholder address. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>price-page-off</title>
+    <link rel="stylesheet" href="../../../stylesheets/manifest.css" />
+    <link rel="stylesheet" href="../../../stylesheets/tailwind.css" />
+    <style>
+      html,
+      body {
+        height: auto !important;
+        width: auto !important;
+        margin: 0;
+      }
+      .pd5-row {
+        display: flex;
+        gap: 0;
+        align-items: stretch;
+      }
+      .pd5-col {
+        width: 680px;
+        height: auto;
+      }
+      .pd5-col > div {
+        height: auto !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="pd5-row">
+      <div class="pd5-col light-theme bg-surface-primary text-primary">
+        <div class="flex size-full flex-col">
+          <div class="mx-auto flex w-full max-w-160 flex-col gap-6 p-6">
+            <div
+              data-testid="price-page"
+              data-price-status="off"
+              class="flex flex-col gap-6"
+            >
+              <header class="flex flex-col gap-3">
+                <div>
+                  <button
+                    type="button"
+                    class="relative inline-flex max-w-full min-w-12 items-center-safe justify-center-safe rounded-full bg-primary px-2 py-1 type-body-small font-medium text-primary focus-visible:axo-focus-ring not-aria-disabled:active:bg-primary-pressed data-[axo-discouraged=true]:text-disabled forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:focus:border-[Highlight] forced-colors:aria-disabled:text-[GrayText] forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]"
+                  >
+                    <span
+                      class="flex shrink grow items-center-safe justify-center-safe gap-1 overflow-hidden"
+                      ><span class="min-w-0 shrink grow truncate"
+                        >‹ Back</span
+                      ></span
+                    >
+                  </button>
+                </div>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <h1 class="type-title-large text-primary">SWM price</h1>
+                </div>
+              </header>
+              <section
+                data-testid="price-page-note"
+                class="flex flex-col gap-4"
+              >
+                <p class="type-body-small text-secondary">
+                  Indicative price from the SWM/ETH pool on Base. The pool is
+                  small; small trades move it. Not a quote.
+                </p>
+                <section
+                  data-testid="price-setting"
+                  class="flex flex-col gap-2 rounded-lg bg-surface-secondary p-4"
+                >
+                  <div class="flex items-center gap-3">
+                    <span id="_R_b_" class="grow type-body-medium text-primary"
+                      >Show SWM price (USD)</span
+                    ><button
+                      type="button"
+                      role="switch"
+                      aria-checked="false"
+                      data-state="unchecked"
+                      value="on"
+                      aria-labelledby="_R_b_"
+                      class="group relative z-0 flex h-[18px] w-8 items-center overflow-hidden rounded-full border border-secondary bg-primary inset-shadow-on-color focus-visible:axo-focus-ring not-data-disabled:active:bg-primary-pressed data-disabled:bg-control"
+                    >
+                      <span
+                        class="absolute inset-y-0 w-5.5 -translate-x-3.5 rounded-s-full bg-accent opacity-0 transition-all duration-200 ease-out-cubic group-not-data-disabled:group-active:bg-accent-pressed group-data-disabled:w-7.5 group-data-disabled:rounded-full group-data-[state=checked]:translate-x-0 group-data-[state=checked]:opacity-100 group-data-disabled:group-data-[state=checked]:opacity-25 rtl:translate-x-3.5 forced-colors:bg-[AccentColor] forced-colors:group-data-disabled:bg-[GrayText]"
+                      ></span
+                      ><span
+                        class="invisible absolute inset-s-0.5 z-0 text-[12px] forced-color-adjust-none forced-colors:visible forced-colors:text-[AccentColorText]"
+                        ><span
+                          aria-hidden="true"
+                          class="font-symbols text-inherit forced-color-adjust-none select-none"
+                          ></span
+                        ></span
+                      ><span
+                        data-state="unchecked"
+                        class="z-10 block size-4 rounded-full bg-(--axo-color-label-primary-oncolor) shadow-[0.5px_0_0.5px_0.5px,-0.5px_0_0.5px_0.5px] shadow-[#000]/12 transition-all duration-200 ease-out-cubic data-disabled:bg-(--axo-color-label-disabled-oncolor) data-[state=checked]:translate-x-3.5 rtl:data-[state=checked]:-translate-x-3.5 forced-colors:border forced-colors:data-disabled:bg-[ButtonFace]"
+                      ></span></button
+                    ><input
+                      type="checkbox"
+                      aria-hidden="true"
+                      tabindex="-1"
+                      style="
+                        position: absolute;
+                        pointer-events: none;
+                        opacity: 0;
+                        margin: 0;
+                        transform: translateX(-100%);
+                      "
+                      value="on"
+                    />
+                  </div>
+                  <p class="type-body-small text-secondary">
+                    The price comes from the SWARM price service
+                    (wallet.swarm.green), which reads the SWM/ETH pool on Base
+                    from GeckoTerminal and DexScreener. Your addresses and
+                    balances are never sent. Switch this off and the wallet
+                    makes no price requests.
+                  </p>
+                </section>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pd5-col dark-theme bg-surface-primary text-primary">
+        <div class="flex size-full flex-col">
+          <div class="mx-auto flex w-full max-w-160 flex-col gap-6 p-6">
+            <div
+              data-testid="price-page"
+              data-price-status="off"
+              class="flex flex-col gap-6"
+            >
+              <header class="flex flex-col gap-3">
+                <div>
+                  <button
+                    type="button"
+                    class="relative inline-flex max-w-full min-w-12 items-center-safe justify-center-safe rounded-full bg-primary px-2 py-1 type-body-small font-medium text-primary focus-visible:axo-focus-ring not-aria-disabled:active:bg-primary-pressed data-[axo-discouraged=true]:text-disabled forced-colors:border forced-colors:border-[ButtonBorder] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:focus:border-[Highlight] forced-colors:aria-disabled:text-[GrayText] forced-colors:aria-pressed:bg-[SelectedItem] forced-colors:aria-pressed:text-[SelectedItemText]"
+                  >
+                    <span
+                      class="flex shrink grow items-center-safe justify-center-safe gap-1 overflow-hidden"
+                      ><span class="min-w-0 shrink grow truncate"
+                        >‹ Back</span
+                      ></span
+                    >
+                  </button>
+                </div>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <h1 class="type-title-large text-primary">SWM price</h1>
+                </div>
+              </header>
+              <section
+                data-testid="price-page-note"
+                class="flex flex-col gap-4"
+              >
+                <p class="type-body-small text-secondary">
+                  Indicative price from the SWM/ETH pool on Base. The pool is
+                  small; small trades move it. Not a quote.
+                </p>
+                <section
+                  data-testid="price-setting"
+                  class="flex flex-col gap-2 rounded-lg bg-surface-secondary p-4"
+                >
+                  <div class="flex items-center gap-3">
+                    <span id="_R_b_" class="grow type-body-medium text-primary"
+                      >Show SWM price (USD)</span
+                    ><button
+                      type="button"
+                      role="switch"
+                      aria-checked="false"
+                      data-state="unchecked"
+                      value="on"
+                      aria-labelledby="_R_b_"
+                      class="group relative z-0 flex h-[18px] w-8 items-center overflow-hidden rounded-full border border-secondary bg-primary inset-shadow-on-color focus-visible:axo-focus-ring not-data-disabled:active:bg-primary-pressed data-disabled:bg-control"
+                    >
+                      <span
+                        class="absolute inset-y-0 w-5.5 -translate-x-3.5 rounded-s-full bg-accent opacity-0 transition-all duration-200 ease-out-cubic group-not-data-disabled:group-active:bg-accent-pressed group-data-disabled:w-7.5 group-data-disabled:rounded-full group-data-[state=checked]:translate-x-0 group-data-[state=checked]:opacity-100 group-data-disabled:group-data-[state=checked]:opacity-25 rtl:translate-x-3.5 forced-colors:bg-[AccentColor] forced-colors:group-data-disabled:bg-[GrayText]"
+                      ></span
+                      ><span
+                        class="invisible absolute inset-s-0.5 z-0 text-[12px] forced-color-adjust-none forced-colors:visible forced-colors:text-[AccentColorText]"
+                        ><span
+                          aria-hidden="true"
+                          class="font-symbols text-inherit forced-color-adjust-none select-none"
+                          ></span
+                        ></span
+                      ><span
+                        data-state="unchecked"
+                        class="z-10 block size-4 rounded-full bg-(--axo-color-label-primary-oncolor) shadow-[0.5px_0_0.5px_0.5px,-0.5px_0_0.5px_0.5px] shadow-[#000]/12 transition-all duration-200 ease-out-cubic data-disabled:bg-(--axo-color-label-disabled-oncolor) data-[state=checked]:translate-x-3.5 rtl:data-[state=checked]:-translate-x-3.5 forced-colors:border forced-colors:data-disabled:bg-[ButtonFace]"
+                      ></span></button
+                    ><input
+                      type="checkbox"
+                      aria-hidden="true"
+                      tabindex="-1"
+                      style="
+                        position: absolute;
+                        pointer-events: none;
+                        opacity: 0;
+                        margin: 0;
+                        transform: translateX(-100%);
+                      "
+                      value="on"
+                    />
+                  </div>
+                  <p class="type-body-small text-secondary">
+                    The price comes from the SWARM price service
+                    (wallet.swarm.green), which reads the SWM/ETH pool on Base
+                    from GeckoTerminal and DexScreener. Your addresses and
+                    balances are never sent. Switch this off and the wallet
+                    makes no price requests.
+                  </p>
+                </section>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
